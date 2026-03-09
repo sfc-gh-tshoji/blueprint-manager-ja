@@ -18,6 +18,10 @@
 
 ```
 blueprint-manager-ja/
+├── .snowflake
+│   └── cortex/
+│       ├── commands/blueprints/   # Cortex Code in Workspaces 用コマンド定義 (.md)
+│       └── skills/                # Cortex Code in Workspaces 用スキル定義
 ├── .cortex/
 │   ├── commands/blueprints/   # Cortex Code コマンド定義 (.md)
 │   └── skills/                # blueprint-builder / snowflake-best-practices スキル定義
