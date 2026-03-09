@@ -125,5 +125,5 @@ projects/<project-name>/
 
 ## 参考リンク
 
-- Cortex Code 概要: https://docs.snowflake.com/LIMITEDACCESS/cortex-code/cortex-code-overview
+- Cortex Code 概要: https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code
 - Snowflake SQL リファレンス: https://docs.snowflake.com/en/sql-reference-commands
