@@ -1,132 +1,95 @@
-In this step, you'll define the schemas within each zone. Schemas organize related tables, views, and other objects within a database. Each schema will have its own set of database roles for granular access control.
+このステップでは、各ゾーン内のスキーマを定義します。スキーマはデータベース内の関連するテーブル、ビュー、その他のオブジェクトを整理します。定義した各スキーマには、きめ細かいアクセス制御のためのデータベースロールのセットが作成されます。
 
-For each schema you define, the following database roles will be created:
-- `SC_R_<schema>` — Read access to the schema
-- `SC_W_<schema>` — Write access to the schema
-- `SC_C_<schema>` — Create access to the schema
+定義した各スキーマに対して、以下のデータベースロールが作成されます:
+- `SC_R_<schema>` — スキーマへの読み取りアクセス
+- `SC_W_<schema>` — スキーマへの書き込みアクセス
+- `SC_C_<schema>` — スキーマへの作成アクセス
 
-**Account Context:** This is a planning step. Schemas are created in Task 2.
+**アカウントコンテキスト:** これは計画ステップです。スキーマはタスク 2 で作成されます。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Schema organization provides:
-- **Logical Grouping**: Related objects are grouped together
-- **Fine-grained Access**: Different schemas can have different access policies
-- **Namespace Management**: Prevents naming conflicts within a database
-- **Governance**: Schemas can represent different subject areas or data sources
+スキーマの組織化が提供するもの:
+- **論理的なグループ化**: 関連するオブジェクトがまとめられる
+- **きめ細かいアクセス**: 異なるスキーマが異なるアクセスポリシーを持てる
+- **名前空間管理**: データベース内の命名の競合を防ぐ
+- **ガバナンス**: スキーマが異なる主題領域やデータソースを表せる
 
-## Prerequisites
+## 前提条件
 
-- Zone structure configured (Step 1.3)
-- Understanding of your data sources and subject areas
+- ゾーン構造の設定済み（ステップ 1.3）
+- データソースと主題領域の理解
 
-## Key Concepts
+## 主要な概念
 
-**Schema Naming Patterns**
+**スキーマ命名パターン**
 
-| Pattern | Example | Use Case |
-|---------|---------|----------|
-| By Source | `SAP`, `SALESFORCE`, `STRIPE` | Clear data lineage from source systems |
-| By Subject Area | `CUSTOMERS`, `ORDERS`, `PRODUCTS` | Business-oriented organization |
-| By Team | `MARKETING`, `FINANCE`, `OPS` | Team-based ownership |
-| Functional | `STAGING`, `CORE`, `REPORTING` | Processing stage within a zone |
+| パターン | 例 | ユースケース |
+|---------|---|------------|
+| ソース別 | `SAP`、`SALESFORCE`、`STRIPE` | ソースシステムからの明確なデータリネージ |
+| 主題領域別 | `CUSTOMERS`、`ORDERS`、`PRODUCTS` | ビジネス指向の組織 |
+| チーム別 | `MARKETING`、`FINANCE`、`OPS` | チームベースの所有権 |
+| 機能別 | `STAGING`、`CORE`、`REPORTING` | ゾーン内の処理ステージ |
 
-**Schema Access Roles (Database Roles)**
+**スキーマアクセスロール（データベースロール）**
 
-Each schema gets three database roles following a hierarchy:
+各スキーマには階層に従った 3 つのデータベースロールが付与されます:
 
 ```
-SC_R_<schema> (Read)
+SC_R_<schema>（読み取り）
     ↑
-SC_W_<schema> (Write) - inherits Read
+SC_W_<schema>（書き込み）- 読み取りを継承
     ↑
-SC_C_<schema> (Create) - inherits Write and Read
+SC_C_<schema>（作成）- 書き込みと読み取りを継承
 ```
 
-These schema-level roles roll up to database-level roles:
+これらのスキーマレベルのロールはデータベースレベルのロールに集約されます:
 - `SC_R_*` → `DB_R`
 - `SC_W_*` → `DB_W`
 - `SC_C_*` → `DB_C`
 
-**Managed Access Schemas**
-All schemas are created with `MANAGED ACCESS`, meaning:
-- Object owners cannot grant access to their objects
-- Only the schema owner (ADMIN role) can manage grants
-- Ensures centralized access control
+**マネージドアクセススキーマ**
+すべてのスキーマは `MANAGED ACCESS` で作成されます。つまり:
+- オブジェクトの所有者は自分のオブジェクトへのアクセスを付与できない
+- スキーマの所有者（ADMIN ロール）のみが付与を管理できる
+- 集中アクセス制御を確保する
 
-**More Information:**
+**追加情報:**
 * [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)
-* [Managed Access Schemas](https://docs.snowflake.com/en/user-guide/security-access-control-considerations#label-managed-access-schemas)
+* [マネージドアクセススキーマ](https://docs.snowflake.com/en/user-guide/security-access-control-considerations#label-managed-access-schemas)
 
+### 設定の質問
 
-### Configuration Questions
+#### このデータ製品の名前は何ですか？（`data_product_name`: text）
+データ製品の説明的な名前を提供します。
 
-#### What is the name of this data product? (`data_product_name`: text)
-**What is this asking?**
-Provide a descriptive name for your data product. This name will be used in database names, role names, and resource tags.
+#### データ製品の各ゾーンのスキーマを定義してください。（`schema_configuration`: object-list）
+**何を聞いているか？**
+各ゾーン内のスキーマを定義します。スキーマはソースシステムまたは主題領域別にテーブルを整理します。
 
-**Why does this matter?**
-The data product name is a key component of object naming:
-- Databases: `<domain>_<dataproduct>_<zone>_<env>` (based on your naming convention)
-- Roles: `<dataproduct>_owner`, `<dataproduct>_reader`
-- Tags: `DATAPRODUCT = '<dataproduct>'`
+**設定例:**
 
-A clear, descriptive name makes resources easy to identify and manage.
+**RAW ゾーン:**
+| スキーマ | 目的 |
+|---------|------|
+| SALESFORCE | Salesforce CRM データ |
+| SAP | SAP ERP データ |
+| STRIPE | 決済処理データ |
 
-**Naming Guidelines:**
-- Use lowercase, single words or concatenated words (no underscores)
-- Underscores are reserved for separating naming components (domain, zone, env)
-- Be descriptive but concise
-- Reflect the business purpose or use case
-- Avoid technical jargon unless widely understood
-- Avoid reserved words or special characters
+**CURATED ゾーン:**
+| スキーマ | 目的 |
+|---------|------|
+| CUSTOMERS | 統合顧客データ |
+| ORDERS | 注文履歴 |
+| PRODUCTS | 製品カタログ |
 
-**Examples:**
-| Name | Description |
-|------|-------------|
-| `customer360` | Unified customer data and analytics |
-| `salesanalytics` | Sales reporting and analysis |
-| `supplychain` | Supply chain operations data |
-| `finreporting` | Financial reporting and compliance |
-| `marketing` | Marketing campaign attribution |
-| `productcatalog` | Product information management |
-| `inventory` | Inventory tracking and forecasting |
+**CONSUMPTION ゾーン:**
+| スキーマ | 目的 |
+|---------|------|
+| REPORTING | BI 対応テーブル |
+| ANALYTICS | 集計とメトリクス |
 
-**Recommendation:**
-Choose a name that business users would recognize. Ask: "If someone searched for this data, what would they type?"
-
-**More Information:**
-* [Identifier Requirements](https://docs.snowflake.com/en/sql-reference/identifiers-syntax) — Valid characters and length limits
-
-#### Define the schemas for each zone in your data product. (`schema_configuration`: object-list)
-**What is this asking?**
-Define schemas within each zone. Schemas organize tables by source system 
-or subject area.
-
-**Example Configuration:**
-
-**RAW Zone:**
-| Schema | Purpose |
-|--------|---------|
-| SALESFORCE | Salesforce CRM data |
-| SAP | SAP ERP data |
-| STRIPE | Payment processing data |
-
-**CURATED Zone:**
-| Schema | Purpose |
-|--------|---------|
-| CUSTOMERS | Unified customer data |
-| ORDERS | Order history |
-| PRODUCTS | Product catalog |
-
-**CONSUMPTION Zone:**
-| Schema | Purpose |
-|--------|---------|
-| REPORTING | BI-ready tables |
-| ANALYTICS | Aggregations and metrics |
-
-**Best Practices:**
-- Use consistent naming across zones
-- Group by source system in RAW, by subject in CURATED
-- Keep schema count manageable (2-5 per zone)
-
+**ベストプラクティス:**
+- ゾーン間で一貫した命名を使用する
+- RAW ではソースシステム別、CURATED では主題別にグループ化する
+- スキーマ数を管理しやすい数に保つ（ゾーンあたり 2〜5）

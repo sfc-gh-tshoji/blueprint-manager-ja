@@ -1,5 +1,5 @@
-# Platform Foundation Setup
+# プラットフォーム基盤セットアップ
 
-Establish core platform infrastructure including naming conventions, accounts, security, and cost management
+命名規則、アカウント、セキュリティ、コスト管理を含むコアプラットフォームインフラを確立します
 
-The Platform Foundation Setup workflow establishes the core infrastructure and security controls for your Snowflake environment. This workflow guides you through critical architectural decisions, account configuration, administrative access setup, security policies, and cost management controls. By completing this workflow, you'll have a well-architected, secure, and cost-controlled Snowflake platform ready for data product deployment.
+プラットフォーム基盤セットアップワークフローは、Snowflake 環境のコアインフラとセキュリティコントロールを確立します。このワークフローは、重要なアーキテクチャの決定、アカウント設定、管理アクセスのセットアップ、セキュリティポリシー、コスト管理コントロールをガイドします。このワークフローを完了することで、データプロダクトのデプロイに対応した、適切に設計されたセキュアでコスト管理されたSnowflakeプラットフォームが構築されます。

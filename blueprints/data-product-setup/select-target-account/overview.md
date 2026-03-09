@@ -1,109 +1,80 @@
-In this step, you'll identify which Snowflake account will host your data product. For multi-account strategies, this determines where all databases, schemas, warehouses, and roles will be created.
+このステップでは、データ製品をホストする Snowflake アカウントを特定します。マルチアカウント戦略では、これによってすべてのデータベース、スキーマ、ウェアハウス、ロールが作成される場所が決まります。
 
-**Account Context:** This step is for planning only. You'll need to connect to the selected account before executing SQL in subsequent steps.
+**アカウントコンテキスト:** このステップは計画のみです。後続のステップで SQL を実行する前に、選択したアカウントに接続する必要があります。
 
-## Why is this important?
+## なぜこれが重要か？
 
-The target account determines:
-- **Resource Location**: Where databases, warehouses, and roles are created
-- **Cost Attribution**: Which account incurs compute and storage costs
-- **Access Boundaries**: Users need access to this account to use the data product
-- **Naming Implications**: For domain-based and environment-based strategies, the account name may imply certain naming components
+ターゲットアカウントが決定するもの:
+- **リソースの場所**: データベース、ウェアハウス、ロールが作成される場所
+- **コスト帰属**: どのアカウントがコンピューティングとストレージのコストを負担するか
+- **アクセス境界**: ユーザーはデータ製品を使用するためにこのアカウントへのアクセスが必要
+- **命名への影響**: ドメインベースおよび環境ベースの戦略では、アカウント名が特定の命名コンポーネントを示す場合がある
 
-## Prerequisites
+## 前提条件
 
-- Platform Foundation completed with multi-account strategy selected
-- Target account already exists (created via Account Creation workflow)
-- Network connectivity to the target account
+- マルチアカウント戦略を選択してプラットフォームファウンデーションが完了済み
+- ターゲットアカウントがすでに存在する（アカウント作成ワークフローで作成済み）
+- ターゲットアカウントへのネットワーク接続
 
-## Key Concepts
+## 主要な概念
 
-**Account Selection by Strategy**
+**戦略別のアカウント選択**
 
-| Strategy | Account Name Pattern | Example |
-|----------|---------------------|---------|
-| Multi-Account (Environment-based) | `<environment>` | `PROD`, `DEV`, `TEST` |
-| Multi-Account (Domain-based) | `<domain>` | `FIN`, `MKT`, `OPS` |
-| Multi-Account (Domain + Environment) | `<domain>_<environment>` | `FIN_PROD`, `MKT_DEV` |
+| 戦略 | アカウント名のパターン | 例 |
+|------|---------------------|---|
+| マルチアカウント（環境ベース） | `<environment>` | `PROD`、`DEV`、`TEST` |
+| マルチアカウント（ドメインベース） | `<domain>` | `FIN`、`MKT`、`OPS` |
+| マルチアカウント（ドメイン + 環境） | `<domain>_<environment>` | `FIN_PROD`、`MKT_DEV` |
 
-**Implied Naming Components**
+**暗黙的な命名コンポーネント**
 
-When you select an account, certain naming components become implicit:
-- **Environment-based**: Environment is implied by account, excluded from object names
-- **Domain-based**: Domain is implied by account, excluded from object names
-- **Domain + Environment**: Both are implied, minimal object naming
+アカウントを選択すると、特定の命名コンポーネントが暗黙的になります:
+- **環境ベース**: 環境はアカウントによって示され、オブジェクト名から除外される
+- **ドメインベース**: ドメインはアカウントによって示され、オブジェクト名から除外される
+- **ドメイン + 環境**: 両方が示され、最小限のオブジェクト命名
 
-**More Information:**
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account names
-* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Multi-account management
+**追加情報:**
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — アカウント名の理解
+* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — マルチアカウント管理
 
+### 設定の質問
 
-### Configuration Questions
-
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+#### どのアカウント戦略を実装しますか？（`account_strategy`: multi-select）
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)
 - Multi-Account (Domain + Environment)
 
-#### Which account will this data product be deployed to? (`target_account_name`: text)
+#### このデータ製品はどのアカウントにデプロイされますか？（`target_account_name`: text）
 
-**What is this asking?**
-Enter the name of the Snowflake account where this data product will be created.
+**何を聞いているか？**
+このデータ製品が作成される Snowflake アカウントの名前を入力します。
 
-**Why does this matter?**
-This ensures all generated SQL is clearly documented with the target account, preventing deployment errors and providing clear audit trails.
+**なぜ重要か？**
+これにより、生成されたすべての SQL がターゲットアカウントで明確に文書化され、デプロイエラーを防ぎ、明確な監査証跡を提供します。
 
-**How to find your account name:**
-- In Snowsight: Click your account name in the bottom-left corner
-- Run SQL: `SELECT CURRENT_ACCOUNT_NAME();`
-- From your URL: `https://<org>-<account>.snowflakecomputing.com`
+**アカウント名の見つけ方:**
+- Snowsight: 左下隅のアカウント名をクリック
+- SQL を実行: `SELECT CURRENT_ACCOUNT_NAME();`
+- URL から: `https://<org>-<account>.snowflakecomputing.com`
 
-**Examples based on strategy:**
+**戦略別の例:**
 
-**Domain-based strategy:**
-- `ACME_SALES` - Sales domain account
-- `ACME_FINANCE` - Finance domain account
+**ドメインベース戦略:**
+- `ACME_SALES` - セールスドメインアカウント
+- `ACME_FINANCE` - ファイナンスドメインアカウント
 
-**Environment-based strategy:**
-- `ACME_DEV` - Development environment account
-- `ACME_PROD` - Production environment account
+**環境ベース戦略:**
+- `ACME_DEV` - 開発環境アカウント
+- `ACME_PROD` - 本番環境アカウント
 
-**Domain + Environment strategy:**
-- `ACME_SALES_DEV` - Sales domain, Development environment
-- `ACME_FINANCE_PROD` - Finance domain, Production environment
+**ドメイン + 環境戦略:**
+- `ACME_SALES_DEV` - セールスドメイン、開発環境
+- `ACME_FINANCE_PROD` - ファイナンスドメイン、本番環境
 
-**Recommendation:**
-Copy the exact account name from your Snowflake session to avoid typos.
+**推奨事項:**
+タイポを避けるために Snowflake セッションから正確なアカウント名をコピーしてください。
 
-**More Information:**
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account names
+**追加情報:**
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — アカウント名の理解

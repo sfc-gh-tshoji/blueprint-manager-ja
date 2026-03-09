@@ -1,144 +1,55 @@
-In this step, you'll configure an account-level budget to monitor credit consumption and receive alerts when spending approaches or exceeds defined thresholds.
+このステップでは、クレジット消費を監視し、支出が定義されたしきい値に近づくか超えたときにアラートを受け取るアカウントレベルの予算を設定します。
 
-**Account Context:** This step should be executed from the newly created account.
+**アカウントコンテキスト:** このステップは新しく作成したアカウントから実行します。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-Budgets provide visibility and early warning for cost management:
-- **Predictable spending**: Set expected monthly credit consumption
-- **Proactive alerts**: Get notified before overspending occurs
-- **Stakeholder awareness**: Keep finance and management informed
-- **No surprise bills**: Avoid unexpected charges at month end
+予算はコスト管理のための可視性と早期警告を提供します:
+- **予測可能な支出**: 予想される月次クレジット消費を設定
+- **積極的なアラート**: 過剰支出が発生する前に通知を受け取る
+- **ステークホルダーの認識**: 財務部門と経営陣に常に情報を提供
+- **予期しない請求なし**: 月末の予期しない費用を回避
 
-## **Prerequisites**
+## **前提条件**
 
-- Account created and accessible
-- **Wait 5-10 minutes** after account creation before running this step (the Snowflake system database needs time to bootstrap)
-- Knowledge of expected monthly credit consumption for this account
-- Email addresses of stakeholders to receive alerts
+- アカウントの作成済みでアクセス可能
+- このステップを実行する前にアカウント作成後 **5〜10 分待つ**（Snowflake システムデータベースのブートストラップに時間が必要）
+- このアカウントの予想される月次クレジット消費量の把握
+- アラートを受け取るステークホルダーのメールアドレス
 
-## **Key Concepts**
+## **主要な概念**
 
-**Account Budget**
-A native Snowflake feature that tracks credit consumption against a defined limit. Budgets use time-series forecasting to predict end-of-month spend and alert proactively.
+**予算 vs リソースモニター**
+- **予算**: アラートのみ、予測を使用、可視性に優れる
+- **リソースモニター**: アクション（一時停止）を取れる、実際の使用量に基づく
 
-**Credit Limit**
-The monthly spending target for this account. This is a monitoring threshold, not a hard limit—the budget alerts but doesn't stop usage.
+**追加情報:**
+* [予算の概要](https://docs.snowflake.com/en/user-guide/budgets)
+* [予算の通知](https://docs.snowflake.com/en/user-guide/budgets/notifications)
 
-**Notification Thresholds**
-Percentage points at which alerts are sent. For example, 75% means you're alerted when spending reaches 75% of the monthly limit.
+### 設定の質問
 
-**Email Notifications**
-Budget alerts are sent to specified email addresses. Use distribution lists to ensure the right stakeholders receive alerts.
+#### このアカウントに使用する名前は何ですか？（`new_account_name`: text）
+アカウント名を確認します。
 
-**Budgets vs Resource Monitors**
-- **Budgets**: Alert only, use forecasting, good for visibility
-- **Resource Monitors**: Can take action (suspend), based on actual usage
+#### このアカウントの月次クレジット上限はいくつですか？（`account_budget_limit`: text）
+このアカウントの予想される月次クレジット消費量を設定します。
 
-**Bootstrap Timing**
-Budget creation requires the Snowflake system database to be fully initialized. In newly created accounts, this may take 5-10 minutes. If you receive a "Snowflake Database is still bootstrapping" error, wait a few minutes and retry.
+**アカウントタイプ別の目安:**
+| アカウントタイプ | 一般的な範囲 |
+|--------------|------------|
+| 開発 | 500〜2,000 クレジット |
+| テスト/QA | 1,000〜5,000 クレジット |
+| 本番 | 5,000〜50,000+ クレジット |
 
-**More Information:**
-* [Budgets Overview](https://docs.snowflake.com/en/user-guide/budgets) — Credit monitoring and alerts
-* [Budget Notifications](https://docs.snowflake.com/en/user-guide/budgets/notifications) — Alert configuration
+#### 予算アラートはどのパーセンテージで送信されますか？（`account_budget_threshold`: multi-select）
+月次上限のパーセンテージとして最初の予算アラートを受け取るタイミングを選択します。
 
-### Configuration Questions
-
-#### What name should be used for this account? (`new_account_name`: text)
-**What is this asking?**
-Confirm or customize the account name. Based on your Platform Foundation naming conventions, a suggested name was generated in the previous step.
-
-**Naming Requirements:**
-- Must be unique within your organization
-- Can contain letters, numbers, and underscores
-- Cannot start with a number
-- Maximum 255 characters
-- Will be converted to uppercase internally
-
-**Recommended Format:**
-Based on your Platform Foundation settings, follow this pattern:
-- If prefix is used: `{prefix}_{domain}_{environment}` or `{prefix}_{environment}_{domain}`
-- If no prefix: `{domain}_{environment}` or `{environment}_{domain}`
-
-**Examples:**
-- `ACME_SALES_PROD`
-- `ACME_DEV_FINANCE`
-- `ANALYTICS_TEST`
-
-**Best Practice:**
-Use the suggested name from the previous step unless you have a specific reason to customize it. Consistent naming makes governance and cost allocation easier.
-
-#### What is the monthly credit limit for this account? (`account_budget_limit`: text)
-**What is this asking?**
-Set the expected monthly credit consumption for this account.
-
-**Why does this matter?**
-A well-set budget provides meaningful alerts without being too restrictive. Setting it too low causes alert fatigue; too high means late warnings. This is your primary visibility into spending patterns for this account.
-
-**How to estimate:**
-- Consider the workloads planned for this account
-- Review historical usage from similar environments
-- Factor in development vs production usage patterns
-- Account for growth and seasonality
-
-**Examples by account type:**
-| Account Type | Typical Range |
-|--------------|---------------|
-| Development | 500 - 2,000 credits |
-| Test/QA | 1,000 - 5,000 credits |
-| Production | 5,000 - 50,000+ credits |
-
-**Format:** Enter a number (e.g., `5000` for 5,000 credits)
-
-**Note:** This is a monitoring threshold. You can adjust it as you learn actual consumption patterns.
-
-**More Information:**
-* [Budgets Overview](https://docs.snowflake.com/en/user-guide/budgets) — Credit monitoring and alerts
-
-#### At what percentage should budget alerts be sent? (`account_budget_threshold`: multi-select)
-**What is this asking?**
-Choose when to receive the first budget alert (as a percentage of the monthly limit).
-
-**Why does this matter?**
-The threshold determines how early you receive warnings. Lower thresholds give more lead time to take action; higher thresholds give less warning but reduce noise.
-
-**Options explained:**
-- **50%**: Early warning, good for tight budget control
-- **75%**: Balanced approach, recommended for most accounts
-- **90%**: Late warning, for accounts with predictable spend
-- **100%**: Alert only when limit is reached
-
-**How forecasting works:**
-Snowflake predicts end-of-month spend based on current trajectory. If your 75% threshold would be exceeded by month end, you're alerted early.
-
-**Example:**
-With a 5,000 credit limit and 75% threshold:
-- Alert when projected spend exceeds 3,750 credits
-- If halfway through the month Snowflake forecasts 4,000 credits, you're alerted immediately
-
-**Recommendation:** Use 75% for most accounts to balance early warning with alert fatigue.
-**Options:**
+**オプション:**
 - 50
-- 75
+- 75（推奨）
 - 90
 - 100
 
-#### Who should receive budget alerts? (`account_budget_emails`: list)
-**What is this asking?**
-Provide email addresses that should receive budget alert notifications.
-
-**Why does this matter?**
-Budget alerts are only useful if the right people see them. The recipients should have the authority and ability to take action when spending exceeds expectations.
-
-**Recommendations:**
-- Include platform/cloud team for technical response
-- Include finance for budget oversight
-- Use distribution lists for team coverage
-- Keep the list focused to avoid alert fatigue
-
-**Examples:**
-- `cloud-platform@company.com`
-- `finance-alerts@company.com`
-- `jane.doe@company.com`
-
-**Format:** Enter each email address on a separate line.
+#### 予算アラートを受け取るべき人は誰ですか？（`account_budget_emails`: list）
+予算アラート通知を受け取るメールアドレスを提供します。配布リストを使用してチームの対応を確保します。

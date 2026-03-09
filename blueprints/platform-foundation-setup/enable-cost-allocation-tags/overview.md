@@ -1,120 +1,92 @@
-In this step, you'll decide whether to extend the tagging framework established in previous steps with the additional **cost allocation tags** recommended below. Tags are essential key-value pairs that help you organize, track, and analyze spending across your Snowflake resources. Potential cost allocation tags could include:
+このステップでは、前のステップで確立されたタグフレームワークを追加の**コスト配分タグ**で拡張するかどうかを決定します。タグは Snowflake リソース全体の支出を整理、追跡、分析するのに役立つ重要なキーと値のペアです。潜在的なコスト配分タグには次のものが含まれます:
 
-* COST_CENTER \- Accounting cost center code  
-* OWNER \- Team or individual responsible  
-* PROJECT \- Specific project or initiative  
-* APPLICATION \- Application or system name
+* COST_CENTER - 会計コストセンターコード
+* OWNER - 担当チームまたは個人
+* PROJECT - 特定のプロジェクトまたはイニシアチブ
+* APPLICATION - アプリケーションまたはシステム名
 
-## Why is this important?
+## なぜこれが重要か？
 
-Cost allocation tags enable robust Financial Opertations (FinOps) practices:
+コスト配分タグは堅牢な財務運用（FinOps）実践を可能にします:
 
-* **Chargeback**: Bill business units for their actual usage  
-* **Showback**: Show teams their spending without billing  
-* **Optimization**: Identify high-cost areas for optimization  
-* **Accountability**: Track who's responsible for resources
+* **チャージバック**: ビジネスユニットに実際の使用量を請求する
+* **ショーバック**: 請求せずにチームの支出を表示する
+* **最適化**: 最適化のためのコストの高い領域を特定する
+* **説明責任**: リソースの責任者を追跡する
 
-## Account Context 
-This step should be executed in your Organization Account (if created) or your primary account.
+## アカウントコンテキスト
+このステップは組織アカウント（作成済みの場合）またはプライマリアカウントで実行してください。
 
-## Prerequisites
+## 前提条件
 
-*  Determine financial ownership and responsibility structure for your Snowflake resources
+* Snowflake リソースの財務上の所有権と責任構造を決定する
 
-## Key Concepts
+## 主要な概念
 
-**What is a tag in Snowflake?**
+**Snowflake のタグとは？**
 
-A [tag](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) is a schema-level object that can be assigned to another Snowflake object. Tags are stored as key-value pairs, where the tag name is the key and you associate a string value when assigning the tag to an object.
+[タグ](https://docs.snowflake.com/en/user-guide/object-tagging/introduction)は別の Snowflake オブジェクトに割り当てることができるスキーマレベルのオブジェクトです。タグはキーと値のペアとして保存され、タグ名がキーとなり、タグをオブジェクトに割り当てるときに文字列値を関連付けます。
 
-**How do tags enable cost tracking in Snowflake?**
+**タグはどのように Snowflake のコスト追跡を可能にするか？**
 
-[Tags](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) created for cost allocation purposes can be applied to warehouses, databases, and other objects can be joined with Snowflake's [ACCOUNT\_USAGE views](https://docs.snowflake.com/en/sql-reference/account-usage) (e.g., WAREHOUSE\_METERING\_HISTORY, TAG\_REFERENCES) to calculate credit consumption by tag value. This enables you to build cost allocation reports that aggregate spending by cost center, team, or project. See [Attributing Costs using Tags](https://docs.snowflake.com/en/user-guide/cost-attributing) for detailed examples.
+コスト配分のために作成された[タグ](https://docs.snowflake.com/en/user-guide/object-tagging/introduction)は、ウェアハウス、データベース、その他のオブジェクトに適用でき、Snowflake の[ACCOUNT\_USAGE ビュー](https://docs.snowflake.com/en/sql-reference/account-usage)（例: WAREHOUSE\_METERING\_HISTORY、TAG\_REFERENCES）と結合して、タグ値別のクレジット消費を計算できます。これにより、コストセンター、チーム、またはプロジェクト別に支出を集計するコスト配分レポートを作成できます。詳細な例については[タグを使用したコストの帰属](https://docs.snowflake.com/en/user-guide/cost-attributing)を参照してください。
 
-## Best Practices 
+## ベストプラクティス
 
-**Decide if you want to implement cost allocation tags early!** 
+**コスト配分タグを早期に実装するかどうかを決めてください！**
 
-It is significantly easier to implement tags when you first set up your environment. While you can add tags to existing objects at any time, historical consumption data in Snowflake's usage views is recorded without tag context—you cannot retroactively associate past credit usage with newly applied tags. This means any cost allocation reports will only reflect tagged usage from the point tags were applied forward.
+環境を最初に設定するときにタグを実装するのが大幅に簡単です。既存のオブジェクトにはいつでもタグを追加できますが、Snowflake の使用ビューの過去の消費データはタグのコンテキストなしに記録されます — 新しく適用されたタグと過去のクレジット使用量を遡って関連付けることはできません。これは、コスト配分レポートがタグが適用された時点以降のタグ付き使用量のみを反映することを意味します。
 
-## More Information
+## 追加情報
 
-* [Introduction to Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) — Overview of Snowflake's tagging framework  
-* [Attributing Costs using Tags](https://docs.snowflake.com/en/user-guide/cost-attributing) — Using tags for cost allocation and reporting
+* [オブジェクトタグの概要](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) — Snowflake のタグフレームワークの概要
+* [タグを使用したコストの帰属](https://docs.snowflake.com/en/user-guide/cost-attributing) — コスト配分とレポートにタグを使用する
 
-### Configuration Questions
+### 設定の質問
 
-#### What do you want to name the platform database? (`platform_database_name`: text)
-**What is the Platform/Infrastructure Database?**  
-  The Infrastructure Database is a centralized "hub" database that houses platform-wide objects including tags, network rules, governance policies, and shared procedures. It is owned by the central platform team and shared across all accounts in multi-account deployments.  
-  **Recommended Naming Approach:**  
-  Use a name that clearly identifies this as a platform-owned, infrastructure-focused database. The format should be: \<domain\>\_\<dataproduct\>  
-  * **Domain:** Use plat (short for "platform") or your platform team's acronym (e.g., cdp, snow, data)  
-  * **Data Product:** Use infra or another term indicating infrastructure purpose  
-* **Example:** PLAT\_INFRA — clearly indicates Platform team ownership and Infrastructure purpose  
-  **Alternative Examples:**  
-  * CDP\_INFRA — Cloud Data Platform Infrastructure  
-  * SNOW\_ADMIN — Snowflake Administration  
-  * DATA\_PLATFORM — Data Platform database  
-* **Important:** Choose carefully\! This name will eventually be referenced by dozens to hundreds of objects, policies, and procedures. Changing it later can be complex and risky.  
-  **More Information:**  
-  * [CREATE DATABASE](https://docs.snowflake.com/en/sql-reference/sql/create-database)  
-  * [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)
+#### プラットフォームデータベースに付ける名前は何ですか？（`platform_database_name`: text）
+**例:** PLAT\_INFRA
+**追加情報:**
+* [CREATE DATABASE](https://docs.snowflake.com/en/sql-reference/sql/create-database)
+* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)
 
-#### What do you want to name the governance schema? (`governance_name`: text)
-**What is the Governance Schema?**  
-  The Governance schema is created within the Infrastructure Database and contains objects related to security, compliance, and platform governance. This includes platform and FinOps tags, network rules, audit views, and administrative procedures.  
+#### ガバナンススキーマに付ける名前は何ですか？（`governance_name`: text）
+**推奨名:** GOVERNANCE
+**追加情報:**
+* [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)
+* [マネージドアクセススキーマ](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)
 
-  **Recommended Name:** GOVERNANCE  
+#### 追加のコスト配分タグを追加しますか？（`enable_cost_tags`: multi-select）
+**何を聞いているか？** コアプラットフォームタグ以外に追加のコスト配分タグを設定するかどうかを決定します。
 
-  This is a straightforward, self-descriptive name that clearly communicates the schema's purpose. Alternative options include:  
-  * ADMIN — Administration  
-  * SECURITY — Security-focused objects  
-  * PLATFORM — Platform-level objects  
+**なぜ重要か？** 追加のコストタグにより、より詳細なコスト追跡が可能になり、組織の会計システムと統合できます。
 
-**Schema Configuration:**  
-  This schema will be created with **Managed Access** enabled, which means:  
-  * Only the schema owner (typically [SYSADMIN](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system) - aka System Administrator) can grant privileges on objects  
-  * Prevents "shadow" security configurations where object creators grant their own access  
-  * Provides centralized control over who can access governance objects  
+**すでにプラットフォーム管理用に持っているタグ:**
+* domain - ビジネスユニットまたは部門
+* environment - SDLC ステージ（dev、test、prod）
+* dataproduct - データ製品識別子
+* workload - ワークロードタイプ
+* zone - データゾーン
+* data\_classification - データ機密レベル
 
-**Best Practice:** Use a simple, single-word name that represents the functional purpose.  
-  
-**More Information:**  
-  * [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)  
-  * [Managed Access Schemas](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)  
-  * [System Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system)
+**次のステップで設定される追加タグ:**
+* cost\_center - 会計コストセンターコード
+* owner - 担当チームまたは個人
+* project - 特定のプロジェクトまたはイニシアチブ
+* application - アプリケーションまたはシステム名
 
-#### Do you want to add additional cost allocation tags? (`enable_cost_tags`: multi-select)
-**What is this asking?** Decide whether you want to configure additional cost allocation tags beyond the core platform tags.  
+**オプションの説明:**
+**はい（推奨）:**
+* 追加の FinOps およびコスト配分タグを作成するために次のステップに進む
 
-  **Why does this matter?** Additional cost tags enable more granular cost tracking and can integrate with your organization's accounting systems.  
+**いいえ:**
+* FinOps のために以前のステップのコアプラットフォームタグ（ドメイン、環境など）のみを使用する
+* 必要に応じて後でタグを追加できる
 
-  **Tags you already have for platform management:**  
-  * domain \- Business unit or department  
-  * environment \- SDLC stage (dev, test, prod)  
-  * dataproduct \- Data product identifier  
-  * workload \- Workload type  
-  * zone \- Data zone  
-  * data\_classification \- Data sensitivity level  
+**推奨事項:** はいを選択して、少なくとも cost\_center と owner タグを追加し、より良い財務説明責任を確保します。
 
-* **Additional tags below would be configured in next step:**  
-  * cost\_center \- Accounting cost center code  
-  * owner \- Team or individual responsible  
-  * project \- Specific project or initiative  
-  * application \- Application or system name  
-
-* **Options explained:**  
-  **Yes (Recommended):**  
-  * Proceed to the next step to create additional FinOps and cost allocation tags
-* **No:**  
-  * Use only the core platform tags (Domain, Environment, etc.) from previous steps for FinOps  
-  * Can add more tags later if needed  
-
-* **Recommendation:** Select Yes to proceed to the next step where you can add at least cost\_center and owner tags for better financial accountability.  
-
-**More Information:**  
-  * [Attributing Costs using Tags](https://docs.snowflake.com/en/user-guide/cost-attributing)
-**Options:**
+**追加情報:**
+* [タグを使用したコストの帰属](https://docs.snowflake.com/en/user-guide/cost-attributing)
+**オプション:**
 - Yes
 - No

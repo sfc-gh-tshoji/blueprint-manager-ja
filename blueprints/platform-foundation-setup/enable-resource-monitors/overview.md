@@ -1,103 +1,103 @@
-In this step, you'll decide whether to configure resource monitors for active cost control. Unlike Budgets, which are primarily informational and predictive, Resource Monitors can take immediate action—such as automatically suspending warehouses—when defined credit limits are reached.
+このステップでは、アクティブなコスト制御のためにリソースモニターを設定するかどうかを決定します。主に情報提供と予測を目的とする予算とは異なり、リソースモニターは定義されたクレジット上限に達したときにウェアハウスを自動的に一時停止するなど、即座のアクションを取ることができます。
 
-This step focuses on establishing an **account-level resource monitor**, which acts as a global safety net to prevent runaway costs across your entire Snowflake environment.
+このステップでは、Snowflake 環境全体にわたるランナウェイコストを防ぐグローバルなセーフティネットとして機能する**アカウントレベルのリソースモニター**を確立することに焦点を当てています。
 
-**Account Context:** This step should be executed in your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** このステップは組織アカウント（作成済みの場合）またはプライマリアカウントで実行してください。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Resource monitors are your "emergency brake" for cost control:
-- **Prevent runaway costs** from misconfigured warehouses or inefficient queries
-- **Real-time protection** with immediate action when limits are reached
-- **Account-wide safety net** covering all warehouses
-- **Peace of mind** knowing total costs are protected
+リソースモニターはコスト制御の「緊急ブレーキ」です:
+- 誤設定されたウェアハウスや非効率なクエリからの**ランナウェイコストの防止**
+- 上限に達したときの即座のアクションによる**リアルタイム保護**
+- すべてのウェアハウスをカバーする**アカウント全体のセーフティネット**
+- 総コストが保護されていることを知る**安心感**
 
-## External Prerequisites
+## 外部前提条件
 
-- Maximum credit limit approved by your finance team
-- Understanding of the impact of warehouse suspension on users
+- 財務チームが承認した最大クレジット上限
+- ウェアハウス一時停止がユーザーに与える影響の理解
 
-## Key Concepts
+## 主要な概念
 
-**Resource Monitor**
-A Snowflake object that tracks credit consumption and can take action when thresholds are reached. Think of it as a "circuit breaker" for your spending.
+**リソースモニター**
+クレジット消費を追跡し、しきい値に達したときにアクションを取ることができる Snowflake オブジェクト。支出の「サーキットブレーカー」と考えてください。
 
-**Account-Level Monitor**
-Monitors all credit consumption across all warehouses in the account. When triggered, **all warehouses** will be suspended—this may interrupt active queries and prevent new logins until the monitor resets or the limit is adjusted.
+**アカウントレベルモニター**
+アカウント内のすべてのウェアハウスにわたるすべてのクレジット消費を監視します。トリガーされると、**すべてのウェアハウス**が一時停止されます — これにより実行中のクエリが中断され、モニターがリセットされるか上限が調整されるまで新しいログインが防止される場合があります。
 
-**Warehouse-Level Monitor**
-Monitors only specific warehouses (configured later in Data Product workflow). Only affects the assigned warehouses when triggered.
+**ウェアハウスレベルモニター**
+特定のウェアハウスのみを監視します（後でデータ製品ワークフローで設定）。トリガーされると、割り当てられたウェアハウスにのみ影響します。
 
-**Monitor Scope**
-This account-level monitor covers all warehouses, including any default `COMPUTE_WH`. Warehouse-specific monitors for individual data products will be configured in the Data Product workflow.
+**モニタースコープ**
+このアカウントレベルモニターは、デフォルトの `COMPUTE_WH` を含むすべてのウェアハウスをカバーします。個々のデータ製品用のウェアハウス固有のモニターは、データ製品ワークフローで設定されます。
 
-**Reset Intervals**
-Monitors typically reset monthly, aligning with billing cycles. Options include Monthly, Weekly, Daily, or Never (manual reset).
+**リセット間隔**
+モニターは通常、請求サイクルに合わせて月次にリセットします。オプションには月次、週次、日次、またはなし（手動リセット）があります。
 
-**Trigger Actions**
-Resource monitors support three types of actions when thresholds are reached:
-- `NOTIFY`: Send email notifications to ACCOUNTADMIN users (no impact on queries)
-- `SUSPEND`: Allows running queries to complete, blocks new queries, then suspends warehouses
-- `SUSPEND_IMMEDIATE`: Terminates all running queries immediately and suspends warehouses
+**トリガーアクション**
+リソースモニターはしきい値に達したときに 3 種類のアクションをサポートします:
+- `NOTIFY`: ACCOUNTADMIN ユーザーにメール通知を送信（クエリへの影響なし）
+- `SUSPEND`: 実行中のクエリを完了させ、新しいクエリをブロックし、ウェアハウスを一時停止
+- `SUSPEND_IMMEDIATE`: 実行中のすべてのクエリを即座に終了してウェアハウスを一時停止
 
-**Multiple Thresholds**
-Unlike budgets (which support a single threshold), resource monitors support **multiple thresholds at different percentages**, each with its own action. For example:
-- At 75%: `NOTIFY` (early warning)
-- At 90%: `NOTIFY` (final warning)
-- At 100%: `SUSPEND` (stop spending)
+**複数のしきい値**
+予算（単一のしきい値のみサポート）とは異なり、リソースモニターはそれぞれ独自のアクションを持つ**異なるパーセンテージでの複数のしきい値**をサポートします。例:
+- 75% で: `NOTIFY`（早期警告）
+- 90% で: `NOTIFY`（最終警告）
+- 100% で: `SUSPEND`（支出停止）
 
-This allows a tiered response—early warnings give you time to investigate while hard stops prevent overspending.
+これにより段階的な対応が可能になります — 早期警告で調査する時間を確保し、ハードストップで過剰支出を防ぎます。
 
-**Budgets vs Resource Monitors: Complementary Tools**
-These tools work best **together**, not as alternatives:
-- **Budgets**: Predictive alerting using time-series forecasting. Alerts you when you're *projected* to exceed limits. Cannot take action—only sends notifications.
-- **Resource Monitors**: Real-time enforcement based on actual consumption. Takes action when you *actually* hit limits. Can suspend warehouses.
+**予算 vs リソースモニター: 補完的なツール**
+これらのツールは代替手段としてではなく、**一緒に**最もよく機能します:
+- **予算**: 時系列予測を使用した予測アラート。上限を*超えると予測される*ときにアラート。アクションは取れない — 通知のみ送信。
+- **リソースモニター**: 実際の消費に基づくリアルタイムの強制。上限に*実際に達した*ときにアクション。ウェアハウスを一時停止できる。
 
-| Feature | Budgets | Resource Monitors |
-|---------|---------|-------------------|
-| **Alerting** | Predictive (forecasting) | Actual (real-time) |
-| **Action** | Notify only | Notify, Suspend, or Suspend Immediate |
-| **Thresholds** | Single | Multiple (tiered) |
-| **Best For** | Early warning | Hard limits |
+| 機能 | 予算 | リソースモニター |
+|------|------|------------------|
+| **アラート** | 予測（予測） | 実際（リアルタイム） |
+| **アクション** | 通知のみ | 通知、一時停止、または即時一時停止 |
+| **しきい値** | 単一 | 複数（段階的） |
+| **最適な用途** | 早期警告 | ハードリミット |
 
-**Best Practice: Use Both**
-- **Budgets** at 75% threshold → Early warning based on forecast
-- **Resource Monitor** at 75% (NOTIFY), 90% (NOTIFY), 100% (SUSPEND) → Tiered real-time protection
+**ベストプラクティス: 両方を使用する**
+- **予算**を 75% しきい値で → 予測に基づく早期警告
+- **リソースモニター**を 75%（NOTIFY）、90%（NOTIFY）、100%（SUSPEND）で → 段階的なリアルタイム保護
 
-## More Information
+## 追加情報
 
-* [Working with Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors) — Overview of resource monitor capabilities
-* [CREATE RESOURCE MONITOR](https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor) — SQL command reference
+* [リソースモニターの使用](https://docs.snowflake.com/en/user-guide/resource-monitors) — リソースモニター機能の概要
+* [CREATE RESOURCE MONITOR](https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor) — SQL コマンドリファレンス
 
-### Configuration Questions
+### 設定の質問
 
-#### Do you want to configure resource monitors? (`enable_resource_monitors`: multi-select)
-**What is this asking?**
-Decide whether to implement an account-level resource monitor for active cost control.
+#### リソースモニターを設定しますか？（`enable_resource_monitors`: multi-select）
+**何を聞いているか？**
+アクティブなコスト制御のためにアカウントレベルのリソースモニターを実装するかどうかを決定します。
 
-**Why does this matter?**
-Resource monitors provide hard credit limits that can automatically suspend warehouses when reached. This prevents runaway costs from misconfigured warehouses or inefficient queries.
+**なぜ重要か？**
+リソースモニターは、達成したときにウェアハウスを自動的に一時停止できるハードクレジット上限を提供します。これにより、誤設定されたウェアハウスや非効率なクエリからのランナウェイコストを防ぎます。
 
-**Options explained:**
+**オプションの説明:**
 
-**Yes (Recommended for Production):**
-- Automatically suspend ALL warehouses at credit limits
-- Prevent runaway costs across entire account
-- Real-time protection for total spending
-- Required for cost-sensitive environments
+**はい（本番環境に推奨）:**
+- クレジット上限で**すべての**ウェアハウスを自動的に一時停止
+- アカウント全体にわたるランナウェイコストを防止
+- 総支出のリアルタイム保護
+- コスト重視の環境に必須
 
-**No:**
-- Rely on budgets and manual monitoring
-- More flexible but higher risk of cost overruns
-- Not recommended for production environments
+**いいえ:**
+- 予算と手動監視に依存する
+- より柔軟だがコスト超過のリスクが高い
+- 本番環境には推奨しない
 
-**Note:** This creates an account-level monitor only. Warehouse-specific monitors will be configured in the Data Product workflow.
+**注記:** これはアカウントレベルのモニターのみを作成します。ウェアハウス固有のモニターはデータ製品ワークフローで設定されます。
 
-**Recommendation:**
-Always use an account resource monitor in production environments to prevent unexpected costs.
+**推奨事項:**
+予期しないコストを防ぐために、本番環境では常にアカウントリソースモニターを使用します。
 
-**More Information:**
-* [Working with Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors)
-**Options:**
+**追加情報:**
+* [リソースモニターの使用](https://docs.snowflake.com/en/user-guide/resource-monitors)
+**オプション:**
 - Yes
 - No

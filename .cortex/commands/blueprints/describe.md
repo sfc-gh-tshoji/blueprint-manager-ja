@@ -2,77 +2,77 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Describe
+# Blueprints 詳細表示
 
-Show detailed information about a specific blueprint, including its task/step tree.
+特定のブループリントに関する詳細情報（タスク/ステップツリーを含む）を表示します。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:describe <blueprint-name>
 ```
 
-## Arguments
+## 引数
 
-- `<blueprint-name>`: The blueprint ID/directory name (e.g., `platform-foundation-setup`, `account-creation`, `data-product-setup`)
+- `<blueprint-name>`: ブループリントの ID/ディレクトリ名（例: `platform-foundation-setup`、`account-creation`、`data-product-setup`）
 
-## Instructions
+## 手順
 
-1. Load the blueprint's `meta.yaml` from `blueprints/<blueprint-name>/meta.yaml`
-2. If the blueprint doesn't exist, show an error with available blueprint names
-3. Display comprehensive blueprint information
+1. `blueprints/<blueprint-name>/meta.yaml` からブループリントの `meta.yaml` を読み込む
+2. ブループリントが存在しない場合、利用可能なブループリント名でエラーを表示
+3. 包括的なブループリント情報を表示
 
-## Output Format
+## 出力フォーマット
 
 ```
-# Blueprint: <name>
+# ブループリント: <name>
 
 **ID:** <blueprint_id>
-**Summary:** <summary>
-**Repeatable:** <Yes/No>
+**サマリー:** <summary>
+**繰り返し可能:** <はい/いいえ>
 
-## Overview
+## 概要
 
 <overview text>
 
-## Steps (<count> total)
+## ステップ（合計 <count> 件）
 
-| # | Step ID | Title |
+| # | ステップ ID | タイトル |
 |---|---------|-------|
-| 1 | determine-account-strategy | Determine Account Strategy |
-| 2 | configure-organization-name | Configure Organization Name |
+| 1 | determine-account-strategy | アカウント戦略の決定 |
+| 2 | configure-organization-name | 組織名の設定 |
 ...
 
-## Step Details
+## ステップ詳細
 
-For each step, if `overview.md` exists in the step directory, show:
-- Step number and ID
-- First heading from the overview (title)
-- First paragraph (brief description)
+各ステップについて、ステップディレクトリに `overview.md` が存在する場合は以下を表示:
+- ステップ番号と ID
+- 概要の最初の見出し（タイトル）
+- 最初の段落（簡単な説明）
 ```
 
-## Implementation
+## 実装
 
-1. Read `blueprints/<blueprint-name>/meta.yaml`
-2. Parse the YAML to get: `name`, `blueprint_id`, `summary`, `overview`, `is_repeatable`, `steps`
-3. For each step in the `steps` list:
-   - Check if `blueprints/<blueprint-name>/<step-id>/` exists
-   - Read `dynamic.md.jinja` to extract the title (first `# ` heading)
-   - Read `overview.md` if it exists for additional context
-4. Display all information in a well-formatted markdown structure
+1. `blueprints/<blueprint-name>/meta.yaml` を読み込む
+2. YAML を解析して `name`、`blueprint_id`、`summary`、`overview`、`is_repeatable`、`steps` を取得
+3. `steps` リストの各ステップについて:
+   - `blueprints/<blueprint-name>/<step-id>/` が存在するか確認
+   - `dynamic.md.jinja` を読み込んでタイトル（最初の `# ` 見出し）を抽出
+   - 追加のコンテキストのために `overview.md` が存在する場合は読み込む
+4. 整形されたマークダウン構造ですべての情報を表示
 
-## Error Handling
+## エラー処理
 
-If blueprint not found:
+ブループリントが見つからない場合:
 ```
-Error: Blueprint '<name>' not found.
+エラー: ブループリント '<name>' が見つかりません。
 
-Available blueprints:
+利用可能なブループリント:
 - account-creation
 - data-product-setup  
 - platform-foundation-setup
 
-Run 'blueprints list' to see all available blueprints with details.
+'blueprints list' を実行して利用可能なブループリントの詳細を確認してください。
 ```
 
-Now execute this by reading the specified blueprint's meta.yaml and presenting the information.
+指定されたブループリントの meta.yaml を読み込み、情報を提示することで実行してください。

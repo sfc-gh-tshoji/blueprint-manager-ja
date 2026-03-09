@@ -1,98 +1,53 @@
-In this step, you'll define the purpose of the new Snowflake account by selecting the environment it represents. In an environment-based multi-account strategy, each account corresponds to an SDLC environment (e.g., Dev, Test, Prod).
+このステップでは、新しい Snowflake アカウントが表す環境を選択することで、アカウントの目的を定義します。環境ベースのマルチアカウント戦略では、各アカウントは SDLC 環境（Dev、Test、Prod など）に対応します。
 
-**Account Context:** This step should be executed from your Organization Account.
+**アカウントコンテキスト:** このステップは組織アカウントから実行します。
 
-## Why is this important?
+## なぜこれが重要か？
 
-In an environment-based strategy:
-- Each account represents a distinct SDLC environment
-- Domains (Sales, Finance, HR) are organized **within** the account at the database level
-- This provides strong isolation between environments (especially production)
-- Cost allocation at the account level is by environment
+環境ベースの戦略では:
+- 各アカウントは異なる SDLC 環境を表す
+- ドメイン（営業、財務、HR）はアカウント内のデータベースレベルで整理される
+- 環境間（特に本番環境）の強い分離が提供される
+- アカウントレベルでのコスト配分は環境別になる
 
-## External Prerequisites
+## 外部の前提条件
 
-- Platform Foundation workflow completed with Environment-based Multi-Account strategy
-- Knowledge of which environment this account will serve
+- 環境ベースのマルチアカウント戦略を持つプラットフォームファウンデーションワークフローの完了
+- このアカウントが提供する環境の把握
 
-## Key Concepts
+## 主要な概念
 
-**Environment-based Account Strategy**
-Each Snowflake account represents an SDLC environment. Within each environment account, you'll create separate databases for different business domains (handled in the Data Product workflow).
+**環境ベースのアカウント戦略**
+各 Snowflake アカウントは SDLC 環境を表します。各環境アカウント内では、異なるビジネスドメインのために別々のデータベースを作成します（データ製品ワークフローで処理）。
 
-**Environment**
-The SDLC stage this account represents. Environments were defined in the Platform Foundation task (e.g., DEV, TEST, PROD).
+**環境**
+このアカウントが表す SDLC ステージ。環境はプラットフォームファウンデーションタスクで定義されました（DEV、TEST、PROD など）。
 
-**Domain at Database Level**
-In this strategy, domains (Sales, Finance, HR) are NOT at the account level. They will be created as separate databases within this account when you run the Data Product workflow.
+**データベースレベルのドメイン**
+この戦略では、ドメイン（営業、財務、HR）はアカウントレベルではありません。データ製品ワークフローを実行するときに、このアカウント内の別々のデータベースとして作成されます。
 
-**More Information:**
-* [Managing Accounts in an Organization](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — Account management overview
+**追加情報:**
+* [組織でのアカウント管理](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — アカウント管理の概要
 
-### Configuration Questions
+### 設定の質問
 
-#### Which environment will this account represent? (`account_environment`: multi-select)
-**What is this asking?**
-Select the SDLC environment this account will represent. This account will serve all domains (Sales, Finance, HR, etc.) for this environment.
+#### このアカウントはどの環境を表しますか？（`account_environment`: multi-select）
+このアカウントが表す SDLC 環境を選択します。このアカウントは、この環境向けにすべてのドメイン（営業、財務、HR など）を提供します。
 
-**Why does this matter?**
-- The environment becomes part of the account name
-- Cost allocation at the account level will be attributed to this environment
-- All resources in this account are associated with this environment
+**環境の考慮事項:**
+- **DEV/DEVELOPMENT**: セキュリティが低め、実験が許可される
+- **TEST/QA**: 中程度のセキュリティ、制御された変更
+- **PROD/PRODUCTION**: 最高のセキュリティ、厳格な変更管理
 
-**Environment Considerations:**
-- **DEV/DEVELOPMENT**: Lower security, experimentation allowed
-- **TEST/QA**: Moderate security, controlled changes
-- **PROD/PRODUCTION**: Highest security, strict change control
+#### このアカウントの目的の簡単な説明を提供してください。（`account_description`: text）
+このアカウントの用途を説明する短い説明を書きます。
 
-**Note on Domains:**
-Since you're using an environment-based strategy, domains will be organized **within** this account at the database level. You'll configure domains when creating data products.
+**例:**
+- "Dev environment account - for development and testing across all domains"
+- "Production environment account - live systems for all business domains"
 
-**More Information:**
-* [Managing Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — Account management overview
-
-#### Provide a brief description of this account's purpose. (`account_description`: text)
-**What is this asking?**
-Write a short description that explains what this account is for.
-
-**Why does this matter?**
-A clear description helps team members understand the account's purpose at a glance. It appears in account listings and documentation, making governance and auditing easier.
-
-**Examples:**
-- "Sales domain account - contains all environments for Sales analytics"
-- "Finance domain account for financial reporting and analytics"
-- "HR domain account for people analytics and workforce planning"
-
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+#### どのアカウント戦略を実装しますか？（`account_strategy`: multi-select）
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)

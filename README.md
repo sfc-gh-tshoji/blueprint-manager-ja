@@ -1,209 +1,209 @@
-# Introduction
+# はじめに
 
-### Blueprints  
-*Expert-backed guidance for Snowflake setup*    
-Blueprints are step-by-step workflows built by Snowflake SMEs that guide you through environment configuration. Best practices are built into every blueprint—so you can configure with confidence that it follows proven patterns and will scale with your needs.
+### ブループリント  
+*エキスパートが監修した Snowflake セットアップのガイダンス*    
+ブループリントは、Snowflake の SME（専門家）が構築したステップバイステップのワークフローで、環境設定をガイドします。すべてのブループリントにベストプラクティスが組み込まれているため、実績あるパターンに従い、将来のニーズにも対応できることを確信して設定できます。
 
 ### Blueprint Manager  
-*Self-service platform configuration, guided by experts*    
-Blueprint Manager walks you through each decision, captures your answers, and generates the SQL and configuration tailored to your environment. No guesswork, no waiting for help—just clear direction to get productive faster.
+*エキスパートが監修した、セルフサービスのプラットフォーム設定*    
+Blueprint Manager は各決定事項を案内し、回答を収集して、環境に合わせた SQL と設定を生成します。推測不要、助けを待つ必要なし — 明確な方向性ですばやく生産性を高められます。
 
-## Why Blueprints?  
+## なぜブループリントを使うのか？
 
-Expert-backed guidance so you can configure your environment knowing it follows best practices and will scale with your needs.
-- **Confidence** - Expert-defined workflows ensure you're doing it right
-- **Best Practices** - Start with an architecture that scales
-- **Speed** - Get productive faster with guided setup
-- **Self-Service** - Move at your own pace
+ベストプラクティスに従い、将来のニーズにも対応できることを確信して環境設定できる、エキスパートによるガイダンス。
+- **自信** - エキスパートが定義したワークフローで正しく実施できる
+- **ベストプラクティス** - スケールするアーキテクチャからスタート
+- **スピード** - ガイド付きセットアップで迅速に生産性を向上
+- **セルフサービス** - 自分のペースで進められる
 
-## How does it work?
+## どのように機能するのか？
 
-**Blueprints**  
-Blueprints are templates for best-practice Snowflake implementation and setup containing expert guidance, prescriptive configurations, validation rules, and generation logic. Blueprints will prompt you for business requirements via Cortex Code, then generate ready-to-execute SQL scripts to implement best-practice configurations, and provide curated documentation recording your decisions.  
+**ブループリント**  
+ブループリントはベストプラクティスの Snowflake 実装とセットアップのためのテンプレートで、エキスパートガイダンス、規定の設定、バリデーションルール、生成ロジックを含みます。ブループリントは Cortex Code を通じてビジネス要件を入力するよう促し、ベストプラクティスの設定を実装するためのすぐに実行できる SQL スクリプトを生成し、意思決定を記録したキュレーション済みのドキュメントを提供します。
 
-**Cortex Code Skills**  
-Blueprints run inside Cortex Code via the $blueprint-builder skill and the $best-practices-skill. Skills are instructions that tell Cortex Code how to navigate and execute Blueprints, and guide the AI to the right best practices based on your inputs to ensure correct outputs for your specific requirements.
+**Cortex Code スキル**  
+ブループリントは `$blueprint-builder` スキルと `$best-practices-skill` を介して Cortex Code 内で実行されます。スキルはブループリントをナビゲートして実行する方法を Cortex Code に指示し、入力に基づいて適切なベストプラクティスへ AI を誘導し、特定の要件に対する正確なアウトプットを保証します。
 
-*Think of Blueprints as the "cookbook" containing all the implementation recipes and expertise, and Skills as the "index" that helps Cortex Code find and follow the right recipe for your needs.*
+*ブループリントをすべての実装レシピと専門知識を含む「料理本」、スキルをニーズに合った正しいレシピを Cortex Code が見つけてたどるための「索引」と考えてください。*
 
 <img width="6800" height="1200" alt="Blueprint Manager Cortex Code Overview" src="https://github.com/user-attachments/assets/6434d217-395d-4092-916a-e32944b41f39" />
 
 # Blueprint Manager
 
-This repository contains infrastructure-as-code templates and blueprints for setting up Snowflake blueprints.
+このリポジトリには、Snowflake ブループリントをセットアップするためのインフラストラクチャ・アズ・コードのテンプレートとブループリントが含まれています。
 
-## Structure
+## 構造
 
-- `definitions/` - Question definitions for configuration
-- `blueprints/` - Available blueprint configurations
-- `scripts/` - Utility scripts for rendering templates
-- `projects/` - Project workspaces for organizing answers and outputs
-- `output/` - Generated infrastructure code and documentation
+- `definitions/` - 設定のための質問定義
+- `blueprints/` - 利用可能なブループリント設定
+- `scripts/` - テンプレートレンダリング用のユーティリティスクリプト
+- `projects/` - 回答とアウトプットを整理するプロジェクトワークスペース
+- `output/` - 生成されたインフラコードとドキュメント
 
-## Setting Up Your Blueprint using Snowflake Cortex (Recommended)
+## Snowflake Cortex を使ったブループリントのセットアップ（推奨）
 
-The easiest way to configure your Snowflake Blueprint is using the **Blueprint Builder** skill with Snowflake Cortex. This provides a guided, interactive experience.
+Snowflake ブループリントを設定する最も簡単な方法は、Snowflake Cortex の **Blueprint Builder** スキルを使用することです。ガイド付きのインタラクティブな体験を提供します。
 
-### Getting Started
+### はじめ方
 
-0. Pre-requisite: Cortex Code CLI
+0. 前提条件: Cortex Code CLI
 
-In order to get the guided Cortex Code experience you will first need to setup the command line interface on your machine. Those instructions can be found here: https://docs.snowflake.com/LIMITEDACCESS/cortex-code/cortex-code-overview.
+ガイド付きの Cortex Code 体験を得るには、まずマシンにコマンドラインインターフェースをセットアップする必要があります。手順はこちら: https://docs.snowflake.com/LIMITEDACCESS/cortex-code/cortex-code-overview
 
-1. **Clone the repository:**
+1. **リポジトリをクローン:**
 
 ```bash
 git clone https://github.com/Snowflake-Labs/blueprint-manager.git
 cd blueprint-manager
 ```
 
-2. **Start Cortex CLI:**
+2. **Cortex CLI を起動:**
 
 ```bash
 cortex
 ```
 
-3. **Launch the Blueprint Builder:**
+3. **Blueprint Builder を起動:**
 
 ```bash
 /blueprints:build platform-foundation-setup
 ```
 
-### How it works:
+### 動作の仕組み:
 
-1. **Choose your approach:**
-   - **Option A:** Provide a description of your organization (size, use case, security requirements, etc.) and Cortex will intelligently configure as many settings as possible
-   - **Option B:** Go through each question step-by-step with full guidance
+1. **アプローチを選択:**
+   - **オプション A:** 組織の説明（規模、ユースケース、セキュリティ要件など）を提供すると、Cortex ができる限り多くの設定を自動的に行います
+   - **オプション B:** 完全なガイダンスとともに各質問をステップバイステップで進めます
 
-2. **Review the configuration** — Cortex shows you:
-   - ✅ Questions it answered automatically (with reasoning)
-   - ❓ Questions that need your input (account names, emails, etc.)
-   - ⚠️ Questions that need more context from you
+2. **設定を確認** — Cortex が以下を表示します:
+   - ✅ 自動的に回答した質問（理由とともに）
+   - ❓ 入力が必要な質問（アカウント名、メールなど）
+   - ⚠️ より多くのコンテキストが必要な質問
 
-3. **Generate SQL** — once your answers are complete, Cortex runs the render script to produce ready-to-execute Snowflake SQL
+3. **SQL を生成** — 回答が完成したら、Cortex がレンダースクリプトを実行して実行可能な Snowflake SQL を生成します
 
-### Benefits:
-- No need to understand the answer file format
-- Intelligent defaults based on your organization profile
-- Clear explanation of each configuration decision
-- Validation and guidance throughout the process
+### メリット:
+- 回答ファイルのフォーマットを理解する必要がない
+- 組織プロファイルに基づくインテリジェントなデフォルト値
+- 各設定の決定事項の明確な説明
+- プロセス全体でバリデーションとガイダンスを提供
 
-## Cortex Code Commands
+## Cortex Code コマンド
 
-The following commands are available when using Cortex Code in this repository:
+このリポジトリで Cortex Code を使用する際に利用できるコマンド:
 
-### Core Commands
+### コアコマンド
 
-| Command | Description |
-|---------|-------------|
-| `/blueprints:list` | List available blueprints with metadata |
-| `/blueprints:describe <name>` | Show blueprint details including task/step tree |
-| `/blueprints:build <name>` | Start the interactive blueprint building process |
-| `/blueprints:validate <file> --blueprint <name>` | Check answer file completeness |
-| `/blueprints:render <file> --blueprint <name>` | Generate SQL/Terraform/Documentation from answers |
+| コマンド | 説明 |
+|---------|------|
+| `/blueprints:list` | メタデータとともに利用可能なブループリントを一覧表示 |
+| `/blueprints:describe <name>` | タスク/ステップのツリーを含むブループリントの詳細を表示 |
+| `/blueprints:build <name>` | インタラクティブなブループリント構築プロセスを開始 |
+| `/blueprints:validate <file> --blueprint <name>` | 回答ファイルの完全性を確認 |
+| `/blueprints:render <file> --blueprint <name>` | 回答から SQL/Terraform/ドキュメントを生成 |
 
-### Project Management
+### プロジェクト管理
 
-| Command | Description |
-|---------|-------------|
-| `/blueprints:projects:list` | List existing projects |
-| `/blueprints:projects:create <name>` | Create a new project directory structure |
-| `/blueprints:projects:describe <name>` | Show project status (answers, outputs, history) |
+| コマンド | 説明 |
+|---------|------|
+| `/blueprints:projects:list` | 既存のプロジェクトを一覧表示 |
+| `/blueprints:projects:create <name>` | 新しいプロジェクトのディレクトリ構造を作成 |
+| `/blueprints:projects:describe <name>` | プロジェクトの状態（回答、アウトプット、履歴）を表示 |
 
-### Answer File Operations
+### 回答ファイル操作
 
-| Command | Description |
-|---------|-------------|
-| `/blueprints:answers:init <name>` | Generate a skeleton answer file with all questions |
-| `/blueprints:answers:validate <file>` | Check for missing/invalid values |
-| `/blueprints:answers:diff <file1> <file2>` | Compare two answer files |
+| コマンド | 説明 |
+|---------|------|
+| `/blueprints:answers:init <name>` | すべての質問を含むスケルトン回答ファイルを生成 |
+| `/blueprints:answers:validate <file>` | 欠落/無効な値を確認 |
+| `/blueprints:answers:diff <file1> <file2>` | 2 つの回答ファイルを比較 |
 
-### Example Workflow
+### ワークフロー例
 
 ```bash
-# 1. List available blueprints
+# 1. 利用可能なブループリントを一覧表示
 /blueprints:list
 
-# 2. Create a project for your work
+# 2. 作業用プロジェクトを作成
 /blueprints:projects:create my-company
 
-# 3. Start building interactively
+# 3. インタラクティブに構築を開始
 /blueprints:build platform-foundation-setup --project my-company
 
-# 4. Or generate a skeleton and fill manually
+# 4. またはスケルトンを生成して手動で記入
 /blueprints:answers:init platform-foundation-setup --project my-company
 
-# 5. Validate your answers
+# 5. 回答をバリデート
 /blueprints:validate answers.yaml --blueprint platform-foundation-setup
 
-# 6. Generate SQL output
+# 6. SQL アウトプットを生成
 /blueprints:render answers.yaml --blueprint platform-foundation-setup --project my-company
 ```
 
-## Skills
+## スキル
 
-This repository includes two Cortex Code skills that are automatically activated:
+このリポジトリには自動的にアクティブ化される 2 つの Cortex Code スキルが含まれています:
 
 ### Blueprint Builder
 
-Guides users through constructing answer files interactively. Triggered when you:
-- Ask to set up or configure a blueprint
-- Want to create your Snowflake environment
-- Need help with blueprint configuration
+ユーザーがインタラクティブに回答ファイルを構築するガイドを行います。以下の場合にトリガーされます:
+- ブループリントのセットアップまたは設定を要求する場合
+- Snowflake 環境を作成したい場合
+- ブループリントの設定についてヘルプが必要な場合
 
-### Snowflake Best Practices
+### Snowflake ベストプラクティス
 
-Provides curated guidance from Snowflake SMEs. Triggered when you ask about:
-- Best practices or recommendations
-- Account strategy, RBAC, security patterns
-- Cost management and resource monitoring
-- Naming conventions and architecture decisions
+Snowflake SME のキュレーション済みガイダンスを提供します。以下について質問したときにトリガーされます:
+- ベストプラクティスや推奨事項
+- アカウント戦略、RBAC、セキュリティパターン
+- コスト管理とリソースモニタリング
+- 命名規則とアーキテクチャの決定
 
-## Schema Reference
+## スキーマリファレンス
 
-### Blueprint `meta.yaml` Schema
+### ブループリント `meta.yaml` スキーマ
 
-Each blueprint contains a `meta.yaml` file that defines its structure. The schema supports both flat (steps-only) and nested (tasks with steps) formats for backwards compatibility.
+各ブループリントにはその構造を定義する `meta.yaml` ファイルが含まれています。スキーマは後方互換性のために、フラット（ステップのみ）とネスト（タスクとステップ）の両形式をサポートします。
 
-#### Required Fields
+#### 必須フィールド
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `blueprint_id` | string | Unique identifier for the blueprint |
-| `name` | string | Display name for the blueprint |
-| `summary` | string | Brief description of the blueprint's purpose |
-| `overview` | string | Detailed description of what the blueprint accomplishes |
-| `steps` | list | List of step slugs (references to step directories) |
+| フィールド | 型 | 説明 |
+|-----------|-----|------|
+| `blueprint_id` | 文字列 | ブループリントの一意識別子 |
+| `name` | 文字列 | ブループリントの表示名 |
+| `summary` | 文字列 | ブループリントの目的の簡単な説明 |
+| `overview` | 文字列 | ブループリントが達成することの詳細な説明 |
+| `steps` | リスト | ステップのスラグのリスト（ステップディレクトリへの参照） |
 
-#### Optional Fields
+#### オプションフィールド
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `is_repeatable` | boolean | Whether the blueprint can be run multiple times (default: false) |
-| `tasks` | list | Groupings of steps with metadata (see below) |
+| フィールド | 型 | 説明 |
+|-----------|-----|------|
+| `is_repeatable` | ブール値 | ブループリントを複数回実行できるか（デフォルト: false） |
+| `tasks` | リスト | メタデータを持つステップのグループ（以下参照） |
 
-#### Tasks Structure
+#### タスク構造
 
-The `tasks` field enables grouping steps into logical units with explicit metadata. This provides context about what each group accomplishes, who should perform it, and what prerequisites are required.
+`tasks` フィールドはステップを明示的なメタデータを持つ論理ユニットにグループ化することを可能にします。各グループが何を達成するか、誰が実行すべきか、どのような前提条件が必要かについてのコンテキストを提供します。
 
 ```yaml
 tasks:
-  - slug: string              # Unique identifier for the task (e.g., "platform-planning")
-    title: string             # Display title for the task
-    summary: string           # Short summary of what will be accomplished
-    role_requirements:        # Snowflake role requirements
+  - slug: string              # タスクの一意識別子（例: "platform-planning"）
+    title: string             # タスクの表示タイトル
+    summary: string           # 達成されることの短い概要
+    role_requirements:        # Snowflake ロール要件
       - string
-    external_requirements:    # External requirements (SSO, data integration sources, etc.)
+    external_requirements:    # 外部要件（SSO、データ統合ソースなど）
       - string
-    personas:                 # Personas/roles needed for this task
+    personas:                 # このタスクに必要なペルソナ/ロール
       - string
-    description: string       # Optional detailed content for the Skill and future UI
-    steps:                    # Steps that belong to this task
-      - slug: string          # Reference to step slug in the blueprint's steps list
-        title: string         # Display title for the step within this task
+    description: string       # スキルと将来の UI のためのオプションの詳細コンテンツ
+    steps:                    # このタスクに属するステップ
+      - slug: string          # ブループリントのステップリスト内のステップスラグへの参照
+        title: string         # このタスク内のステップの表示タイトル
 ```
 
-#### Example: Minimal Blueprint (flat, without tasks)
+#### 例: 最小ブループリント（タスクなし、フラット）
 
 ```yaml
 blueprint_id: blueprint_abc123
@@ -216,7 +216,7 @@ steps:
   - step-three
 ```
 
-#### Example: Full Blueprint (with tasks)
+#### 例: 完全なブループリント（タスクあり）
 
 ```yaml
 blueprint_id: blueprint_def456
@@ -249,16 +249,16 @@ tasks:
         title: Create Infrastructure Database
 ```
 
-#### Task Content Files
+#### タスクコンテンツファイル
 
-Task overview content can also be stored in separate markdown files using a flat directory structure:
+タスクの概要コンテンツは、フラットなディレクトリ構造を使用して別のマークダウンファイルに保存することもできます:
 
 ```
 blueprints/<blueprint-name>/
 ├── meta.yaml
 ├── overview.md
 ├── tasks/
-│   ├── platform-planning.md      # Flat structure (recommended)
+│   ├── platform-planning.md      # フラット構造（推奨）
 │   ├── security-setup.md
 │   └── cost-management.md
 └── <step-slug>/
@@ -267,34 +267,34 @@ blueprints/<blueprint-name>/
     └── dynamic.md.jinja
 ```
 
-The task markdown files can include additional details like time estimates, key decisions, and deliverables that supplement the structured fields in `meta.yaml`.
+タスクのマークダウンファイルには、`meta.yaml` の構造化フィールドを補完する所要時間の見積もり、主要な決定事項、成果物などの詳細を含めることができます。
 
-## Manual Configuration (Alternative)
+## 手動設定（代替方法）
 
-If you prefer to manage files directly without the guided experience:
+ガイド付き体験なしで直接ファイルを管理したい場合:
 
-### 1. Choose a blueprint
+### 1. ブループリントを選択
 
 ```bash
 ls blueprints/
 ```
 
-Review the blueprint's `meta.yaml` and step `overview.md` files to understand what will be configured.
+ブループリントの `meta.yaml` とステップの `overview.md` ファイルを確認して、何が設定されるかを理解します。
 
-### 2. Create a project and answer file
+### 2. プロジェクトと回答ファイルを作成
 
-Create a project directory structure:
+プロジェクトのディレクトリ構造を作成:
 
 ```bash
-# Create project structure
+# プロジェクト構造を作成
 mkdir -p projects/my-project/answers/<blueprint_id>
 mkdir -p projects/my-project/output/iac/sql
 mkdir -p projects/my-project/output/documentation
 ```
 
-Create an answer file (e.g., `projects/my-project/answers/<blueprint_id>/my_answers.yaml`) and provide values for each question. See `definitions/questions.yaml` for question details and valid options.
+回答ファイル（例: `projects/my-project/answers/<blueprint_id>/my_answers.yaml`）を作成し、各質問の値を提供します。質問の詳細と有効なオプションについては `definitions/questions.yaml` を参照してください。
 
-### 3. Generate infrastructure code
+### 3. インフラコードを生成
 
 ```bash
 python scripts/render_journey.py \
@@ -304,19 +304,19 @@ python scripts/render_journey.py \
   --lang sql
 ```
 
-**Options:**
-- `--lang sql` or `--lang terraform` — choose output language
-- `--project <name>` — project name for organizing outputs
-- `--skip-guidance` — skip generating documentation
+**オプション:**
+- `--lang sql` または `--lang terraform` — 出力言語を選択
+- `--project <name>` — アウトプットを整理するプロジェクト名
+- `--skip-guidance` — ドキュメント生成をスキップ
 
-**Output:**
-- SQL/Terraform files in `projects/<project>/output/iac/sql/`
-- Documentation in `projects/<project>/output/documentation/`
+**アウトプット:**
+- SQL/Terraform ファイルは `projects/<project>/output/iac/sql/` に出力
+- ドキュメントは `projects/<project>/output/documentation/` に出力
 
-### 4. Execute the generated code
+### 4. 生成されたコードを実行
 
-Review the generated SQL file, then execute it in your Snowflake worksheet. The SQL is idempotent — safe to run multiple times.
+生成された SQL ファイルを確認し、Snowflake ワークシートで実行します。SQL はべき等性があり、複数回実行しても安全です。
 
-License
-Copyright (c) 2026 Snowflake Inc. All rights reserved.
-This repo is source-available and licensed under these [terms](/LICENSE).
+ライセンス  
+Copyright (c) 2026 Snowflake Inc. All rights reserved.  
+このリポジトリはソース利用可能であり、これらの[利用規約](/LICENSE)の下でライセンスされています。

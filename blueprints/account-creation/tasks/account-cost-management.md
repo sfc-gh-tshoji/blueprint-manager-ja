@@ -1,84 +1,82 @@
-# Account Cost Management
+# アカウントコスト管理
 
-## Summary
-Configure an account-level budget with spending limits and alerts, set up a
-resource monitor for active cost control, and apply domain and environment
-tags for cost allocation and FinOps reporting.
+## 概要
+支出上限とアラートを含むアカウントレベルの予算を設定し、アクティブなコスト制御のためのリソースモニターを設定し、コスト配分と FinOps レポートのためのドメインと環境タグを適用します。
 
-## External Requirements
-- Security & Identity Configuration complete (Task 2)
-- Infrastructure share consumed (access to governance objects)
-- Knowledge of expected credit consumption for this account
-- List of stakeholders to receive budget alerts
+## 外部要件
+- セキュリティとアイデンティティの設定完了（タスク 2）
+- インフラ共有の利用済み（ガバナンスオブジェクトへのアクセス）
+- このアカウントの予想クレジット消費量の把握
+- 予算アラートを受け取るステークホルダーのリスト
 
-## Personas
-- FinOps Team
-- Platform Administrator
-- Finance Team
+## ペルソナ
+- FinOps チーム
+- プラットフォーム管理者
+- 財務チーム
 
-## Role Requirements
-- ACCOUNTADMIN role access
+## ロール要件
+- ACCOUNTADMIN ロールアクセス
 
-## Details
-## Steps in This Task
+## 詳細
+## このタスクのステップ
 
-| Step | Title | Purpose |
-|------|-------|---------|
-| 3.1 | Configure Account Budget | Set spending limits and email alerts |
-| 3.2 | Configure Account Resource Monitor | Active cost control with suspend/notify actions |
-| 3.3 | Apply Cost Allocation Tags | Tag account resources for FinOps reporting |
+| ステップ | タイトル | 目的 |
+|---------|---------|------|
+| 3.1 | アカウント予算の設定 | 支出上限とメールアラートの設定 |
+| 3.2 | アカウントリソースモニターの設定 | 一時停止/通知アクションによるアクティブなコスト制御 |
+| 3.3 | コスト配分タグの適用 | FinOps レポートのためのアカウントリソースへのタグ付け |
 
-**From Platform Foundation (inherited):**
-- Tag framework (DOMAIN, ENVIRONMENT tags with allowed values)
-- FinOps strategy decisions
+**プラットフォームファウンデーションから（継承）:**
+- タグフレームワーク（許可された値を持つ DOMAIN、ENVIRONMENT タグ）
+- FinOps 戦略の決定
 
-## Account Execution Context
+## アカウント実行コンテキスト
 
-All steps in this task should be executed from the **newly created account**.
+このタスクのすべてのステップは**新しく作成したアカウント**から実行します。
 
-| Steps | Execute From |
-|-------|--------------|
-| 3.1 - 3.3 | **New Account** (the account you created) |
+| ステップ | 実行元 |
+|---------|-------|
+| 3.1 - 3.3 | **新しいアカウント**（作成したアカウント） |
 
-## Time Estimate
+## 所要時間目安
 
-- **Budget configuration:** 5-10 minutes
-- **Resource monitor setup:** 5-10 minutes
-- **Tag application:** 5-10 minutes
-- **Total:** 15-30 minutes
+- **予算設定:** 5〜10 分
+- **リソースモニター設定:** 5〜10 分
+- **タグ適用:** 5〜10 分
+- **合計:** 15〜30 分
 
-## Key Decisions
+## 主要な決定事項
 
-| Decision | Who Should Decide | Impact |
-|----------|-------------------|--------|
-| Monthly credit limit | Finance/Platform Team | Budget ceiling for this account |
-| Alert thresholds | Platform Team | When stakeholders are notified |
-| Resource monitor action | Platform Team | Whether to suspend or just notify at limit |
-| Tag values | Business/Platform Team | Cost attribution in reports |
+| 決定 | 誰が決定すべきか | 影響 |
+|------|---------------|------|
+| 月次クレジット上限 | 財務/プラットフォームチーム | このアカウントの予算上限 |
+| アラートしきい値 | プラットフォームチーム | ステークホルダーに通知するタイミング |
+| リソースモニターアクション | プラットフォームチーム | 上限に達したときに一時停止するか通知のみか |
+| タグ値 | ビジネス/プラットフォームチーム | レポートでのコスト帰属 |
 
-## Relationship to Platform Foundation
+## プラットフォームファウンデーションとの関係
 
-The Platform Foundation workflow established:
-- **Tag framework**: DOMAIN, ENVIRONMENT, and other tags with allowed values
-- **Account-level budget**: For the Organization Account
-- **Account-level resource monitor**: For the Organization Account
+プラットフォームファウンデーションワークフローで確立されたもの:
+- **タグフレームワーク**: 許可された値を持つ DOMAIN、ENVIRONMENT、その他のタグ
+- **アカウントレベルの予算**: 組織アカウント向け
+- **アカウントレベルのリソースモニター**: 組織アカウント向け
 
-This task configures the same elements for THIS account:
-- Apply tags to this account's resources
-- Set budget specific to this account's expected usage
-- Configure resource monitor for this account's credit limit
+このタスクでは、このアカウントに同じ要素を設定します:
+- このアカウントのリソースにタグを適用
+- このアカウントの予想使用量に固有の予算を設定
+- このアカウントのクレジット上限のためのリソースモニターを設定
 
-## Deliverables
+## 成果物
 
-Upon completing this task, you will have:
-- ✅ Account budget configured with monthly limit and email alerts
-- ✅ Account resource monitor with threshold-based actions
-- ✅ Domain and environment tags applied for cost reporting
-- ✅ Account ready for use with full cost visibility
+このタスクを完了すると、以下が得られます:
+- ✅ 月次上限とメールアラートを含むアカウント予算が設定済み
+- ✅ しきい値ベースのアクションを持つアカウントリソースモニター
+- ✅ コストレポートのためのドメインと環境タグが適用済み
+- ✅ 完全なコスト可視性を持つ使用準備完了のアカウント
 
-## More Information
+## 追加情報
 
-* [Budgets Overview](https://docs.snowflake.com/en/user-guide/budgets) — Credit monitoring and alerts
-* [Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors) — Active cost control
-* [Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging) — Tag-based governance
-* [Attributing Costs with Tags](https://docs.snowflake.com/en/user-guide/cost-attributing) — FinOps reporting
+* [予算の概要](https://docs.snowflake.com/en/user-guide/budgets) — クレジット監視とアラート
+* [リソースモニター](https://docs.snowflake.com/en/user-guide/resource-monitors) — アクティブなコスト制御
+* [オブジェクトタグ付け](https://docs.snowflake.com/en/user-guide/object-tagging) — タグベースのガバナンス
+* [タグによるコスト帰属](https://docs.snowflake.com/en/user-guide/cost-attributing) — FinOps レポート

@@ -2,37 +2,37 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Render
+# Blueprints レンダリング
 
-Generate SQL/Terraform/Documentation from an answer file. This command wraps the `render_journey.py` script.
+回答ファイルから SQL/Terraform/ドキュメントを生成します。このコマンドは `render_journey.py` スクリプトをラップします。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:render <answer-file> --blueprint <blueprint-name> [options]
 ```
 
-## Arguments
+## 引数
 
-- `<answer-file>`: Path to the YAML answer file
-- `--blueprint <blueprint-name>`: The blueprint ID to render
+- `<answer-file>`: YAML 回答ファイルのパス
+- `--blueprint <blueprint-name>`: レンダリングするブループリントの ID
 
-## Options
+## オプション
 
-- `--lang <sql|terraform>`: Output language (default: sql)
-- `--project <name>`: Project name for organizing outputs
-- `--skip-guidance`: Skip rendering documentation, only generate IaC code
+- `--lang <sql|terraform>`: 出力言語（デフォルト: sql）
+- `--project <name>`: 出力を整理するためのプロジェクト名
+- `--skip-guidance`: ドキュメントのレンダリングをスキップし、IaC コードのみを生成
 
-## Instructions
+## 手順
 
-Execute the `render_journey.py` script with the provided arguments to generate:
+提供された引数で `render_journey.py` スクリプトを実行して以下を生成します:
 
-1. **IaC Code** (SQL or Terraform): Rendered templates from each step
-2. **Documentation**: Step-by-step guidance with filled-in values
+1. **IaC コード**（SQL または Terraform）: 各ステップからレンダリングされたテンプレート
+2. **ドキュメント**: 値が入力されたステップバイステップのガイダンス
 
-## Output Structure
+## 出力構造
 
-When using `--project`:
+`--project` 使用時:
 ```
 projects/<project-name>/
 ├── answers/
@@ -46,9 +46,9 @@ projects/<project-name>/
         └── <blueprint-id>_<timestamp>.md
 ```
 
-## Implementation
+## 実装
 
-Run the render_journey.py script:
+render_journey.py スクリプトを実行:
 
 ```bash
 python scripts/render_journey.py \
@@ -58,47 +58,47 @@ python scripts/render_journey.py \
   --project <project-name>
 ```
 
-## Output Format
+## 出力フォーマット
 
 ```
-Rendering blueprint: platform-foundation-setup
-Language: sql
-Project: my-project
+ブループリントをレンダリング中: platform-foundation-setup
+言語: sql
+プロジェクト: my-project
 
-Processing steps...
+ステップを処理中...
   ✓ determine-account-strategy
   ✓ configure-organization-name-for-connectivity
-  ⚠ enable-organization-account (skipped: missing variables)
+  ⚠ enable-organization-account（スキップ: 変数が不足）
   ...
 
-Output generated:
+出力が生成されました:
   IaC:    projects/my-project/output/iac/sql/platform-foundation-setup_20250210143022.sql
   Docs:   projects/my-project/output/documentation/platform-foundation-setup_20250210143022.md
 
-Summary:
-  Steps rendered: 18/22
-  Steps skipped: 4 (missing variables)
+サマリー:
+  レンダリングされたステップ: 18/22
+  スキップされたステップ: 4（変数が不足）
 
-Tip: Run '/blueprints:validate <answer-file> --blueprint <blueprint>' to see missing variables.
+ヒント: '/blueprints:validate <answer-file> --blueprint <blueprint>' を実行して不足変数を確認してください。
 ```
 
-## Error Handling
+## エラー処理
 
-- If answer file doesn't exist: `Error: Answer file not found: <path>`
-- If blueprint doesn't exist: `Error: Blueprint '<name>' not found`
-- If render fails: Display error message from render_journey.py
+- 回答ファイルが存在しない場合: `エラー: 回答ファイルが見つかりません: <path>`
+- ブループリントが存在しない場合: `エラー: ブループリント '<name>' が見つかりません`
+- レンダリングが失敗した場合: render_journey.py からのエラーメッセージを表示
 
-## Examples
+## 使用例
 
 ```bash
-# Render SQL with default project
+# デフォルトプロジェクトで SQL をレンダリング
 /blueprints:render answers.yaml --blueprint platform-foundation-setup
 
-# Render to a specific project
+# 特定のプロジェクトにレンダリング
 /blueprints:render answers.yaml --blueprint data-product-setup --project acme-corp --lang sql
 
-# Render only IaC (skip documentation)
+# IaC のみレンダリング（ドキュメントをスキップ）
 /blueprints:render answers.yaml --blueprint account-creation --skip-guidance
 ```
 
-Now execute the render_journey.py script with the specified arguments.
+指定された引数で render_journey.py スクリプトを実行してください。

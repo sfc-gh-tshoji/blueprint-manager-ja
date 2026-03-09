@@ -1,182 +1,157 @@
-In this step, you'll configure the account-level budget with spending limits and notification preferences. The Budget object monitors all credit consumption for your account, using time-series forecasting to send daily, proactive alerts when your spending is projected to exceed the limit.
+このステップでは、アカウントレベルの予算を支出上限と通知設定で設定します。予算オブジェクトはアカウントの全クレジット消費を監視し、時系列予測を使用して支出が上限を超えると予測される場合に毎日積極的なアラートを送信します。
 
-**Account Context:** This step should be executed in your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** このステップは組織アカウント（作成済みの場合）またはプライマリアカウントで実行してください。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Configuring your budget correctly ensures you receive meaningful alerts:
-- **Realistic limits** prevent alert fatigue from too-low thresholds
-- **Appropriate notifications** ensure the right people are alerted
-- **Proper refresh intervals** balance monitoring frequency with cost
+予算を適切に設定することで、意味のあるアラートを受け取ることができます:
+- **現実的な上限**は低すぎるしきい値によるアラート疲れを防ぎます
+- **適切な通知**は適切な人々にアラートが届くことを確保します
+- **適切な更新間隔**は監視頻度とコストのバランスをとります
 
-## External Prerequisites
+## 外部前提条件
 
-- Monthly credit limit approved by your finance team
-- Email addresses or distribution lists for alert recipients
+- 財務チームが承認した月次クレジット上限
+- アラート受信者のメールアドレスまたは配布リスト
 
-## Key Concepts
+## 主要な概念
 
-**Credit Limit**
-The maximum number of credits allocated to the budget for the period. Set in credits, not dollars.
+**クレジット上限**
+期間の予算に割り当てられた最大クレジット数。ドルではなくクレジットで設定します。
 
-**Credit to Dollar Conversion**
-To convert from a dollar amount, use your negotiated credit rate. For example, if your rate is $3/credit and your limit is $3,600, your credit limit is 1,200 credits.
+**クレジットからドルへの変換**
+ドル金額からの変換には、交渉済みのクレジットレートを使用します。例えば、レートが $3/クレジットで上限が $3,600 の場合、クレジット上限は 1,200 クレジットです。
 
-**Notification Threshold**
-The percentage of the limit (e.g., 75%) that triggers an alert when projected spending exceeds it.
+**通知しきい値**
+予測支出がそれを超えたときにアラートをトリガーする上限のパーセンテージ（例: 75%）。
 
-**Email Notifications**
-This step configures email-based notifications, which is the simplest approach. Distribution lists are recommended for team visibility.
+**メール通知**
+このステップでは、最もシンプルなアプローチであるメールベースの通知を設定します。チームの可視性のために配布リストを推奨します。
 
-**Alternative Notification Methods**
-Snowflake also supports webhooks (Slack/Teams) and cloud service queues (SNS/Event Grid). These require additional configuration via notification integrations. See the "Upgrading to Webhook Notifications" section in the generated documentation.
+**代替通知方法**
+Snowflake は Webhook（Slack/Teams）やクラウドサービスキュー（SNS/Event Grid）もサポートしています。これらは通知統合を介した追加設定が必要です。生成されたドキュメントの「Webhook 通知へのアップグレード」セクションを参照してください。
 
-**Budget Refresh Interval**
-How often the budget checks consumption data for forecasting. Default is 6.5 hours; optional 1-hour refresh increases compute cost by ~12x.
+**予算更新間隔**
+予算が予測のために消費データをチェックする頻度。デフォルトは 6.5 時間で、オプションの 1 時間更新はコンピューティングコストを約 12 倍増加させます。
 
-**Reset Frequency**
-Budgets automatically reset on the first of every month at 12:00 AM UTC.
+**リセット頻度**
+予算は毎月 1 日の午前 0 時（UTC）に自動的にリセットされます。
 
-**Alert vs Hard Limit**
-Budgets are for alerting only - they do NOT suspend services. Use Resource Monitors for hard limits.
+**アラート vs ハードリミット**
+予算はアラートのみを目的としており、サービスを一時停止**しません**。ハードリミットにはリソースモニターを使用してください。
 
-**Best Practice: Set Realistic Limits**
-Set an achievable budget limit to ensure alerts are meaningful. A limit set too high won't provide timely warnings; too low creates alert fatigue.
+**ベストプラクティス: 現実的な上限を設定する**
+アラートが意味を持つように達成可能な予算上限を設定します。高すぎる上限では適時の警告が得られず、低すぎるとアラート疲れが起きます。
 
-**Best Practice: Multiple Alert Levels**
-For multiple thresholds (e.g., 50%, 75%, 90%), use Resource Monitors (Configure Resource Monitors step) which support multiple trigger points with different actions.
+**ベストプラクティス: 複数のアラートレベル**
+複数のしきい値（例: 50%、75%、90%）の場合は、異なるアクションを持つ複数のトリガーポイントをサポートするリソースモニター（リソースモニターの設定ステップ）を使用します。
 
-## More Information
+## 追加情報
 
-* [Monitor credit usage with budgets](https://docs.snowflake.com/en/user-guide/budgets) — Overview of Snowflake's native budget feature
-* [Notifications for budgets](https://docs.snowflake.com/en/user-guide/budgets/notifications) — Configuring alerts and notification methods
-* [SET_SPENDING_LIMIT Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_spending_limit) — Setting credit limits on budgets
-* [SET_NOTIFICATION_THRESHOLD Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_notification_threshold) — Configuring alert thresholds
-* [SET_REFRESH_TIER Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_refresh_tier) — Setting forecast update frequency
+* [予算によるクレジット使用の監視](https://docs.snowflake.com/en/user-guide/budgets) — Snowflake のネイティブ予算機能の概要
+* [予算の通知](https://docs.snowflake.com/en/user-guide/budgets/notifications) — アラートと通知方法の設定
+* [SET_SPENDING_LIMIT クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_spending_limit) — 予算にクレジット上限を設定する
+* [SET_NOTIFICATION_THRESHOLD クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_notification_threshold) — アラートしきい値の設定
+* [SET_REFRESH_TIER クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_refresh_tier) — 予測更新頻度の設定
 
-### Configuration Questions
+### 設定の質問
 
-#### What is your monthly account budget (in credits)? (`account_monthly_budget`: text)
-**What is this asking?**
-Set the total monthly credit budget for your Snowflake account. This is the spending limit used to calculate when alerts are triggered.
+#### 月次アカウント予算（クレジット単位）はいくらですか？（`account_monthly_budget`: text）
+**何を聞いているか？**
+Snowflake アカウントの総月次クレジット予算を設定します。これはアラートがトリガーされるタイミングを計算するために使用される支出上限です。
 
-**Why does this matter?**
-A well-set budget provides meaningful alerts without being too restrictive. Setting it too low causes alert fatigue; too high means late warnings.
+**なぜ重要か？**
+適切に設定された予算は、制限が厳しすぎることなく意味のあるアラートを提供します。低すぎるとアラート疲れが起き、高すぎると警告が遅くなります。
 
-**How to determine your budget:**
-- Base it on your Snowflake contract or expected usage
-- Include a buffer for growth (recommend 20-30% above expected usage)
-- Consider seasonal variations in workload
+**予算の決め方:**
+- Snowflake の契約または予想使用量に基づく
+- 成長のためのバッファを含める（予想使用量の 20〜30% 上を推奨）
+- ワークロードの季節的な変動を考慮する
 
-**Example:**
-If you expect to use 1,000 credits/month, set budget to 1,200-1,300 credits.
+**例:**
+月に 1,000 クレジット使用すると予想する場合、予算を 1,200〜1,300 クレジットに設定します。
 
-**Note:** 1 credit ≈ $2-4 depending on your Snowflake edition and region.
+**注記:** 1 クレジット ≈ $2〜4（Snowflake のエディションとリージョンによる）。
 
-**Important:** This is for alerting purposes only. Snowflake will not automatically stop services when the budget is exceeded. Use Resource Monitors (Configure Resource Monitors step) for hard limits.
+**重要:** これはアラート目的のみです。予算を超えても Snowflake は自動的にサービスを停止しません。ハードリミットにはリソースモニター（リソースモニターの設定ステップ）を使用してください。
 
-#### At what percentage of your budget should alerts be triggered? (`budget_notification_threshold`: multi-select)
-**What is this asking?**
-Select the percentage of your budget limit at which Snowflake will send notifications when *projected* spending exceeds this threshold.
+#### 予算のアラートは何パーセントでトリガーされますか？（`budget_notification_threshold`: multi-select）
+**何を聞いているか？**
+予測支出がこのしきい値を超えたときに Snowflake が通知を送信する予算上限のパーセンテージを選択します。
 
-**Why does this matter?**
-The threshold determines how early you receive warnings. Lower thresholds give more lead time but may create noise; higher thresholds give less warning.
+**なぜ重要か？**
+しきい値は警告をどれだけ早く受け取るかを決定します。低いしきい値はリードタイムを増やしますが、ノイズが生じる可能性があります。高いしきい値は警告が少なくなります。
 
-**How it works:**
-- Snowflake uses time-series forecasting to predict end-of-month spending
-- When projected spending exceeds (budget × threshold%), an alert is sent
-- Example: 5,000 credit budget with 75% threshold → alert when projected spending > 3,750 credits
+**仕組み:**
+- Snowflake は時系列予測を使用して月末の支出を予測する
+- 予測支出が（予算 × しきい値%）を超えると、アラートが送信される
+- 例: 5,000 クレジット予算、75% しきい値 → 予測支出 > 3,750 クレジットでアラート
 
-**Options explained:**
+**オプションの説明:**
 
-| Threshold | Use Case |
-|-----------|----------|
-| **50%** | Early warning for large budgets - maximum lead time |
-| **75%** | Balanced early warning (recommended) |
-| **90%** | Warning close to limit - less noise |
-| **100%** | Alert only when projected to hit exactly 100% |
-| **110%** | Alert after projected overage (Snowflake default) |
+| しきい値 | 使用ケース |
+|----------|------------|
+| **50%** | 大きな予算の早期警告 - 最大リードタイム |
+| **75%** | バランスの取れた早期警告（推奨） |
+| **90%** | 上限に近い警告 - ノイズが少ない |
+| **100%** | 正確に 100% になると予測された場合のみアラート |
+| **110%** | 予測超過後のアラート（Snowflake デフォルト） |
 
-**For multiple thresholds:** Snowflake's native budget supports one threshold. For multiple alert levels, use Resource Monitors (Configure Resource Monitors step) or custom budget actions.
+**複数のしきい値の場合:** Snowflake のネイティブ予算は 1 つのしきい値のみをサポートします。複数のアラートレベルには、リソースモニター（リソースモニターの設定ステップ）またはカスタム予算アクションを使用します。
 
-**Recommendation:** Select `75` for balanced early warning that gives you time to take action.
-**Options:**
+**推奨事項:** アクションを取る時間を与えるバランスの取れた早期警告のために `75` を選択します。
+**オプション:**
 - 50
 - 75
 - 90
 - 100
 - 110
 
-#### How frequently should the budget check for updated spending? (`budget_refresh_interval`: multi-select)
-**What is this asking?**
-Choose how often the budget updates its spending data and performs forecasting.
+#### 予算はどの頻度で支出の更新をチェックしますか？（`budget_refresh_interval`: multi-select）
+**何を聞いているか？**
+予算が支出データを更新し、予測を実行する頻度を選択します。
 
-**Why does this matter?**
-More frequent refreshes provide faster alerts but cost more compute.
+**なぜ重要か？**
+より頻繁な更新はより速いアラートを提供しますが、コンピューティングコストが増えます。
 
-**Options explained:**
+**オプションの説明:**
 
-**6.5 hours (Default):**
-- Standard refresh interval
-- Balances cost and monitoring frequency
-- Suitable for most organizations
+**6.5 時間（デフォルト）:**
+- 標準の更新間隔
+- コストと監視頻度のバランス
+- ほとんどの組織に適している
 
-**1 hour (Frequent):**
-- More frequent spending updates
-- Better for tight budget control
-- Increases compute cost by ~12x
+**1 時間（頻繁）:**
+- より頻繁な支出更新
+- 厳しい予算管理に適している
+- コンピューティングコストを約 12 倍増加させる
 
-**Recommendation:**
-Start with 6.5 hours (default). Switch to 1 hour only during critical cost monitoring periods.
-**Options:**
+**推奨事項:**
+6.5 時間（デフォルト）から始めます。重要なコスト監視期間中のみ 1 時間に切り替えます。
+**オプション:**
 - 6.5 hours (default)
 - 1 hour (frequent monitoring)
 
-#### What email address(es) should receive budget alerts? (`budget_alert_emails`: list)
-**What is this asking?**
-Provide the email addresses that should receive budget alert notifications.
+#### 予算アラートはどのメールアドレスに送信しますか？（`budget_alert_emails`: list）
+**何を聞いているか？**
+予算アラート通知を受け取るメールアドレスを提供します。
 
-**Why does this matter?**
-Budget alerts need to reach people who can investigate and take action on spending issues.
+**なぜ重要か？**
+予算アラートは支出の問題を調査してアクションを取ることができる人々に届く必要があります。
 
-**Best practices:**
-- Use distribution lists for team visibility (e.g., `finops-team@company.com`)
-- Include both technical and financial stakeholders
-- Ensure 24/7 monitoring for critical budgets
+**ベストプラクティス:**
+- チームの可視性のために配布リストを使用する（例: `finops-team@company.com`）
+- 技術的および財務的な利害関係者の両方を含める
+- 重要な予算には 24 時間 365 日の監視を確保する
 
-**Examples:**
+**例:**
 - `finops-team@company.com`
 - `data-platform-leads@company.com`
 
-**Alternative notification methods:**
-This step configures email notifications, which is the simplest approach. If you need webhook notifications (Slack/Teams) or cloud service queues (SNS/Event Grid), see the "Upgrading to Webhook Notifications" section in the generated documentation.
+**代替通知方法:**
+このステップでは最もシンプルなアプローチとしてメール通知を設定します。Webhook 通知（Slack/Teams）やクラウドサービスキュー（SNS/Event Grid）が必要な場合は、生成されたドキュメントの「Webhook 通知へのアップグレード」セクションを参照してください。
 
-#### Do you want to set up spending budgets? (`enable_budgets`: multi-select)
-**What is this asking?**
-Decide whether to use Snowflake's native budget feature for automated spending monitoring and alerts.
-
-**Why does this matter?**
-Budgets provide proactive cost awareness by sending alerts when spending is projected to exceed your defined limits. This helps prevent unexpected costs and enables better financial planning.
-
-**Options explained:**
-
-**Yes (Recommended):**
-- Use Snowflake's native budget feature
-- Set monthly spending limits (in credits)
-- Receive automated email alerts when thresholds are exceeded
-- Time-series forecasting predicts budget overruns
-- No additional infrastructure required
-
-**No:**
-- Monitor spending without automated alerts
-- Suitable if you have other cost control mechanisms
-- Can still use Resource Monitors for hard limits
-
-**Recommendation:**
-Use Snowflake's native budgets for automated monitoring and alerts. They're easy to set up and provide valuable early warning of cost overruns.
-
-**More Information:**
-* [Monitor credit usage with budgets](https://docs.snowflake.com/en/user-guide/budgets)
-**Options:**
+#### 支出予算を設定しますか？（`enable_budgets`: multi-select）
+**オプション:**
 - Yes
 - No

@@ -1,82 +1,82 @@
-# Consumer Access
+# コンシューマーアクセス
 
-## Summary
-Enable external consumers to access your data product by creating purpose-specific
-consumer access roles that provide granular, SCIM-manageable access for end users
-who need only specific data zones.
+## 概要
+特定のデータゾーンのみを必要とするエンドユーザーに対して、きめ細かく
+SCIM で管理可能なアクセスを提供する目的固有のコンシューマーアクセスロールを作成し、
+外部コンシューマーがデータ製品にアクセスできるようにします。
 
-## External Requirements
-- Task 3 completed (all infrastructure in place)
-- Knowledge of consumer groups and their data needs
-- SCIM prefix configured (if using SCIM)
+## 外部要件
+- タスク 3 完了（すべてのインフラが整備済み）
+- コンシューマーグループとそのデータニーズの把握
+- SCIM プレフィックスの設定（SCIM を使用する場合）
 
-## Personas
-- Data Product Owner
-- Security Administrator
-- Identity Team
+## ペルソナ
+- データ製品オーナー
+- セキュリティ管理者
+- ID チーム
 
-## Role Requirements
-- USERADMIN role (or SCIM provisioner role if using SCIM)
+## ロール要件
+- USERADMIN ロール（SCIM を使用する場合は SCIM プロビジョナーロール）
 
-## Details
-## **Why Consumer Access Roles?**
+## 詳細
+## **なぜコンシューマーアクセスロールなのか？**
 
-The core `<prefix>_READ` role provides read access across the entire data product - all zones, all schemas. This is typically too broad for end users who:
-- Only need access to curated/published data (not raw or transformed)
-- Should not see intermediate processing tables
-- Need SCIM-managed role assignments for identity governance
-- Require audit-friendly access patterns
+コア `<prefix>_READ` ロールは、データ製品全体 — すべてのゾーン、すべてのスキーマ — への読み取りアクセスを提供します。これは通常、以下の条件を持つエンドユーザーには広すぎます:
+- キュレート済み/公開データのみにアクセスが必要（生データや変換済みデータは不要）
+- 中間処理テーブルを見るべきでない
+- ID ガバナンスのための SCIM 管理のロール割り当てが必要
+- 監査しやすいアクセスパターンが必要
 
-Consumer access roles solve this by creating purpose-specific roles that:
-- Grant access only to specific schemas (typically CURATED or PUBLISHED zones)
-- Can be managed via SCIM for user assignment
-- Support compliance requirements with clear purpose documentation
-- Enable self-service access requests through identity governance workflows
+コンシューマーアクセスロールは目的固有のロールを作成することでこれを解決します:
+- 特定のスキーマへのアクセスのみを付与（通常は CURATED または PUBLISHED ゾーン）
+- ユーザー割り当てのために SCIM を通じて管理可能
+- 明確な目的ドキュメントでコンプライアンス要件をサポート
+- ID ガバナンスワークフローを通じたセルフサービスアクセスリクエストを有効化
 
-## **Steps in This Task**
+## **このタスクのステップ**
 
-| Step | Title | Purpose |
-|------|-------|---------|
-| 4.1 | Create Custom Read Roles | SCIM-manageable roles for specific consumer groups |
-| 4.2 | Grant Database Access to Roles | Wire consumer roles to specific database roles |
+| ステップ | タイトル | 目的 |
+|---------|---------|------|
+| 4.1 | カスタム読み取りロールを作成 | 特定のコンシューマーグループ用の SCIM 管理可能なロール |
+| 4.2 | ロールへのデータベースアクセスを付与 | コンシューマーロールを特定のデータベースロールに接続 |
 
-## **Consumer Role Pattern**
+## **コンシューマーロールのパターン**
 
 ```
 <prefix>_<stem>_<purpose>
 ```
 
-| Component | Description | Example |
-|-----------|-------------|---------|
-| prefix | Data product prefix | `SALES_ANALYTICS_PRD` |
-| stem | Subject area or consumer group | `REVENUE`, `MARKETING` |
-| purpose | Access type | `RO` (Read-Only), `PI` (PII Access) |
+| コンポーネント | 説明 | 例 |
+|------------|------|---|
+| prefix | データ製品プレフィックス | `SALES_ANALYTICS_PRD` |
+| stem | 主題領域またはコンシューマーグループ | `REVENUE`、`MARKETING` |
+| purpose | アクセスタイプ | `RO`（読み取り専用）、`PI`（PII アクセス） |
 
-## **Consumer Role Hierarchy**
+## **コンシューマーロール階層**
 
 ```
-Consumer Role (SCIM-managed)
-└── Granted specific database roles
-    └── DB_R or specific SC_R_* roles
-        └── Read access to specific schemas only
+コンシューマーロール（SCIM 管理）
+└── 特定のデータベースロールが付与済み
+    └── DB_R または特定の SC_R_* ロール
+        └── 特定のスキーマへの読み取りアクセスのみ
 ```
 
-## **SCIM Integration**
+## **SCIM 統合**
 
-When SCIM is enabled:
-- Consumer roles are owned by `<scim_prefix>_PROVISIONER`
-- Users are assigned to consumer roles via SCIM (identity provider)
-- No manual user grants required
-- Access reviews happen in the identity provider
+SCIM が有効な場合:
+- コンシューマーロールは `<scim_prefix>_PROVISIONER` が所有
+- ユーザーは SCIM（ID プロバイダー）を通じてコンシューマーロールに割り当てられる
+- 手動のユーザー付与は不要
+- アクセスレビューは ID プロバイダーで行われる
 
-## **What You'll Create**
+## **作成するもの**
 
-| Object Type | Naming Pattern | Owner | Purpose |
-|-------------|----------------|-------|---------|
-| Consumer Roles | `<prefix>_<stem>_<purpose>` | `<scim_prefix>_PROVISIONER` or `USERADMIN` | End-user access |
-| Role Grants | Database role → Consumer role | N/A | Wire access |
+| オブジェクトタイプ | 命名パターン | 所有者 | 目的 |
+|-----------------|-----------|-------|------|
+| コンシューマーロール | `<prefix>_<stem>_<purpose>` | `<scim_prefix>_PROVISIONER` または `USERADMIN` | エンドユーザーアクセス |
+| ロール付与 | データベースロール → コンシューマーロール | N/A | アクセスの接続 |
 
-## **More Information**
+## **追加情報**
 
-* [Database Roles](https://docs.snowflake.com/en/user-guide/security-access-control-database-roles)
-* [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-overview)
+* [データベースロール](https://docs.snowflake.com/en/user-guide/security-access-control-database-roles)
+* [SCIM プロビジョニング](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-overview)

@@ -1,72 +1,46 @@
-In this step, you'll confirm or select the multi-account strategy for your organization. This setting was typically established during the Platform Foundation workflow, but if you're running Account Creation directly, you'll need to specify it here.
+このステップでは、組織のマルチアカウント戦略を確認または選択します。この設定は通常プラットフォームファウンデーションワークフローで確立されますが、アカウント作成を直接実行する場合はここで指定する必要があります。
 
-**Account Context:** This step should be executed from your Organization Account.
+**アカウントコンテキスト:** このステップは組織アカウントから実行します。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-The account strategy determines:
-- How accounts are organized (by domain, environment, or both)
-- What information is captured for each account
-- How cost allocation tags are applied
-- The overall structure of your Snowflake organization
+アカウント戦略が決定するもの:
+- アカウントの整理方法（ドメイン、環境、またはその両方）
+- 各アカウントで取得する情報
+- コスト配分タグの適用方法
+- Snowflake 組織の全体的な構造
 
-## **Prerequisites**
+## **前提条件**
 
-- Access to Organization Account with ORGADMIN role
-- Understanding of your organization's multi-account strategy
+- ORGADMIN ロールを持つ組織アカウントへのアクセス
+- 組織のマルチアカウント戦略の理解
 
-## **Key Concepts**
+## **主要な概念**
 
-**Organization-Level Setting**
-This is an organization-level answer that persists across all runs of the Account Creation workflow. Once set, you won't need to answer this question again for future accounts.
+**組織レベルの設定**
+これはアカウント作成ワークフローのすべての実行で持続する組織レベルの回答です。一度設定すると、将来のアカウントのためにこの質問に再度答える必要はありません。
 
-**Multi-Account Strategies**
-Snowflake supports several approaches to organizing multiple accounts:
+**マルチアカウント戦略**
+Snowflake は複数のアカウントを整理するためのいくつかのアプローチをサポートします:
 
-| Strategy | Account Represents | Best For |
-|----------|-------------------|----------|
-| Domain-based | Business unit (Sales, Finance, HR) | Strong domain isolation, environments within each domain |
-| Environment-based | SDLC stage (Dev, Test, Prod) | Strong environment isolation, domains within each environment |
-| Domain + Environment | Specific combination (Sales-Prod) | Maximum isolation, most accounts |
+| 戦略 | アカウントが表すもの | 最適なユースケース |
+|------|----------------|----------------|
+| ドメインベース | ビジネスユニット（営業、財務、HR） | 強いドメイン分離、各ドメイン内の環境 |
+| 環境ベース | SDLC ステージ（Dev、Test、Prod） | 強い環境分離、各環境内のドメイン |
+| ドメイン + 環境 | 特定の組み合わせ（Sales-Prod） | 最大分離、最も多くのアカウント |
 
-**Already Completed Platform Foundation?**
-If you completed the Platform Foundation workflow, your account strategy was already captured. Simply confirm the same selection here to ensure consistency.
+**プラットフォームファウンデーションを完了済みですか？**
+プラットフォームファウンデーションワークフローを完了している場合、アカウント戦略はすでに取得されています。一貫性を確保するために、ここで同じ選択を確認するだけです。
 
-**More Information:**
-* [Managing Accounts in an Organization](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — Account management overview
+**追加情報:**
+* [組織でのアカウント管理](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — アカウント管理の概要
 
-### Configuration Questions
+### 設定の質問
 
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+#### どのアカウント戦略を実装しますか？（`account_strategy`: multi-select）
+組織に最適なアカウント戦略を選択します。
+
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)

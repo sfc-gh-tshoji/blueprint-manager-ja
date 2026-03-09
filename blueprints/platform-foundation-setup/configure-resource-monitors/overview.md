@@ -1,180 +1,154 @@
-In this step, you'll configure the **Account-Level Resource Monitor**. This acts as your global safety net by automatically suspending all warehouses if the account's total credit limit is reached.
+このステップでは、**アカウントレベルのリソースモニター**を設定します。これはアカウントの総クレジット上限に達した場合にすべてのウェアハウスを自動的に一時停止することで、グローバルなセーフティネットとして機能します。
 
-**Important:** You are not limited to just one monitor. While this step establishes the "Global Brake," you will later create warehouse-specific monitors in the Data Product workflow.
+**重要:** 1 つのモニターに限定されるわけではありません。このステップでは「グローバルブレーキ」を確立しますが、後でデータ製品ワークフローでウェアハウス固有のモニターを作成します。
 
-**Account Context:** This step should be executed in your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** このステップは組織アカウント（作成済みの場合）またはプライマリアカウントで実行してください。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-The account-level resource monitor provides:
+アカウントレベルのリソースモニターが提供するもの:
 
-* **Global protection** for all warehouses in the account  
-* **Tiered alerts** at 75%, 90%, and 100% of the limit  
-* **Configurable actions** from notification to immediate suspension  
-* **Automatic reset** aligned with billing cycles
+* アカウント内のすべてのウェアハウスに対する**グローバル保護**
+* 上限の 75%、90%、100% での**段階的アラート**
+* 通知から即時一時停止までの**設定可能なアクション**
+* 請求サイクルに合わせた**自動リセット**
 
-## **External Prerequisites**
+## **外部前提条件**
 
-* Maximum credit limit approved by your finance team  
-* Decision on suspension behavior (immediate vs. after current queries)  
-* Understanding of reset frequency alignment with billing
+* 財務チームが承認した最大クレジット上限
+* 一時停止動作（即時 vs 現在のクエリ後）の決定
+* リセット頻度と請求の整合性の理解
 
-## **Key Concepts**
+## **主要な概念**
 
-**Credit Quota** The maximum number of credits allowed before action is taken.
+**クレジットクォータ** アクションが取られる前に許可される最大クレジット数。
 
-**Tiered Thresholds** This configuration uses a **tiered threshold approach** with multiple warning points:
+**段階的しきい値** この設定では、複数の警告ポイントを持つ**段階的しきい値アプローチ**を使用します:
 
-* **75%**: First notification (early warning)  
-* **90%**: Second notification (final warning)  
-* **100%**: Your configured action (Suspend or Notify)
+* **75%**: 最初の通知（早期警告）
+* **90%**: 2 番目の通知（最終警告）
+* **100%**: 設定されたアクション（一時停止または通知）
 
-**Note:** Snowflake allows only ONE suspend trigger per resource monitor, so the 100% threshold is your single enforcement point. This tiered approach gives you multiple opportunities to investigate and respond before hitting the hard limit.
+**注記:** Snowflake はリソースモニターごとに 1 つの一時停止トリガーのみを許可するため、100% しきい値が唯一の強制ポイントです。この段階的アプローチにより、ハードリミットに達する前に調査して対応するための複数の機会が与えられます。
 
-**Global vs Local Monitors** An account-level monitor is "omnipresent"—if it triggers a Suspend action, it shuts down every warehouse in the account. Warehouse-specific monitors (configured later) only affect the assigned warehouses.
+**グローバル vs ローカルモニター** アカウントレベルのモニターは「どこにでも存在」します — Suspend アクションをトリガーすると、アカウント内のすべてのウェアハウスがシャットダウンされます。ウェアハウス固有のモニター（後で設定）は割り当てられたウェアハウスにのみ影響します。
 
-**Quota Alignment** If you plan warehouse-specific monitors (e.g., three departments with 500-credit budgets each), your account-level monitor should be at least 1,500+ credits to accommodate the sum of all local monitors.
+**クォータの整合性** ウェアハウス固有のモニターを計画している場合（例: 各 500 クレジット予算の 3 部門）、アカウントレベルのモニターはすべてのローカルモニターの合計に対応するために少なくとも 1,500 以上のクレジットにする必要があります。
 
-**Notification Recipients** Account-level alerts go to all users with the ACCOUNTADMIN role. Ensure these users are monitoring their email for budget alerts.
+**通知受信者** アカウントレベルのアラートは ACCOUNTADMIN ロールを持つすべてのユーザーに届きます。これらのユーザーが予算アラートのメールを監視していることを確認してください。
 
-**Trigger Actions**
+**トリガーアクション**
 
-* NOTIFY: Sends email to ACCOUNTADMIN users (no impact on queries)  
-* SUSPEND: Blocks new queries, lets running queries finish, then suspends warehouses  
-* SUSPEND\_IMMEDIATE: Terminates all queries immediately and suspends warehouses
+* NOTIFY: ACCOUNTADMIN ユーザーにメールを送信（クエリへの影響なし）
+* SUSPEND: 新しいクエリをブロックし、実行中のクエリを完了させ、ウェアハウスを一時停止
+* SUSPEND\_IMMEDIATE: すべてのクエリを即座に終了し、ウェアハウスを一時停止
 
-**Reset Frequency** How often the credit counter resets (Monthly, Weekly, Daily, or Never). Align with billing cycles for easier reconciliation.
+**リセット頻度** クレジットカウンターがリセットされる頻度（月次、週次、日次、またはなし）。より簡単な照合のために請求サイクルに合わせます。
 
-**Working with Budgets** Resource monitors complement budgets: Budgets provide predictive alerts based on forecasting, while resource monitors provide real-time enforcement. Use both together for comprehensive cost management.
+**予算との連携** リソースモニターは予算を補完します: 予算は予測に基づく予測アラートを提供し、リソースモニターはリアルタイムの強制を提供します。包括的なコスト管理のために両方を一緒に使用します。
 
-## **More Information**
+## **追加情報**
 
-* [Working with Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors) — Overview of resource monitor capabilities  
-* [CREATE RESOURCE MONITOR](https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor) — SQL command reference
+* [リソースモニターの使用](https://docs.snowflake.com/en/user-guide/resource-monitors) — リソースモニター機能の概要
+* [CREATE RESOURCE MONITOR](https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor) — SQL コマンドリファレンス
 
-### Configuration Questions
+### 設定の質問
 
-#### What is the monthly credit limit for the resource monitor? (`account_resource_monitor_limit`: text)
-**What is this asking?**
-Set the maximum number of credits the account can consume before the configured action (at 100%) is taken.
+#### リソースモニターの月次クレジット上限はいくらですか？（`account_resource_monitor_limit`: text）
+**何を聞いているか？**
+（100% で）設定されたアクションが取られる前にアカウントが消費できる最大クレジット数を設定します。
 
-**Why does this matter?**
-This is your hard limit. The resource monitor will automatically set up tiered alerts:
-- At 75% of this limit: First notification
-- At 90% of this limit: Second notification
-- At 100% of this limit: Your selected action (Suspend/Notify)
-- At 110%: Same action as 100% (catches overruns)
+**なぜ重要か？**
+これはハードリミットです。リソースモニターは自動的に段階的アラートを設定します:
+- この上限の 75% で: 最初の通知
+- この上限の 90% で: 2 番目の通知
+- この上限の 100% で: 選択したアクション（一時停止/通知）
+- 110% で: 100% と同じアクション（超過を検出）
 
-**How to determine your limit:**
-- Align with or slightly exceed your monthly budget
-- Consider setting 10-20% higher than expected usage as a safety buffer
-- Account for all warehouses that will be created
+**上限の決め方:**
+- 月次予算に合わせるか、わずかに超える
+- 安全バッファとして予想使用量より 10〜20% 高く設定することを検討する
+- 作成されるすべてのウェアハウスを考慮する
 
-**Example:**
-If your monthly budget is 1,000 credits:
-- Set limit to 1,000 credits
-- First alert at 750 credits (75%)
-- Second alert at 900 credits (90%)
-- Action triggered at 1,000 credits (100%)
+**例:**
+月次予算が 1,000 クレジットの場合:
+- 上限を 1,000 クレジットに設定
+- 750 クレジット（75%）で最初のアラート
+- 900 クレジット（90%）で 2 番目のアラート
+- 1,000 クレジット（100%）でアクションがトリガー
 
-**Relationship to Budgets:**
-If you set a budget of 1,000 credits with a 75% threshold, you'll receive budget forecasting alerts *before* the resource monitor's 75% actual usage alert—giving you even earlier warning.
+**予算との関係:**
+予算を 75% しきい値で 1,000 クレジットに設定すると、リソースモニターの 75% 実際使用量アラートの*前*に予算予測アラートを受け取ります — さらに早期の警告が得られます。
 
-**Warning:** When the limit is reached and suspension is configured, ALL warehouses will be affected.
+**警告:** 上限に達して一時停止が設定されている場合、すべてのウェアハウスが影響を受けます。
 
-#### What action should be taken when the credit limit is reached? (`account_resource_monitor_action`: multi-select)
-**What is this asking?**
-Choose what happens when the credit limit is reached.
+#### クレジット上限に達したときにどのようなアクションを取りますか？（`account_resource_monitor_action`: multi-select）
+**何を聞いているか？**
+クレジット上限に達したときに何が起こるかを選択します。
 
-**Why does this matter?**
-Different actions balance cost protection against user disruption.
+**なぜ重要か？**
+異なるアクションはコスト保護とユーザーの混乱のバランスをとります。
 
-**Options explained:**
+**オプションの説明:**
 
-**Suspend Immediately:**
-- Terminates all running queries immediately
-- Suspends all warehouses
-- Most aggressive protection
-- May cause user disruption
+**即時一時停止:**
+- 実行中のすべてのクエリを即座に終了
+- すべてのウェアハウスを一時停止
+- 最も積極的な保護
+- ユーザーの混乱を引き起こす可能性がある
 
-**Suspend After Current Queries (Recommended):**
-- Allows running queries to complete
-- Blocks new queries from starting
-- Suspends warehouses after current work finishes
-- Balances protection with user experience
+**現在のクエリの後に一時停止（推奨）:**
+- 実行中のクエリを完了させる
+- 新しいクエリの開始をブロック
+- 現在の作業が終了した後にウェアハウスを一時停止
+- 保護とユーザーエクスペリエンスのバランスをとる
 
-**Notify Only:**
-- Sends alert but doesn't suspend
-- Requires manual intervention
-- Costs can exceed limit
+**通知のみ:**
+- アラートを送るが一時停止しない
+- 手動介入が必要
+- コストが上限を超える可能性がある
 
-**Recommendation:**
-Use "Suspend After Current Queries" for production.
-**Options:**
+**推奨事項:**
+本番環境では「現在のクエリの後に一時停止」を使用します。
+**オプション:**
 - Suspend Immediately
 - Suspend After Current Queries
 - Notify Only
 
-#### How often should the resource monitor reset? (`account_resource_monitor_reset_frequency`: multi-select)
-**What is this asking?**
-Choose when the credit counter resets to zero.
+#### リソースモニターはどの頻度でリセットしますか？（`account_resource_monitor_reset_frequency`: multi-select）
+**何を聞いているか？**
+クレジットカウンターがゼロにリセットされるタイミングを選択します。
 
-**Why does this matter?**
-The reset frequency should align with your billing and budgeting cycles.
+**なぜ重要か？**
+リセット頻度は請求および予算サイクルに合わせる必要があります。
 
-**Options explained:**
+**オプションの説明:**
 
-**Monthly (Recommended):**
-- Resets on the 1st of each month
-- Aligns with Snowflake billing cycles
+**月次（推奨）:**
+- 毎月 1 日にリセット
+- Snowflake 請求サイクルに合わせる
 
-**Weekly:**
-- Resets every Monday
-- For tighter weekly cost control
+**週次:**
+- 毎週月曜日にリセット
+- より厳しい週次コスト管理のため
 
-**Daily:**
-- Resets daily at midnight
-- For very tight cost control
+**日次:**
+- 毎日深夜にリセット
+- 非常に厳しいコスト管理のため
 
-**Never:**
-- Manual reset only
-- For one-time credit allocations
+**なし:**
+- 手動リセットのみ
+- 一回限りのクレジット配分のため
 
-**Recommendation:**
-Use Monthly reset aligned with your billing cycle.
-**Options:**
+**推奨事項:**
+請求サイクルに合わせた月次リセットを使用します。
+**オプション:**
 - Monthly
 - Weekly
 - Daily
 - Never (manual reset)
 
-#### Do you want to configure resource monitors? (`enable_resource_monitors`: multi-select)
-**What is this asking?**
-Decide whether to implement an account-level resource monitor for active cost control.
-
-**Why does this matter?**
-Resource monitors provide hard credit limits that can automatically suspend warehouses when reached. This prevents runaway costs from misconfigured warehouses or inefficient queries.
-
-**Options explained:**
-
-**Yes (Recommended for Production):**
-- Automatically suspend ALL warehouses at credit limits
-- Prevent runaway costs across entire account
-- Real-time protection for total spending
-- Required for cost-sensitive environments
-
-**No:**
-- Rely on budgets and manual monitoring
-- More flexible but higher risk of cost overruns
-- Not recommended for production environments
-
-**Note:** This creates an account-level monitor only. Warehouse-specific monitors will be configured in the Data Product workflow.
-
-**Recommendation:**
-Always use an account resource monitor in production environments to prevent unexpected costs.
-
-**More Information:**
-* [Working with Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors)
-**Options:**
+#### リソースモニターを設定しますか？（`enable_resource_monitors`: multi-select）
+**オプション:**
 - Yes
 - No

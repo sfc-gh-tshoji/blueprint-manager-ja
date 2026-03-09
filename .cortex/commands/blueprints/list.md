@@ -2,59 +2,59 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints List
+# Blueprints 一覧
 
-List all available blueprints with their metadata.
+すべての利用可能なブループリントをメタデータ付きで一覧表示します。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:list
 ```
 
-## Instructions
+## 手順
 
-Read all blueprint meta.yaml files from the `blueprints/` directory and display them in a formatted table.
+`blueprints/` ディレクトリからすべてのブループリント meta.yaml ファイルを読み込み、整形されたテーブルで表示します。
 
-For each blueprint, show:
-- **Name**: The human-readable blueprint name
-- **ID**: The directory name/blueprint identifier  
-- **Summary**: Brief description of what the blueprint does
-- **Repeatable**: Whether this blueprint can be run multiple times (Yes/No)
-- **Steps**: Number of steps in the blueprint
+各ブループリントについて以下を表示:
+- **名前**: 人間が読めるブループリント名
+- **ID**: ディレクトリ名/ブループリント識別子
+- **サマリー**: ブループリントが何を行うかの簡単な説明
+- **繰り返し可能**: ブループリントを複数回実行できるか（はい/いいえ）
+- **ステップ数**: ブループリントのステップ数
 
-## Output Format
+## 出力フォーマット
 
-Display as a markdown table:
+マークダウンテーブルとして表示:
 
 ```
-| Name | ID | Summary | Repeatable | Steps |
+| 名前 | ID | サマリー | 繰り返し可能 | ステップ数 |
 |------|-----|---------|------------|-------|
-| Platform Foundation Setup | platform-foundation-setup | Establish core platform... | No | 22 |
-| Account Creation | account-creation | Create and configure... | Yes | 21 |
-| Data Product Setup | data-product-setup | Set up data product... | Yes | 16 |
+| プラットフォームファウンデーションセットアップ | platform-foundation-setup | コアプラットフォームを構築... | いいえ | 22 |
+| アカウント作成 | account-creation | 新しいアカウントを作成して設定... | はい | 21 |
+| データプロダクトセットアップ | data-product-setup | データプロダクトをセットアップ... | はい | 16 |
 ```
 
-## Implementation
+## 実装
 
-1. Find all `meta.yaml` files in subdirectories of the `blueprints/` folder
-2. Parse each meta.yaml to extract: `name`, `summary`, `is_repeatable`, and count of `steps`
-3. Skip the `images/` subdirectory (it contains images.yaml, not a blueprint)
-4. Sort blueprints alphabetically by name
-5. Display the results as a formatted table
+1. `blueprints/` フォルダのサブディレクトリ内のすべての `meta.yaml` ファイルを検索
+2. 各 meta.yaml を解析して `name`、`summary`、`is_repeatable`、`steps` の数を抽出
+3. `images/` サブディレクトリをスキップ（ブループリントではなく images.yaml が含まれます）
+4. ブループリントを名前のアルファベット順に並び替え
+5. 整形されたテーブルとして結果を表示
 
-## Example Output
+## 出力例
 
 ```
-Available Blueprints:
+利用可能なブループリント:
 
-| Name | ID | Summary | Repeatable | Steps |
+| 名前 | ID | サマリー | 繰り返し可能 | ステップ数 |
 |------|-----|---------|------------|-------|
-| Account Creation | account-creation | Create and configure new Snowflake accounts | Yes | 21 |
-| Data Product Setup | data-product-setup | Set up a new data product domain | Yes | 16 |
-| Platform Foundation Setup | platform-foundation-setup | Establish core platform infrastructure | No | 22 |
+| アカウント作成 | account-creation | 新しい Snowflake アカウントを作成して設定 | はい | 21 |
+| データプロダクトセットアップ | data-product-setup | 新しいデータプロダクトドメインをセットアップ | はい | 16 |
+| プラットフォームファウンデーションセットアップ | platform-foundation-setup | コアプラットフォームインフラを構築 | いいえ | 22 |
 
-Total: 3 blueprints available
+合計: 3 件のブループリントが利用可能
 ```
 
-Now execute this by reading the blueprint meta.yaml files and presenting the information.
+ブループリントの meta.yaml ファイルを読み込み、情報を提示することで実行してください。

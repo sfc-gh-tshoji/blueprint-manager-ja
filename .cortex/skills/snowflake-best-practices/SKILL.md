@@ -4,236 +4,236 @@
 
 ---
 name: snowflake-best-practices
-description: "Snowflake best practices, guidance, recommendations, setup, and configuration advice curated by Snowflake subject matter experts. Use when: user asks about Snowflake best practices, setup recommendations, configuration guidance, architecture decisions, security patterns, cost management, RBAC design, account strategy, naming conventions, or how to implement Snowflake features correctly. Triggers: best practice, recommendation, guidance, how should I, what's the best way, setup advice, configuration help, Snowflake architecture, blueprint."
+description: "Snowflake のベストプラクティス、ガイダンス、推奨事項、セットアップ、および Snowflake SME がキュレーションした設定アドバイス。使用するとき: ユーザーが Snowflake のベストプラクティス、セットアップの推奨事項、設定ガイダンス、アーキテクチャの決定、セキュリティパターン、コスト管理、RBAC 設計、アカウント戦略、命名規則、または Snowflake 機能を正しく実装する方法について質問する場合。トリガー: ベストプラクティス、推奨事項、ガイダンス、どうすれば、最善の方法は、セットアップアドバイス、設定ヘルプ、Snowflake アーキテクチャ、ブループリント。"
 ---
 
-# Snowflake Best Practices
+# Snowflake ベストプラクティス
 
-This skill provides authoritative Snowflake best practices, guidance, and recommendations curated by Snowflake subject matter experts. The guidance in this repository has been validated by SMEs and represents official Snowflake recommendations.
+このスキルは、Snowflake SME (Subject Matter Experts) がキュレーションした、権威ある Snowflake のベストプラクティス、ガイダンス、および推奨事項を提供します。このリポジトリのガイダンスは SME によって検証されており、Snowflake の公式推奨事項を表しています。
 
-## When to Use
+## 使用するとき
 
-Invoke this skill when users ask about:
-- Snowflake best practices or recommendations
-- Setup, configuration, or architecture guidance
-- Account strategy (single vs multi-account)
-- Security patterns (RBAC, network policies, authentication)
-- Cost management and resource monitoring
-- Naming conventions
-- Data product design
-- Role hierarchy and access control
-- Warehouse sizing and configuration
-- Any "how should I" or "what's the best way" questions about Snowflake
+以下について質問するユーザーが現れた場合にこのスキルを呼び出します:
+- Snowflake のベストプラクティスまたは推奨事項
+- セットアップ、設定、またはアーキテクチャのガイダンス
+- アカウント戦略（シングルアカウント vs マルチアカウント）
+- セキュリティパターン（RBAC、ネットワークポリシー、認証）
+- コスト管理とリソースモニタリング
+- 命名規則
+- データプロダクトの設計
+- ロール階層とアクセス制御
+- ウェアハウスのサイジングと設定
+- Snowflake に関する「どうすべきか」「最善の方法は何か」という質問全般
 
-## Priority: Local Content First
+## 優先順位: ローカルコンテンツ優先
 
-**CRITICAL:** This skill prioritizes curated SME content over general documentation:
+**重要:** このスキルは一般的なドキュメントよりもキュレーションされた SME コンテンツを優先します:
 
-1. **FIRST** - Search blueprint, step, and question definitions in this repository
-2. **THEN** - Only use `snowflake_product_docs` or `system_instructions` for topics not covered locally
+1. **最初に** - このリポジトリのブループリント、ステップ、質問定義を検索する
+2. **次に** - ローカルでカバーされていないトピックにのみ `snowflake_product_docs` または `system_instructions` を使用する
 
-## Content Sources (Priority Order)
+## コンテンツソース（優先順位順）
 
-### 1. Blueprint Overviews (Highest Authority)
-Location: `blueprints/*/overview.md`
+### 1. ブループリント概要（最高権威）
+場所: `blueprints/*/overview.md`
 
-Blueprint overviews provide strategic guidance on major topics. **Discover available blueprints at runtime:**
+ブループリント概要は主要トピックに関する戦略的ガイダンスを提供します。**実行時に利用可能なブループリントを発見します:**
 ```bash
-# List all blueprints and their titles
+# すべてのブループリントとそのタイトルを一覧表示
 for f in blueprints/*/overview.md; do echo "=== $f ==="; head -5 "$f"; done
 ```
 
-Each blueprint directory contains:
-- `overview.md` - Strategic guidance and context
-- `meta.yaml` - Blueprint metadata (title, description)
-- `step_*/` - Individual step directories
+各ブループリントディレクトリには以下が含まれます:
+- `overview.md` - 戦略的ガイダンスとコンテキスト
+- `meta.yaml` - ブループリントメタデータ（タイトル、説明）
+- `step_*/` - 個別のステップディレクトリ
 
-### 2. Step Overviews (Detailed Guidance)
-Location: `blueprints/*/step_*/overview.md`
+### 2. ステップ概要（詳細なガイダンス）
+場所: `blueprints/*/step_*/overview.md`
 
-Each step provides detailed best practices on specific topics including:
-- Why the topic is important
-- Key concepts explained
-- Considerations and trade-offs
-- Best practices with pros/cons
-- Decision criteria ("Choose this if..." / "Avoid this if...")
-- Links to official documentation
+各ステップは特定のトピックに関する詳細なベストプラクティスを提供します:
+- そのトピックが重要な理由
+- 主要な概念の説明
+- 考慮事項とトレードオフ
+- 長所/短所を含むベストプラクティス
+- 意思決定基準（「これを選ぶとき...」/「これを避けるとき...」）
+- 公式ドキュメントへのリンク
 
-**Discover steps at runtime:**
+**実行時にステップを発見します:**
 ```bash
-# Search steps for a topic
+# トピックのステップを検索
 grep -r -l -i "<topic>" blueprints/*/step_*/overview.md
 ```
 
-### 3. Question Definitions (Practical Recommendations)
-Location: `definitions/questions.yaml`
+### 3. 質問定義（実践的な推奨事項）
+場所: `definitions/questions.yaml`
 
-Contains detailed guidance for configuration decisions including:
-- Explanation of options
-- Recommendations by use case
-- Examples and common patterns
-- Format guidance and validation rules
+設定の意思決定に関する詳細なガイダンスが含まれています:
+- オプションの説明
+- ユースケース別の推奨事項
+- 例と一般的なパターン
+- フォーマットガイダンスと検証ルール
 
-## Blueprint
+## ブループリント
 
-### Step 1: Understand the User's Question
+### ステップ 1: ユーザーの質問を理解する
 
-**Goal:** Categorize what type of guidance the user needs
+**目標:** ユーザーが必要とするガイダンスの種類を分類する
 
-**Categories:**
-- **Account Strategy**: Single vs multi-account, organization accounts
-- **Security & Authentication**: RBAC, SSO/SAML, SCIM, network policies, MFA
-- **Cost Management**: Budgets, resource monitors, tags, chargeback
-- **Naming Conventions**: Objects, accounts, roles, warehouses
-- **Data Architecture**: Zones, schemas, databases, data products
-- **Access Control**: Role design, grants, privileges, role hierarchy
-- **Warehouses**: Sizing, auto-suspend, workload isolation
-- **Compliance**: Audit, data retention, time travel, governance
+**カテゴリー:**
+- **アカウント戦略**: シングルアカウント vs マルチアカウント、組織アカウント
+- **セキュリティと認証**: RBAC、SSO/SAML、SCIM、ネットワークポリシー、MFA
+- **コスト管理**: 予算、リソースモニター、タグ、チャージバック
+- **命名規則**: オブジェクト、アカウント、ロール、ウェアハウス
+- **データアーキテクチャ**: ゾーン、スキーマ、データベース、データプロダクト
+- **アクセス制御**: ロール設計、付与、権限、ロール階層
+- **ウェアハウス**: サイジング、自動サスペンド、ワークロードの分離
+- **コンプライアンス**: 監査、データ保持、タイムトラベル、ガバナンス
 
-### Step 2: Search Local Content
+### ステップ 2: ローカルコンテンツを検索する
 
-**Goal:** Find relevant SME-curated guidance from the repository
+**目標:** リポジトリから関連する SME キュレーションガイダンスを見つける
 
-**Actions:**
+**アクション:**
 
-1. **Search blueprint overviews** for the topic:
+1. トピックについて**ブループリント概要を検索する**:
    ```bash
    grep -r -i "<topic_keywords>" blueprints/*/overview.md
    ```
 
-2. **Search step overviews** for detailed guidance:
+2. 詳細なガイダンスについて**ステップ概要を検索する**:
    ```bash
    grep -r -i "<topic_keywords>" blueprints/*/step_*/overview.md
    ```
 
-3. **Search question definitions** for practical recommendations:
+3. 実践的な推奨事項について**質問定義を検索する**:
    ```bash
    grep -A 50 "<topic_keywords>" definitions/questions.yaml
    ```
 
-4. **Read the most relevant files** in full to get complete context
+4. 完全なコンテキストを得るために**最も関連性の高いファイルを全文読む**
 
-**Topic to File Mapping (Dynamic Discovery):**
+**トピックからファイルへのマッピング（動的発見）:**
 
-Rather than hardcoded paths, **search at runtime** to find relevant content:
+ハードコードされたパスではなく、**実行時に検索**して関連コンテンツを見つけます:
 
 ```bash
-# Search blueprint overviews for strategic guidance
+# 戦略的ガイダンスのためにブループリント概要を検索
 grep -r -l -i "<topic>" blueprints/*/overview.md
 
-# Search step overviews for detailed best practices
+# 詳細なベストプラクティスのためにステップ概要を検索
 grep -r -l -i "<topic>" blueprints/*/step_*/overview.md
 
-# Search question definitions for configuration recommendations
+# 設定の推奨事項のために質問定義を検索
 grep -A 50 -i "<topic>" definitions/questions.yaml
 ```
 
-**Common search terms by topic:**
-| Topic | Search Keywords |
+**トピック別の一般的な検索キーワード:**
+| トピック | 検索キーワード |
 |-------|-----------------|
-| Account strategy | `account strategy`, `single account`, `multi-account`, `organization` |
-| Naming conventions | `naming`, `convention`, `component order`, `identifier` |
-| Authentication | `SCIM`, `SAML`, `SSO`, `MFA`, `authentication` |
-| Network security | `network policy`, `IP`, `private link`, `allowed list` |
-| Cost management | `budget`, `resource monitor`, `cost center`, `chargeback`, `tag` |
-| Access control | `role`, `RBAC`, `grant`, `privilege`, `access` |
-| Warehouses | `warehouse`, `sizing`, `auto-suspend`, `scaling` |
-| Data architecture | `zone`, `schema`, `database`, `data product` |
-| Data retention | `time travel`, `retention`, `transient` |
+| アカウント戦略 | `account strategy`, `single account`, `multi-account`, `organization` |
+| 命名規則 | `naming`, `convention`, `component order`, `identifier` |
+| 認証 | `SCIM`, `SAML`, `SSO`, `MFA`, `authentication` |
+| ネットワークセキュリティ | `network policy`, `IP`, `private link`, `allowed list` |
+| コスト管理 | `budget`, `resource monitor`, `cost center`, `chargeback`, `tag` |
+| アクセス制御 | `role`, `RBAC`, `grant`, `privilege`, `access` |
+| ウェアハウス | `warehouse`, `sizing`, `auto-suspend`, `scaling` |
+| データアーキテクチャ | `zone`, `schema`, `database`, `data product` |
+| データ保持 | `time travel`, `retention`, `transient` |
 
-### Step 3: Synthesize and Present Guidance
+### ステップ 3: ガイダンスを統合して提示する
 
-**Goal:** Provide clear, actionable recommendations
+**目標:** 明確で実行可能な推奨事項を提供する
 
-**Format for responses:**
+**応答のフォーマット:**
 
-1. **Lead with the recommendation** - State the best practice clearly
-2. **Explain why** - Provide the reasoning from SME guidance
-3. **Show options** - If multiple valid approaches exist, present trade-offs
-4. **Give decision criteria** - Help user choose based on their situation
-5. **Include examples** - Concrete examples from the guidance
-6. **Link to details** - Reference the source file for more information
+1. **推奨事項から始める** - ベストプラクティスを明確に述べる
+2. **理由を説明する** - SME ガイダンスからの根拠を提供する
+3. **オプションを示す** - 複数の有効なアプローチが存在する場合はトレードオフを提示する
+4. **意思決定基準を示す** - ユーザーの状況に基づいて選択を支援する
+5. **例を含める** - ガイダンスからの具体的な例
+6. **詳細へのリンク** - 詳細情報のためにソースファイルを参照する
 
-**Example response format:**
+**応答フォーマットの例:**
 ```
-## Recommendation
+## 推奨事項
 
-[Clear recommendation statement]
+[明確な推奨事項]
 
-## Why
+## 理由
 
-[Reasoning from SME-curated content]
+[SME キュレーションコンテンツからの根拠]
 
-## Options (if applicable)
+## オプション（該当する場合）
 
-| Option | Best For | Trade-offs |
+| オプション | 最適な場合 | トレードオフ |
 |--------|----------|------------|
 | ... | ... | ... |
 
-## Decision Criteria
+## 意思決定基準
 
-✅ **Choose [Option A] if:**
-- [criteria 1]
-- [criteria 2]
+✅ **[オプション A] を選ぶ場合:**
+- [基準 1]
+- [基準 2]
 
-❌ **Avoid [Option A] if:**
-- [criteria 1]
-- [criteria 2]
+❌ **[オプション A] を避ける場合:**
+- [基準 1]
+- [基準 2]
 
-## Example
+## 例
 
-[Concrete example from guidance]
+[ガイダンスからの具体的な例]
 
 ---
-*Source: [file path in repository]*
+*ソース: [リポジトリ内のファイルパス]*
 ```
 
-### Step 4: Supplement with Official Documentation (If Needed)
+### ステップ 4: 公式ドキュメントで補足する（必要な場合）
 
-**Goal:** Fill gaps for topics not covered in local content
+**目標:** ローカルコンテンツでカバーされていないトピックのギャップを埋める
 
-**Actions:**
+**アクション:**
 
-1. **Only if local content doesn't cover the topic**, use:
-   - `snowflake_product_docs` for feature documentation
-   - `system_instructions` for RBAC, Streamlit, dbt, Cortex guidance
+1. **ローカルコンテンツがトピックをカバーしていない場合のみ**、使用します:
+   - `snowflake_product_docs` - 機能ドキュメント
+   - `system_instructions` - RBAC、Streamlit、dbt、Cortex のガイダンス
 
-2. **Clearly distinguish** between SME-curated guidance and general documentation:
+2. SME キュレーションガイダンスと一般的なドキュメントの違いを**明確に区別**します:
    ```
-   ## From SME-Curated Best Practices
-   [Local content]
+   ## SME キュレーションベストプラクティスから
+   [ローカルコンテンツ]
    
-   ## Additional Reference (Snowflake Documentation)
-   [Content from snowflake_product_docs]
+   ## 追加参照（Snowflake ドキュメント）
+   [snowflake_product_docs からのコンテンツ]
    ```
 
-## Content Authority Hierarchy
+## コンテンツ権威階層
 
-1. **Blueprint/Step overviews** - Strategic guidance, architecture decisions
-2. **Question definitions** - Practical recommendations, configuration choices
-3. **snowflake_product_docs** - Feature documentation, syntax, capabilities
-4. **system_instructions** - Tool-specific guidance (RBAC, Streamlit, dbt)
+1. **ブループリント/ステップ概要** - 戦略的ガイダンス、アーキテクチャの決定
+2. **質問定義** - 実践的な推奨事項、設定の選択
+3. **snowflake_product_docs** - 機能ドキュメント、構文、機能
+4. **system_instructions** - ツール固有のガイダンス（RBAC、Streamlit、dbt）
 
-## Stopping Points
+## 停止ポイント
 
-- **After presenting recommendations**: Ask if user needs clarification or has follow-up questions
-- **If topic spans multiple areas**: Offer to dive deeper into specific aspects
+- **推奨事項を提示した後**: ユーザーに明確化が必要か、またはフォローアップの質問があるか確認する
+- **トピックが複数の領域にまたがる場合**: 特定の側面をより深く掘り下げることを提案する
 
-## Best Practices for This Skill
+## このスキルのベストプラクティス
 
-1. **Always search local content first** - This is the primary value of this skill
-2. **Read full context** - Don't just grep snippets; read entire overview sections
-3. **Preserve nuance** - SME guidance often includes important caveats
-4. **Credit sources** - Reference the specific file path for the guidance
-5. **Be specific** - Generic advice is less valuable than contextual recommendations
-6. **Ask clarifying questions** - If user's situation affects the recommendation
+1. **常にローカルコンテンツを最初に検索する** - これがこのスキルの主な価値です
+2. **完全なコンテキストを読む** - スニペットだけを grep するのではなく、概要セクション全体を読む
+3. **ニュアンスを保持する** - SME ガイダンスには重要な注意事項が含まれていることが多い
+4. **ソースをクレジットする** - ガイダンスの特定のファイルパスを参照する
+5. **具体的にする** - 一般的なアドバイスよりも文脈に沿った推奨事項の方が価値がある
+6. **明確化の質問をする** - ユーザーの状況が推奨事項に影響する場合
 
-## Output
+## 出力
 
-This skill provides:
-- Clear, actionable recommendations
-- Reasoning backed by SME-curated content
-- Trade-off analysis for decision-making
-- Concrete examples and patterns
-- References to source files for deeper reading
-- Supplemental official documentation when needed
+このスキルが提供するもの:
+- 明確で実行可能な推奨事項
+- SME キュレーションコンテンツに裏付けられた根拠
+- 意思決定のためのトレードオフ分析
+- 具体的な例とパターン
+- より深く読むためのソースファイルへの参照
+- 必要に応じた公式ドキュメントの補足

@@ -2,38 +2,38 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Validate
+# Blueprints 検証
 
-Check an answer file for completeness against blueprint requirements and validate blueprint schema.
+ブループリント要件に対する回答ファイルの完全性をチェックし、ブループリントスキーマを検証します。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:validate <answer-file> --blueprint <blueprint-name>
 ```
 
-## Arguments
+## 引数
 
-- `<answer-file>`: Path to the YAML answer file to validate
-- `--blueprint <blueprint-name>`: The blueprint ID to validate against
+- `<answer-file>`: 検証する YAML 回答ファイルのパス
+- `--blueprint <blueprint-name>`: 検証対象のブループリント ID
 
-## Instructions
+## 手順
 
-Validate an answer file by checking:
+以下をチェックして回答ファイルを検証します:
 
-1. **File Existence**: Verify the answer file exists and is valid YAML
-2. **Blueprint Match**: Ensure the blueprint exists
-3. **Blueprint Schema**: Validate the blueprint's meta.yaml structure (see Schema Validation below)
-4. **Required Variables**: Check each step's templates for required variables
-5. **Missing Values**: Identify variables that are missing from the answer file
-6. **Null Values**: Identify variables that exist but have null/empty values
-7. **Type Validation**: Check that values match expected types (text, list, object-list, multi-select)
+1. **ファイルの存在確認**: 回答ファイルが存在し、有効な YAML であることを確認
+2. **ブループリントの一致**: ブループリントが存在することを確認
+3. **ブループリントスキーマ**: ブループリントの meta.yaml 構造を検証（以下のスキーマ検証を参照）
+4. **必須変数**: 各ステップのテンプレートで必須変数をチェック
+5. **不足値**: 回答ファイルに不足している変数を特定
+6. **Null 値**: 存在するが null/空の値を持つ変数を特定
+7. **型の検証**: 値が期待される型（text、list、object-list、multi-select）と一致するかチェック
 
-## Schema Validation
+## スキーマ検証
 
-The validator supports both flat (steps-only) and nested (tasks with steps) blueprint formats:
+バリデーターはフラット形式（ステップのみ）とネスト形式（タスク付きステップ）の両ブループリント形式をサポートします:
 
-### Flat Format (without tasks)
+### フラット形式（タスクなし）
 ```yaml
 blueprint_id: blueprint_abc123
 name: Simple Setup
@@ -44,7 +44,7 @@ steps:
   - step-two
 ```
 
-### Nested Format (with tasks)
+### ネスト形式（タスク付き）
 ```yaml
 blueprint_id: blueprint_def456
 name: Platform Setup
@@ -70,85 +70,85 @@ tasks:
         title: Step Two
 ```
 
-### Task Structure Validation Rules
+### タスク構造の検証ルール
 
-When a blueprint includes `tasks`, the following validations are performed:
+ブループリントに `tasks` が含まれる場合、以下の検証が実行されます:
 
-1. **Required task fields**: Each task must have `slug`, `title`, and `summary`
-2. **Optional task fields**: `role_requirements`, `external_requirements`, `personas`, `description`, `steps`
-3. **Step references**: Step slugs in tasks must reference valid steps defined in the blueprint's `steps` list
-4. **Unique slugs**: Task slugs must be unique within the blueprint
-5. **Step coverage**: All steps should be assigned to at least one task (warning if not)
+1. **必須タスクフィールド**: 各タスクには `slug`、`title`、`summary` が必要
+2. **オプションタスクフィールド**: `role_requirements`、`external_requirements`、`personas`、`description`、`steps`
+3. **ステップ参照**: タスク内のステップスラグはブループリントの `steps` リストで定義された有効なステップを参照する必要がある
+4. **スラグの一意性**: タスクスラグはブループリント内で一意である必要がある
+5. **ステップのカバレッジ**: すべてのステップは少なくとも1つのタスクに割り当てられる必要がある（未割り当ての場合は警告）
 
-## Output Format
+## 出力フォーマット
 
-### Valid Answer File
+### 有効な回答ファイル
 ```
-Validating: answers.yaml
-Blueprint: platform-foundation-setup
+検証中: answers.yaml
+ブループリント: platform-foundation-setup
 
-✅ Answer file is complete!
+✅ 回答ファイルは完全です！
 
-Summary:
-- Total steps: 22
-- Renderable steps: 22
-- All required variables provided
+サマリー:
+- 合計ステップ数: 22
+- レンダリング可能なステップ数: 22
+- 必須変数がすべて提供されています
 ```
 
-### Invalid Answer File
+### 無効な回答ファイル
 ```
-Validating: answers.yaml
-Blueprint: platform-foundation-setup
+検証中: answers.yaml
+ブループリント: platform-foundation-setup
 
-⚠️ Answer file has missing or invalid values
+⚠️ 回答ファイルに不足または無効な値があります
 
-Summary:
-- Total steps: 22
-- Renderable steps: 18
-- Steps with issues: 4
+サマリー:
+- 合計ステップ数: 22
+- レンダリング可能なステップ数: 18
+- 問題のあるステップ数: 4
 
-Missing Variables:
-| Variable | Required By Steps |
+不足変数:
+| 変数 | 必要なステップ |
 |----------|-------------------|
 | org_admin_email | create-organization-account, provision-account-administrators |
 | breakglass_accounts | create-break-glass-emergency-access |
 
-Null Variables:
-| Variable | Required By Steps |
+Null 変数:
+| 変数 | 必要なステップ |
 |----------|-------------------|
 | scim_admin_users | configure-scim-integration |
 
-Steps That Cannot Render:
-| Step | Missing | Null |
+レンダリング不可能なステップ:
+| ステップ | 不足 | Null |
 |------|---------|------|
 | create-organization-account | org_admin_email | - |
 | configure-scim-integration | - | scim_admin_users |
 | provision-account-administrators | org_admin_email | - |
 | create-break-glass-emergency-access | breakglass_accounts | - |
 
-Run 'blueprints build <blueprint>' to interactively fill missing values.
+'blueprints build <blueprint>' を実行して不足値をインタラクティブに入力してください。
 ```
 
-## Implementation
+## 実装
 
-1. Load the answer YAML file
-2. Load the blueprint meta.yaml
-3. For each step in the blueprint:
-   - Find the `code.sql.jinja` and `dynamic.md.jinja` templates
-   - Parse templates to find all referenced variables (using Jinja2 AST like render_journey.py)
-   - Check if each variable exists in answers and is non-null
-4. Aggregate results and display validation report
+1. 回答 YAML ファイルを読み込む
+2. ブループリントの meta.yaml を読み込む
+3. ブループリントの各ステップについて:
+   - `code.sql.jinja` と `dynamic.md.jinja` テンプレートを検索
+   - テンプレートを解析してすべての参照変数を検索（render_journey.py のような Jinja2 AST を使用）
+   - 各変数が回答に存在し、null でないことを確認
+4. 結果を集計して検証レポートを表示
 
-## Error Handling
+## エラー処理
 
-- If answer file doesn't exist: `Error: Answer file not found: <path>`
-- If answer file is invalid YAML: `Error: Invalid YAML in answer file: <error>`
-- If blueprint doesn't exist: `Error: Blueprint '<name>' not found`
+- 回答ファイルが存在しない場合: `エラー: 回答ファイルが見つかりません: <path>`
+- 回答ファイルが無効な YAML の場合: `エラー: 回答ファイルの無効な YAML: <error>`
+- ブループリントが存在しない場合: `エラー: ブループリント '<name>' が見つかりません`
 
-## Exit Codes
+## 終了コード
 
-- `0`: Answer file is complete and valid
-- `1`: Answer file has missing or invalid values
-- `2`: File or blueprint not found
+- `0`: 回答ファイルは完全かつ有効
+- `1`: 回答ファイルに不足または無効な値がある
+- `2`: ファイルまたはブループリントが見つからない
 
-Now execute this by reading the specified answer file and blueprint, then performing validation.
+指定された回答ファイルとブループリントを読み込み、検証を実行することで実行してください。

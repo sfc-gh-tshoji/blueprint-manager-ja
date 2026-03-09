@@ -1,112 +1,110 @@
-# Account Security & Identity
+# アカウントセキュリティとアイデンティティ
 
-## Summary
-Configure user provisioning (SCIM or manual), establish administrator access,
-set up network rules and policies, configure authentication policies,
-create break-glass emergency access, and enable multi-factor authentication.
+## 概要
+ユーザープロビジョニング（SCIM または手動）を設定し、管理者アクセスを確立し、ネットワークルールとポリシーを設定し、認証ポリシーを設定し、ブレークグラス緊急アクセスを作成し、多要素認証を有効にします。
 
-## External Requirements
-- Account created and accessible (Task 1 completed)
-- Infrastructure share consumed
-- Identity Provider selection (Okta, Azure, None)
-- SAML/SSO configuration preference
-- Network policy IP ranges
+## 外部要件
+- アカウントが作成済みでアクセス可能（タスク 1 完了）
+- インフラ共有の利用済み
+- ID プロバイダーの選択（Okta、Azure、なし）
+- SAML/SSO 設定の優先事項
+- ネットワークポリシーの IP 範囲
 
-## Personas
-- Security Administrator
-- Platform Administrator
-- Network Team
+## ペルソナ
+- セキュリティ管理者
+- プラットフォーム管理者
+- ネットワークチーム
 
-## Role Requirements
-- ACCOUNTADMIN role access
-- Logged into the new account
+## ロール要件
+- ACCOUNTADMIN ロールアクセス
+- 新しいアカウントにログイン済み
 
-## Details
-## Steps in This Task
+## 詳細
+## このタスクのステップ
 
-| Step | Title | Purpose | Conditional |
-|------|-------|---------|-------------|
-| 2.1 | Select Security Configuration Approach | Choose to use org configuration or custom | Always shown |
-| 2.2 | Configure SCIM Integration | Set up automated user provisioning | If SCIM provider selected |
-| 2.3 | Create Account Administrators | Assign admin roles for this account | Always shown |
-| 2.4 | Configure SAML/SSO | Enable federated authentication | If SAML selected |
-| 2.5 | Create Break-Glass Emergency Access | Establish emergency access | Always shown |
-| 2.6 | Apply Organization Network Configuration | Use shared network rules | If using org config |
-| 2.6 | Configure Custom Network Rules | Create custom network rules | If using custom config |
-| 2.7 | Configure Authentication Policies | Define auth requirements by user type | Always shown |
-| 2.8 | Enable Multi-Factor Authentication | Guide MFA enrollment | Always shown |
+| ステップ | タイトル | 目的 | 条件 |
+|---------|---------|------|------|
+| 2.1 | セキュリティ設定アプローチの選択 | 組織設定またはカスタムの使用を選択 | 常に表示 |
+| 2.2 | SCIM 統合の設定 | 自動ユーザープロビジョニングの設定 | SCIM プロバイダーが選択された場合 |
+| 2.3 | アカウント管理者の作成 | このアカウントの管理者ロールを割り当て | 常に表示 |
+| 2.4 | SAML/SSO の設定 | フェデレーテッド認証を有効化 | SAML が選択された場合 |
+| 2.5 | ブレークグラス緊急アクセスの作成 | 緊急アクセスの確立 | 常に表示 |
+| 2.6 | 組織ネットワーク設定の適用 | 共有ネットワークルールを使用 | 組織設定を使用する場合 |
+| 2.6 | カスタムネットワークルールの設定 | カスタムネットワークルールを作成 | カスタム設定を使用する場合 |
+| 2.7 | 認証ポリシーの設定 | ユーザータイプ別の認証要件を定義 | 常に表示 |
+| 2.8 | 多要素認証の有効化 | MFA 登録のガイダンス | 常に表示 |
 
-**Note:** Only one of Step 2.6a or 2.6b will be displayed based on your security configuration approach.
+**注:** ステップ 2.6a または 2.6b のいずれか 1 つのみがセキュリティ設定アプローチに基づいて表示されます。
 
-**From Platform Foundation (inherited):**
-- Identity Provider selection (Okta, Azure, None)
-- SAML/SSO configuration preference
-- Network policy IP ranges (can be reused)
-- Authentication policy settings
+**プラットフォームファウンデーションから（継承）:**
+- ID プロバイダーの選択（Okta、Azure、なし）
+- SAML/SSO 設定の優先事項
+- ネットワークポリシーの IP 範囲（再利用可能）
+- 認証ポリシー設定
 
-## Account Execution Context
+## アカウント実行コンテキスト
 
-All steps in this task should be executed from the **newly created account**.
+このタスクのすべてのステップは**新しく作成したアカウント**から実行します。
 
-| Steps | Execute From |
-|-------|--------------|
-| 2.1 - 2.8 | **New Account** (the account you just created) |
+| ステップ | 実行元 |
+|---------|-------|
+| 2.1 - 2.8 | **新しいアカウント**（作成したアカウント） |
 
-## Time Estimate
+## 所要時間目安
 
-- **Security approach selection:** 2-5 minutes
-- **SCIM configuration (if applicable):** 5-10 minutes
-- **Administrator setup:** 5-10 minutes
-- **Network policies:** 5-10 minutes
-- **Authentication policies:** 5-10 minutes
-- **Break-glass setup:** 5-10 minutes
-- **MFA enablement:** 2-5 minutes
-- **Total:** 30-60 minutes
+- **セキュリティアプローチの選択:** 2〜5 分
+- **SCIM 設定（該当する場合）:** 5〜10 分
+- **管理者の設定:** 5〜10 分
+- **ネットワークポリシー:** 5〜10 分
+- **認証ポリシー:** 5〜10 分
+- **ブレークグラス設定:** 5〜10 分
+- **MFA 有効化:** 2〜5 分
+- **合計:** 30〜60 分
 
-## Key Decisions
+## 主要な決定事項
 
-| Decision | Who Should Decide | Impact |
-|----------|-------------------|--------|
-| Use org security config or new | Security/Platform Team | Consistency vs flexibility |
-| Account-specific administrators | Security/HR | Who has privileged access to this account |
-| Network restrictions | Security/Network Team | Access control scope |
-| Authentication requirements | Security Team | User experience vs security |
-| Break-glass access | Security Team | Emergency access procedures |
+| 決定 | 誰が決定すべきか | 影響 |
+|------|---------------|------|
+| 組織セキュリティ設定またはカスタムを使用 | セキュリティ/プラットフォームチーム | 一貫性 vs 柔軟性 |
+| アカウント固有の管理者 | セキュリティ/HR | このアカウントへの特権アクセスを持つ人 |
+| ネットワーク制限 | セキュリティ/ネットワークチーム | アクセス制御の範囲 |
+| 認証要件 | セキュリティチーム | ユーザーエクスペリエンス vs セキュリティ |
+| ブレークグラスアクセス | セキュリティチーム | 緊急アクセス手順 |
 
-## Configuration Approach
+## 設定アプローチ
 
-**Option 1: Use Organization Configuration**
-- Reuses the same settings established in Platform Foundation
-- Ensures consistency across all accounts
-- Recommended for most accounts
+**オプション 1: 組織設定を使用**
+- プラットフォームファウンデーションで確立された同じ設定を再利用
+- すべてのアカウント間の一貫性を確保
+- ほとんどのアカウントに推奨
 
-**Option 2: Configure Custom**
-- Allows account-specific security settings
-- Useful for accounts with unique requirements
-- Requires additional configuration questions
+**オプション 2: カスタムを設定**
+- アカウント固有のセキュリティ設定を許可
+- 独自の要件を持つアカウントに有用
+- 追加の設定質問が必要
 
-**Note:** Even when using organization configuration, you still need to:
-- Create the SCIM integration (account-level object)
-- Create a network POLICY referencing shared network RULES
-- Set up break-glass access for THIS account
-- Configure administrators for THIS account
+**注:** 組織設定を使用する場合でも、以下が必要です:
+- SCIM 統合の作成（アカウントレベルのオブジェクト）
+- 共有ネットワークルールを参照するネットワークポリシーの作成
+- このアカウントのブレークグラスアクセスの設定
+- このアカウントの管理者の設定
 
-**Shared Network Rules:** When using organization configuration, the network rules from Platform Foundation are shared via the Infrastructure database. You only need to create a network policy in this account that references those shared rules.
+**共有ネットワークルール:** 組織設定を使用する場合、プラットフォームファウンデーションのネットワークルールはインフラデータベースを通じて共有されます。このアカウントで共有ルールを参照するネットワークポリシーを作成するだけです。
 
-## Deliverables
+## 成果物
 
-Upon completing this task, you will have:
-- ✅ User provisioning configured (SCIM or manual)
-- ✅ Administrator users with ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN roles
-- ✅ Network rules and policies restricting access to allowed IPs
-- ✅ Authentication policies defining login requirements
-- ✅ Break-glass emergency access account
-- ✅ MFA enabled for privileged users
+このタスクを完了すると、以下が得られます:
+- ✅ ユーザープロビジョニングが設定済み（SCIM または手動）
+- ✅ ACCOUNTADMIN、SECURITYADMIN、SYSADMIN、USERADMIN ロールを持つ管理者ユーザー
+- ✅ 許可された IP へのアクセスを制限するネットワークルールとポリシー
+- ✅ ログイン要件を定義する認証ポリシー
+- ✅ ブレークグラス緊急アクセスアカウント
+- ✅ 特権ユーザーに対して有効化された MFA
 
-## More Information
+## 追加情報
 
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim) — Automated user provisioning
-* [SAML/SSO Configuration](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth) — Federated authentication
-* [Network Policies](https://docs.snowflake.com/en/user-guide/network-policies) — IP allowlisting
-* [Authentication Policies](https://docs.snowflake.com/en/user-guide/authentication-policies) — Auth requirements
-* [MFA Best Practices](https://docs.snowflake.com/en/user-guide/security-mfa) — Multi-factor authentication
+* [SCIM の概要](https://docs.snowflake.com/en/user-guide/scim) — 自動ユーザープロビジョニング
+* [SAML/SSO 設定](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth) — フェデレーテッド認証
+* [ネットワークポリシー](https://docs.snowflake.com/en/user-guide/network-policies) — IP ホワイトリスト
+* [認証ポリシー](https://docs.snowflake.com/en/user-guide/authentication-policies) — 認証要件
+* [MFA ベストプラクティス](https://docs.snowflake.com/en/user-guide/security-mfa) — 多要素認証

@@ -1,258 +1,148 @@
-In this step, you'll define the core identity of your data product, which determines how all objects are named, tagged, and governed. This step captures:
+このステップでは、データ製品のコア ID を定義します。これにより、すべてのオブジェクトの命名、タグ付け、ガバナンスが決まります。このステップで取得するもの:
 
-1. **Data Product Name** (`data_product_name`) — The unique identifier for this data product
-2. **Domain** (`data_product_domain`) — The business unit that owns this data product
-3. **Environment** (`data_product_environment`) — The SDLC stage for this deployment
-4. **SCIM Prefix** (`scim_prefix`) — Identity provider prefix for role ownership (or `NONE`)
-5. **Description** (`data_product_description`) — A brief description of the data product's purpose
+1. **データ製品名**（`data_product_name`）— このデータ製品の一意識別子
+2. **ドメイン**（`data_product_domain`）— このデータ製品を所有するビジネスユニット
+3. **環境**（`data_product_environment`）— このデプロイメントの SDLC ステージ
+4. **SCIM プレフィックス**（`scim_prefix`）— ロール所有権のための ID プロバイダープレフィックス（または `NONE`）
+5. **説明**（`data_product_description`）— データ製品の目的の簡単な説明
 
-**SCIM Integration:** This step introduces the SCIM prefix configuration, which determines how roles are owned and managed:
-- **With SCIM**: Roles are owned by `<scim_prefix>_PROVISIONER` for identity provider management
-- **Without SCIM**: Roles are owned by `USERADMIN` for manual management
+**SCIM 統合:** このステップでは、ロールの所有と管理方法を決定する SCIM プレフィックス設定を導入します:
+- **SCIM あり**: ロールは ID プロバイダー管理のために `<scim_prefix>_PROVISIONER` が所有
+- **SCIM なし**: ロールは手動管理のために `USERADMIN` が所有
 
-**Account Context:** Execute subsequent SQL from the target account identified in Step 1.1 (or your primary account for single-account strategies).
+**アカウントコンテキスト:** ステップ 1.1 で特定されたターゲットアカウント（またはシングルアカウント戦略のプライマリアカウント）から後続の SQL を実行します。
 
-## Why is this important?
+## なぜこれが重要か？
 
-The data product identity determines:
-- **Object Naming**: Database, schema, warehouse, and role names are derived from this identity
-- **Cost Allocation**: Tags applied to resources enable FinOps reporting by domain and environment
-- **Governance**: Access controls and policies are organized around the data product
-- **Role Ownership**: SCIM prefix determines whether roles are managed via identity provider or manually
+データ製品 ID が決定するもの:
+- **オブジェクト命名**: データベース、スキーマ、ウェアハウス、ロール名はこの ID から派生する
+- **コスト配分**: リソースに適用されたタグによりドメインと環境別の FinOps レポートが可能になる
+- **ガバナンス**: アクセス制御とポリシーはデータ製品を中心に整理される
+- **ロール所有権**: SCIM プレフィックスがロールを ID プロバイダーで管理するか手動で管理するかを決定
 
-## Prerequisites
+## 前提条件
 
-- Platform Foundation completed (domain and environment lists defined)
-- Understanding of which business domain owns this data product
-- Understanding of which environment this deployment targets
-- Knowledge of SCIM integration status (if applicable)
+- プラットフォームファウンデーション完了（ドメインと環境リストが定義済み）
+- このデータ製品を所有するビジネスドメインの理解
+- このデプロイメントがターゲットとする環境の理解
+- SCIM 統合状況の把握（該当する場合）
 
-## Key Concepts
+## 主要な概念
 
-**Data Product**
-A logical grouping of related data assets (databases, schemas, tables) that serve a specific business purpose. Examples: Customer 360, Sales Analytics, Financial Reporting.
+**データ製品**
+特定のビジネス目的を提供する関連データ資産（データベース、スキーマ、テーブル）の論理的なグループ。例: Customer 360、Sales Analytics、Financial Reporting。
 
-**Domain**
-The business unit, team, or organizational entity that owns the data product. Domains are defined in Platform Foundation and determine cost allocation.
+**ドメイン**
+データ製品を所有するビジネスユニット、チーム、または組織エンティティ。ドメインはプラットフォームファウンデーションで定義され、コスト配分を決定します。
 
-**Environment**
-The SDLC stage for this deployment (dev, test, prod). Environments isolate workloads and determine access controls.
+**環境**
+このデプロイメントの SDLC ステージ（dev、test、prod）。環境はワークロードを分離し、アクセス制御を決定します。
 
-**SCIM Prefix**
-If your organization uses SCIM (System for Cross-domain Identity Management) with an identity provider like Okta or Azure AD, the SCIM prefix identifies the provisioner role that will own data product roles. This enables:
-- Automatic user provisioning/deprovisioning
-- Group-based role assignment
-- Centralized identity governance
+**SCIM プレフィックス**
+組織が Okta や Azure AD などの ID プロバイダーで SCIM（System for Cross-domain Identity Management）を使用している場合、SCIM プレフィックスはデータ製品ロールを所有するプロビジョナーロールを識別します。これにより以下が可能になります:
+- 自動ユーザープロビジョニング/デプロビジョニング
+- グループベースのロール割り当て
+- 集中 ID ガバナンス
 
-**More Information:**
-* [Object Naming Best Practices](https://docs.snowflake.com/en/user-guide/object-identifiers) — Naming guidelines
-* [Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging) — Tag-based governance
-* [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/scim) — Identity provider integration
+**追加情報:**
+* [オブジェクト命名のベストプラクティス](https://docs.snowflake.com/en/user-guide/object-identifiers) — 命名ガイドライン
+* [オブジェクトタグ](https://docs.snowflake.com/en/user-guide/object-tagging) — タグベースのガバナンス
+* [SCIM プロビジョニング](https://docs.snowflake.com/en/user-guide/scim) — ID プロバイダーの統合
 
+### 設定の質問
 
-### Configuration Questions
+#### このデータ製品の名前は何ですか？（`data_product_name`: text）
+**何を聞いているか？**
+データ製品の説明的な名前を提供します。この名前はデータベース名、ロール名、リソースタグに使用されます。
 
-#### What is the name of this data product? (`data_product_name`: text)
-**What is this asking?**
-Provide a descriptive name for your data product. This name will be used in database names, role names, and resource tags.
+**なぜ重要か？**
+データ製品名はオブジェクト命名の主要コンポーネントです:
+- データベース: `<domain>_<dataproduct>_<zone>_<env>`（命名規則による）
+- ロール: `<dataproduct>_owner`、`<dataproduct>_reader`
+- タグ: `DATAPRODUCT = '<dataproduct>'`
 
-**Why does this matter?**
-The data product name is a key component of object naming:
-- Databases: `<domain>_<dataproduct>_<zone>_<env>` (based on your naming convention)
-- Roles: `<dataproduct>_owner`, `<dataproduct>_reader`
-- Tags: `DATAPRODUCT = '<dataproduct>'`
+**命名ガイドライン:**
+- 小文字、単語または連結した単語を使用（アンダースコアなし）
+- アンダースコアは命名コンポーネント（ドメイン、ゾーン、環境）の区切りのために予約済み
+- 説明的だが簡潔に
+- ビジネスの目的またはユースケースを反映
+- 技術的な専門用語は広く理解されている場合のみ使用
+- 予約語や特殊文字を避ける
 
-A clear, descriptive name makes resources easy to identify and manage.
+**例:**
+| 名前 | 説明 |
+|------|------|
+| `customer360` | 統合された顧客データと分析 |
+| `salesanalytics` | 営業レポートと分析 |
+| `supplychain` | サプライチェーン業務データ |
+| `finreporting` | 財務報告とコンプライアンス |
+| `marketing` | マーケティングキャンペーン帰属 |
+| `productcatalog` | 製品情報管理 |
+| `inventory` | 在庫追跡と予測 |
 
-**Naming Guidelines:**
-- Use lowercase, single words or concatenated words (no underscores)
-- Underscores are reserved for separating naming components (domain, zone, env)
-- Be descriptive but concise
-- Reflect the business purpose or use case
-- Avoid technical jargon unless widely understood
-- Avoid reserved words or special characters
+**推奨事項:**
+ビジネスユーザーが認識できる名前を選んでください。「このデータを誰かが検索するとしたら何と入力するか？」と考えてみてください。
 
-**Examples:**
-| Name | Description |
-|------|-------------|
-| `customer360` | Unified customer data and analytics |
-| `salesanalytics` | Sales reporting and analysis |
-| `supplychain` | Supply chain operations data |
-| `finreporting` | Financial reporting and compliance |
-| `marketing` | Marketing campaign attribution |
-| `productcatalog` | Product information management |
-| `inventory` | Inventory tracking and forecasting |
+**追加情報:**
+* [識別子の要件](https://docs.snowflake.com/en/sql-reference/identifiers-syntax) — 有効な文字と長さの制限
 
-**Recommendation:**
-Choose a name that business users would recognize. Ask: "If someone searched for this data, what would they type?"
+#### このデータ製品が属するドメインはどれですか？（`data_product_domain`: multi-select）
+**何を聞いているか？**
+このデータ製品を所有するビジネスドメイン（チーム、部門、または組織ユニット）を選択します。
 
-**More Information:**
-* [Identifier Requirements](https://docs.snowflake.com/en/sql-reference/identifiers-syntax) — Valid characters and length limits
+**マルチアカウント戦略の自動検出:**
+- **ドメインベースアカウント**: ドメインはターゲットアカウントによって決定されます。一致する値を選択してください。
+- **ドメイン + 環境アカウント**: ドメインはアカウント名の最初の部分から派生します。一致する値を選択してください。
+- **環境ベースアカウント**: ドメインはアカウントによって決定されません。利用可能なオプションから選択してください。
+- **シングルアカウント**: ドメインはアカウントによって決定されません。利用可能なオプションから選択してください。
 
-#### Which domain does this data product belong to? (`data_product_domain`: multi-select)
-**What is this asking?**
-Select the business domain (team, department, or organizational unit) that owns this data product.
+**推奨事項:**
+ドメインベースおよびドメイン + 環境戦略では、ターゲットアカウント名に一致するドメインを選択します。
 
-**Auto-Detection for Multi-Account Strategies:**
-- **Domain-based accounts**: Your domain is determined by your target account. Select the matching value.
-- **Domain + Environment accounts**: Your domain is derived from the first part of your account name. Select the matching value.
-- **Environment-based accounts**: Domain is not determined by your account. Select from the available options.
-- **Single Account**: Domain is not determined by your account. Select from the available options.
+#### このデータ製品がデプロイされる環境はどれですか？（`data_product_environment`: multi-select）
+**何を聞いているか？**
+このデータ製品デプロイメントの SDLC 環境を選択します。
 
-**Why does this matter?**
-Domain assignment determines:
-- **Cost Allocation**: Credits consumed are attributed to this domain
-- **Ownership**: The domain team is responsible for the data product
-- **Access Patterns**: Domain-based roles may have different access levels
-- **Governance**: Domain-specific policies may apply
+**一般的な環境:**
+| 略称 | フルネーム | 目的 |
+|------|----------|------|
+| `dev` | Development | コードの構築とテスト |
+| `test` | Testing/QA | 品質保証 |
+| `stg` | Staging | 本番前の検証 |
+| `prod` | Production | ライブ環境 |
 
-**How domains are used:**
-- Object names may include the domain abbreviation
-- The `DOMAIN` tag is applied to all resources
-- Cost reports can filter by domain
+**推奨事項:**
+環境ベースおよびドメイン + 環境戦略では、ターゲットアカウント名に一致する環境を選択します。
 
-**Available Domains:**
-Your organization defined these domains in Platform Foundation. If you need a new domain, update Platform Foundation first.
+#### SCIM プロビジョナーロールに使用するプレフィックスは何ですか？（`scim_prefix`: text）
+**何を聞いているか？**
+ID 管理に SCIM を使用している場合、SCIM プロビジョナーロールに使用するプレフィックスを入力します。
 
-**If your domain isn't listed:**
-Work with your platform team to add the domain to Platform Foundation, then return to this workflow.
-
-**Recommendation:**
-For domain-based and domain+environment strategies, select the domain that matches your target account name.
-
-#### Which environment is this data product being deployed to? (`data_product_environment`: multi-select)
-**What is this asking?**
-Select the SDLC environment for this data product deployment.
-
-**Auto-Detection for Multi-Account Strategies:**
-- **Environment-based accounts**: Your environment is determined by your target account. Select the matching value.
-- **Domain + Environment accounts**: Your environment is derived from the second part of your account name. Select the matching value.
-- **Domain-based accounts**: Environment is not determined by your account. Select from the available options.
-- **Single Account**: Environment is not determined by your account. Select from the available options.
-
-**Why does this matter?**
-Environment assignment determines:
-- **Isolation**: Resources are created in the appropriate context
-- **Access Controls**: Production typically has stricter access
-- **Resource Sizing**: Dev environments may use smaller warehouses
-- **Data Sensitivity**: Production may have real data vs. synthetic in dev
-
-**Common Environments:**
-| Abbreviation | Full Name | Purpose |
-|--------------|-----------|---------|
-| `dev` | Development | Building and testing code |
-| `test` | Testing/QA | Quality assurance |
-| `stg` | Staging | Pre-production validation |
-| `prod` | Production | Live environment |
-
-**Recommendation:**
-For environment-based and domain+environment strategies, select the environment that matches your target account name.
-
-#### What prefix is used for your SCIM provisioner role? (`scim_prefix`: text)
-**What is this asking?**
-If using SCIM for identity management, enter the prefix used for the 
-SCIM provisioner role.
-
-**Common SCIM prefixes:**
+**一般的な SCIM プレフィックス:**
 - `AAD` — Microsoft Entra ID (Azure AD)
 - `OKTA` — Okta
 - `PING` — PingIdentity
 
-**How this is used:**
-The SCIM provisioner role is typically named `<PREFIX>_PROVISIONER`.
-For example: `AAD_PROVISIONER`, `OKTA_PROVISIONER`
+**使用方法:**
+SCIM プロビジョナーロールは通常 `<PREFIX>_PROVISIONER` という名前です。
+例: `AAD_PROVISIONER`、`OKTA_PROVISIONER`
 
-**Enter `NONE` if:**
-- Not using SCIM integration
-- Managing users manually
-- Using a different identity provisioning approach
+**`NONE` を入力する場合:**
+- SCIM 統合を使用していない
+- 手動でユーザーを管理している
+- 別の ID プロビジョニングアプローチを使用している
 
-**More Information:**
-* [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/scim)
+**追加情報:**
+* [SCIM プロビジョニング](https://docs.snowflake.com/en/user-guide/scim)
 
+#### このデータ製品の簡単な説明を提供してください。（`data_product_description`: text）
+**何を聞いているか？**
+このデータ製品が何をして誰のためになるかを説明する短い説明（1〜2 文）を書きます。
 
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
-- Single Account
-- Multi-Account (Environment-based)
-- Multi-Account (Domain-based)
-- Multi-Account (Domain + Environment)
+**例:**
+- 「分析チームのための CRM、サポート、トランザクションシステムからの顧客データの統合ビュー。」
+- 「地域の営業マネージャーのための毎日の売上指標と予測。」
+- 「経理チームと監査人のための財務決算データとレポート。」
 
-#### Which account will this data product be deployed to? (`target_account_name`: text)
-
-**What is this asking?**
-Enter the name of the Snowflake account where this data product will be created.
-
-**Why does this matter?**
-This ensures all generated SQL is clearly documented with the target account, preventing deployment errors and providing clear audit trails.
-
-**How to find your account name:**
-- In Snowsight: Click your account name in the bottom-left corner
-- Run SQL: `SELECT CURRENT_ACCOUNT_NAME();`
-- From your URL: `https://<org>-<account>.snowflakecomputing.com`
-
-**Examples based on strategy:**
-
-**Domain-based strategy:**
-- `ACME_SALES` - Sales domain account
-- `ACME_FINANCE` - Finance domain account
-
-**Environment-based strategy:**
-- `ACME_DEV` - Development environment account
-- `ACME_PROD` - Production environment account
-
-**Domain + Environment strategy:**
-- `ACME_SALES_DEV` - Sales domain, Development environment
-- `ACME_FINANCE_PROD` - Finance domain, Production environment
-
-**Recommendation:**
-Copy the exact account name from your Snowflake session to avoid typos.
-
-**More Information:**
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account names
-
-#### Provide a brief description of this data product. (`data_product_description`: text)
-**What is this asking?**
-Write a short description (1-2 sentences) explaining what this data product does and who it serves.
-
-**Why does this matter?**
-The description is used in:
-- Database and schema comments
-- Documentation and metadata catalogs
-- Discovery tools and data marketplace
-
-**Examples:**
-- "Unified view of customer data from CRM, support, and transaction systems for the analytics team."
-- "Daily sales metrics and forecasts for regional sales managers."
-- "Financial close data and reporting for the accounting team and auditors."
-
-**Recommendation:**
-Focus on the business value: What questions does this data product answer? Who uses it?
+**推奨事項:**
+ビジネス価値に焦点を当てます: このデータ製品はどんな質問に答えますか？誰が使用しますか？

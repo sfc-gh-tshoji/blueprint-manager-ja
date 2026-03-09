@@ -1,103 +1,102 @@
-# Platform Foundation
+# プラットフォーム基盤
 
-## Summary
-Define your account strategy, configure account identifiers, set up centralized management,
-create shared infrastructure, and organize your platform with domains, environments,
-FinOps tags, and naming conventions.
+## 概要
+アカウント戦略を定義し、アカウント識別子を設定し、集中管理をセットアップし、
+共有インフラを作成し、ドメイン、環境、FinOps タグ、命名規則でプラットフォームを整理します。
 
-## External Requirements
-- Snowflake account (trial or provisioned)
-- Organization information (org name from account URL)
+## 外部要件
+- Snowflake アカウント（トライアルまたはプロビジョニング済み）
+- 組織情報（アカウント URL からの組織名）
 
-## Personas
-- Platform Administrator
-- Cloud/Infrastructure Team
+## ペルソナ
+- プラットフォーム管理者
+- クラウド/インフラチーム
 
-## Role Requirements
-- ORGADMIN or ACCOUNTADMIN privileges
-- Enterprise Edition or higher for Organization Account features
+## ロール要件
+- ORGADMIN または ACCOUNTADMIN 権限
+- 組織アカウント機能には Enterprise Edition 以上が必要
 
-## Details
-## **Steps in This Task**
+## 詳細
+## **このタスクのステップ**
 
-| Step | Title | Purpose |
+| ステップ | タイトル | 目的 |
 | :---- | :---- | :---- |
-| 1.1 | Determine Account Strategy | Choose between single or multi-account architectures |
-| 1.2 | Configure Organization Name for Connectivity | Define how account URLs and identifiers are structured |
-| 1.3 | Configure Organization Account | Decide whether to create a centralized management account |
-| 1.4 | Create Organization Account | Provision the Organization Account (conditional—only if enabled in 1.3) |
-| 1.5 | Create Infrastructure Database | Set up centralized metadata and governance storage |
-| 1.6 | Define Domains, Environments & Naming Conventions | Establish domains, environments, FinOps tags, and account and object naming standards |
-| 1.7 | Configure Infrastructure Database Sharing | Enable cross-account access to governance objects (multi-account only) |
+| 1.1 | アカウント戦略の決定 | シングルアカウントまたはマルチアカウントアーキテクチャの選択 |
+| 1.2 | 接続のための組織名の設定 | アカウント URL と識別子の構造を定義する |
+| 1.3 | 組織アカウントの設定 | 集中管理アカウントを作成するかどうかを決定する |
+| 1.4 | 組織アカウントの作成 | 組織アカウントをプロビジョニングする（条件付き — 1.3 で有効にした場合のみ） |
+| 1.5 | インフラデータベースの作成 | 集中メタデータとガバナンスストレージを設定する |
+| 1.6 | ドメイン、環境、命名規則の定義 | ドメイン、環境、FinOps タグ、アカウントとオブジェクトの命名標準を確立する |
+| 1.7 | インフラデータベース共有の設定 | ガバナンスオブジェクトへのクロスアカウントアクセスを有効にする（マルチアカウントのみ） |
 
-### Network Policy for PAT Authentication (Trial Accounts)
+### PAT 認証のネットワークポリシー（トライアルアカウント）
 
-If you are using a **trial account** and plan to authenticate using a **Programmatic Access Token (PAT)**, you must first create a network policy. Trial accounts require this for PAT authentication to work.
+**トライアルアカウント**を使用していて、**プログラマティックアクセストークン（PAT）**を使用して認証する予定の場合、最初にネットワークポリシーを作成する必要があります。トライアルアカウントでは PAT 認証が機能するためにこれが必要です。
 
-**Before running this blueprint with PAT authentication:**
+**PAT 認証でこのブループリントを実行する前に:**
 
-1. Log into Snowsight manually using your username/password
-2. Create a network policy allowing your IP address:
+1. ユーザー名/パスワードを使用して Snowsight に手動でログインする
+2. あなたの IP アドレスを許可するネットワークポリシーを作成する:
 
 ```sql
 USE ROLE ACCOUNTADMIN;
 
--- Create network policy (replace YOUR_PUBLIC_IP with your actual IP address)
+-- ネットワークポリシーを作成する（YOUR_PUBLIC_IP を実際の IP アドレスに置き換える）
 CREATE NETWORK POLICY allow_deployment_policy
   ALLOWED_IP_LIST = ('YOUR_PUBLIC_IP/32')
-  COMMENT = 'Allow deployment from specific IP for PAT authentication';
+  COMMENT = 'PAT 認証のために特定の IP からのデプロイを許可する';
 
--- Apply to your user (replace YOUR_USERNAME with your username)
+-- ユーザーに適用する（YOUR_USERNAME をあなたのユーザー名に置き換える）
 ALTER USER YOUR_USERNAME SET NETWORK_POLICY = allow_deployment_policy;
 ```
 
-3. Generate a PAT for your user in Snowsight (User Menu → Profile → Personal Access Tokens)
-4. Configure the connection in `~/.snowflake/connections.toml`
+3. Snowsight でユーザーの PAT を生成する（ユーザーメニュー → プロフィール → パーソナルアクセストークン）
+4. `~/.snowflake/connections.toml` で接続を設定する
 
-**Note:** This requirement is specific to trial accounts. Production accounts provisioned by Snowflake typically do not have this restriction.
+**注記:** この要件はトライアルアカウントに固有です。Snowflake によってプロビジョニングされた本番アカウントには通常この制限はありません。
 
-## **Account Execution Context**
+## **アカウント実行コンテキスト**
 
-Understanding where SQL commands are executed is critical:
+SQL コマンドがどこで実行されるかを理解することが重要です:
 
-| Steps | Account Context |
+| ステップ | アカウントコンテキスト |
 | :---- | :---- |
-| 1.1 - 1.4 | Your **initial/trial account** - where you start |
-| 1.5 - 1.7 | **Organization Account** (if created) OR initial account (if no org account) |
+| 1.1 - 1.4 | あなたの**初期/トライアルアカウント** - 開始場所 |
+| 1.5 - 1.7 | **組織アカウント**（作成された場合）または初期アカウント（組織アカウントがない場合） |
 
-**Important**: If you create an Organization Account, you must **log into it** after it has been created. All remaining steps in the workflow will be executed from the Organization Account.
+**重要**: 組織アカウントを作成した場合、作成後に**それにログイン**する必要があります。ワークフローの残りのすべてのステップは組織アカウントから実行されます。
 
-If you choose not to create an Organization Account, all steps are executed in your initial account.
+組織アカウントを作成しないことを選択した場合、すべてのステップは初期アカウントで実行されます。
 
-## **Time Estimate**
+## **所要時間の見積もり**
 
-This task typically takes **30-45 minutes** to complete, depending on the complexity of your organization's requirements and the level of discussion needed for strategic decisions.
+このタスクは通常、組織の要件の複雑さと戦略的な決定に必要な議論のレベルによって異なりますが、**30〜45 分**かかります。
 
-## **Key Decisions**
+## **主要な決定事項**
 
-Several questions in this task have long-term implications:
+このタスクの いくつかの質問は長期的な影響を持ちます:
 
-1. **Account Strategy**: Changing from single to multi-account (or vice versa) after implementation is a significant undertaking  
-2. **Naming Conventions**: Object names are difficult to change after data is loaded and applications are connected  
-3. **Domain/Environment Structure**: These become the foundation for access control, cost allocation, and data organization
+1. **アカウント戦略**: 実装後にシングルからマルチアカウント（またはその逆）に変更することは大きな作業になります
+2. **命名規則**: オブジェクト名はデータが読み込まれてアプリケーションが接続された後に変更することが困難です
+3. **ドメイン/環境構造**: これらはアクセス制御、コスト配分、データ整理の基盤となります
 
-Take time to involve relevant stakeholders when making these decisions.
+これらの決定を行う際は、関連するステークホルダーを巻き込む時間を取ってください。
 
-## **Deliverables**
+## **成果物**
 
-Upon completion, you will have:
+完了時に以下が得られます:
 
-* A documented account strategy with clear rationale  
-* Configured (or documented) Organization Account settings  
-* Infrastructure database with governance schema for platform-wide objects  
-* Defined list of domains and environments with corresponding FinOps tags  
-* Documented naming convention standards for databases, warehouses, and roles  
-* Infrastructure database share configured for cross-account access (multi-account only)
+* 明確な根拠を持つドキュメント化されたアカウント戦略
+* 設定（またはドキュメント化）された組織アカウントの設定
+* プラットフォーム全体のオブジェクトのためのガバナンススキーマを含むインフラデータベース
+* 対応する FinOps タグを持つドメインと環境の定義されたリスト
+* データベース、ウェアハウス、ロールのドキュメント化された命名規則標準
+* クロスアカウントアクセスのために設定されたインフラデータベース共有（マルチアカウントのみ）
 
-## **More Information**
+## **追加情報**
 
-* [Snowflake Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Overview of organization structure  
-* [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts) — Centralized management capabilities  
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account URLs  
-* [Snowflake Editions](https://docs.snowflake.com/en/user-guide/intro-editions) — Feature comparison across editions  
-* [Introduction to Secure Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — Cross-account data access
+* [Snowflake Organizations](https://docs.snowflake.com/en/user-guide/organizations) — 組織構造の概要
+* [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts) — 集中管理機能
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — アカウント URL の理解
+* [Snowflake Editions](https://docs.snowflake.com/en/user-guide/intro-editions) — エディション間の機能比較
+* [Introduction to Secure Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — クロスアカウントデータアクセス

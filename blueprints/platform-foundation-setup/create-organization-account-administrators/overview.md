@@ -1,76 +1,76 @@
-In this step, you'll create the initial Account Administrators who will manage your Snowflake environment. Since you've chosen to manage users manually (without SCIM), these users will be created directly in Snowflake.
+このステップでは、Snowflake 環境を管理する初期アカウント管理者を作成します。手動でユーザーを管理する（SCIM なし）ことを選択したため、これらのユーザーは Snowflake に直接作成されます。
 
-**Account Context:** These administrators are being configured for your Organization Account (if created) or your primary account. If you have a multi-account strategy, additional accounts will need their own administrators configured separately.
+**アカウントコンテキスト:** これらの管理者は、組織アカウント（作成済みの場合）またはプライマリアカウント向けに設定されています。マルチアカウント戦略がある場合、追加のアカウントには別途管理者を設定する必要があります。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Account Administrators (ACCOUNTADMIN role) have the highest level of privileges in a Snowflake account. They can:
-- Create and manage all objects
-- Grant privileges to any role
-- Manage account-level settings
-- Access all data
+アカウント管理者（ACCOUNTADMIN ロール）は Snowflake アカウントで最高レベルの権限を持ちます。以下が可能です:
+- すべてのオブジェクトの作成と管理
+- 任意のロールへの権限付与
+- アカウントレベルの設定管理
+- すべてのデータへのアクセス
 
-Properly configuring your initial administrators ensures:
-- **Redundancy**: Multiple admins prevent lockout scenarios
-- **Accountability**: Named individuals are responsible for administrative actions
-- **Security**: Limiting the number of admins reduces risk
+初期管理者を適切に設定することで次のことが確保されます:
+- **冗長性**: 複数の管理者がロックアウトシナリオを防ぎます
+- **説明責任**: 具体的な個人が管理アクションに責任を持ちます
+- **セキュリティ**: 管理者数を制限することでリスクを軽減します
 
-## External Prerequisites
+## 外部前提条件
 
-- Email addresses of designated administrators
-- Administrators should have corporate email addresses (not personal emails)
+- 指定された管理者のメールアドレス
+- 管理者は会社のメールアドレスを持っている必要があります（個人メール不可）
 
-## Key Concepts
+## 主要な概念
 
-**ACCOUNTADMIN Role**
-The most privileged system-defined role in Snowflake. Should be limited to 2-3 trusted individuals.
+**ACCOUNTADMIN ロール**
+Snowflake で最も権限が高いシステム定義ロール。2〜3 名の信頼できる個人に限定すべきです。
 
-**SECURITYADMIN Role**
-Can manage grants on all objects in the account. Use this for day-to-day security management instead of ACCOUNTADMIN.
+**SECURITYADMIN ロール**
+アカウント内のすべてのオブジェクトへの付与を管理できます。ACCOUNTADMIN の代わりに日常のセキュリティ管理に使用します。
 
-**SYSADMIN Role**
-Can create databases, warehouses, and other objects. Use this for day-to-day infrastructure management.
+**SYSADMIN ロール**
+データベース、ウェアハウス、その他のオブジェクトを作成できます。日常のインフラ管理に使用します。
 
-**USERADMIN Role**
-Can create and manage users and roles. Often delegated for operational user management.
+**USERADMIN ロール**
+ユーザーとロールを作成・管理できます。運用上のユーザー管理に委任されることがよくあります。
 
-**User Types**
-- `PERSON`: Human users who log in interactively
-- `SERVICE`: Automated processes and integrations
-- `LEGACY_SERVICE`: Backward-compatible service accounts
+**ユーザータイプ**
+- `PERSON`: インタラクティブにログインする人間のユーザー
+- `SERVICE`: 自動化されたプロセスと統合
+- `LEGACY_SERVICE`: 下位互換性のあるサービスアカウント
 
-## More Information
+## 追加情報
 
-* [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user) — SQL command reference for user creation
-* [System-Defined Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles) — Overview of built-in administrative roles
-* [Access Control Privileges](https://docs.snowflake.com/en/user-guide/security-access-control-privileges) — Detailed privilege reference
+* [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user) — ユーザー作成の SQL コマンドリファレンス
+* [システム定義ロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles) — 組み込み管理者ロールの概要
+* [アクセスコントロール権限](https://docs.snowflake.com/en/user-guide/security-access-control-privileges) — 詳細な権限リファレンス
 
-### Configuration Questions
+### 設定の質問
 
-#### Who should be set up as administrators? (`manual_admin_users`: object-list)
-**What is this asking?**
-Define the administrators who will manage your Snowflake account. For each administrator, provide their details and specify their administrative role.
+#### 管理者として設定するのは誰ですか？（`manual_admin_users`: object-list）
+**何を聞いているか？**
+Snowflake アカウントを管理する管理者を定義します。各管理者に対して、詳細を提供し管理者ロールを指定します。
 
-**SSO-Ready Recommendation: Use Email as Username**
-We strongly recommend using the user's **email address** as the `username`, even if you are not currently using SSO. Benefits include:
-- **SSO-Ready:** Most identity providers (Okta, Azure AD, etc.) use email as the default identifier. Using email now ensures seamless SSO integration later.
-- **Uniqueness:** Email addresses are globally unique and prevent naming conflicts.
-- **Consistency:** Users log in with the same identifier across all systems.
+**SSO 対応の推奨事項: メールをユーザー名として使用する**
+現在 SSO を使用していない場合でも、ユーザーの**メールアドレス**を `username` として使用することを強くお勧めします。メリット:
+- **SSO 対応:** ほとんどの ID プロバイダー（Okta、Azure AD など）はデフォルト識別子としてメールを使用します。今メールを使用することで、後のシームレスな SSO 統合が確保されます。
+- **一意性:** メールアドレスはグローバルに一意で、命名の競合を防ぎます。
+- **一貫性:** ユーザーはすべてのシステムで同じ識別子でログインします。
 
-**Administrative Role (admin_role field)**
+**管理者ロール（admin_role フィールド）**
 
-Enter ONE of the following values exactly as shown:
+次のいずれかの値を正確に入力してください:
 
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
+| 入力する値 | 目的 | 推奨人数 |
+|------------|------|----------|
+| `ACCOUNTADMIN` | 完全なアカウントコントロール - 最も権限の高いロール | 2〜3 名のみ |
+| `SECURITYADMIN` | セキュリティ、付与、アクセスコントロールの管理 | 2〜5 名 |
+| `SYSADMIN` | データベース、ウェアハウス、インフラの管理 | 3〜10 名 |
+| `USERADMIN` | ユーザーとカスタムロールの管理 | 2〜5 名 |
 
-**Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
+**重要:** `admin_role` フィールドは上記通りに正確に入力する必要があります（大文字小文字は区別しませんが、一貫性のために大文字を使用してください）。
 
-**Example Entries (SSO-Ready):**
+**入力例（SSO 対応）:**
 
 | username | email | first_name | last_name | admin_role |
 |----------|-------|------------|-----------|------------|
@@ -78,41 +78,26 @@ Enter ONE of the following values exactly as shown:
 | `jane.doe@company.com` | `jane.doe@company.com` | `Jane` | `Doe` | `ACCOUNTADMIN` |
 | `bob.wilson@company.com` | `bob.wilson@company.com` | `Bob` | `Wilson` | `SYSADMIN` |
 
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- Use email addresses as usernames for SSO-readiness
-- Use corporate email addresses (not personal emails)
+**推奨事項:**
+- ロックアウトシナリオを防ぐために少なくとも **2 名の ACCOUNTADMIN ユーザー**を作成する
+- 共有/汎用アカウントではなく個人アカウントを使用する
+- SSO 対応のためにメールアドレスをユーザー名として使用する
+- 個人メールではなく会社メールアドレスを使用する
 
-**Security Notes:**
-- All users will be created with `MUST_CHANGE_PASSWORD = TRUE`
-- Users will receive an initial password that must be changed on first login
-- Consider enabling MFA after initial setup (Enable Multi-Factor Authentication step)
+**セキュリティノート:**
+- すべてのユーザーは `MUST_CHANGE_PASSWORD = TRUE` で作成されます
+- ユーザーは初回ログイン時に変更する必要がある初期パスワードを受け取ります
+- 初期設定後に MFA の有効化を検討する（多要素認証の有効化ステップ）
 
-**More Information:**
+**追加情報:**
 * [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user)
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
+* [ACCOUNTADMIN ロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
 
-#### Which Identity Provider will you use for SCIM integration? (`identity_provider`: multi-select)
-**What is this asking?**
-Select the Identity Provider (IdP) that your organization uses to manage user identities. This IdP will be the source of truth for user provisioning to Snowflake.
+#### SCIM 統合にどの ID プロバイダーを使用しますか？（`identity_provider`: multi-select）
+**何を聞いているか？**
+組織がユーザー ID の管理に使用する ID プロバイダー（IdP）を選択します。
 
-**Why does this matter?**
-Different IdPs have different configuration steps and capabilities. Snowflake provides specific documentation for major IdPs like Okta and Azure AD, while other SCIM 2.0 compatible providers use a generic configuration.
-
-**Options explained:**
-- **Okta**: Enterprise IdP with native Snowflake SCIM integration
-- **Microsoft Entra ID (Azure AD)**: Microsoft's cloud identity service with gallery app for Snowflake
-- **Other SCIM 2.0 Compatible IdP**: Any IdP that supports SCIM 2.0 protocol
-- **None - Manual User Management**: Skip SCIM and manage users manually (not recommended)
-
-**Recommendation:**
-If your organization has an enterprise IdP, we strongly recommend configuring SCIM integration. The initial setup effort is minimal compared to the ongoing benefits of automated provisioning.
-
-**More Information:**
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim)
-* [Supported Identity Providers](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
-**Options:**
+**オプション:**
 - Okta
 - Microsoft Entra ID (Azure ID)
 - Other SCIM 2.0 Compatible IdP

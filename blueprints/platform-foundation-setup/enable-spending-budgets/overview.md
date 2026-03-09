@@ -1,90 +1,90 @@
-In this step, you'll decide whether to activate Snowflake's native **Budget** functionality. A Snowflake Budget allows you to set a defined spending limit (in credits) for a specific time period (e.g., monthly) and automatically monitors consumption. It uses time-series forecasting to predict spending overruns, generating alerts when thresholds are approached or exceeded.
+このステップでは、Snowflake のネイティブ**予算**機能を有効にするかどうかを決定します。Snowflake の予算では、特定の期間（例: 月次）に対して定義済みの支出上限（クレジット単位）を設定し、消費を自動的に監視できます。時系列予測を使用して支出超過を予測し、しきい値に近づくか超えた場合にアラートを生成します。
 
-**Account Context:** This step should be executed in your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** このステップは組織アカウント（作成済みの場合）またはプライマリアカウントで実行してください。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Spending budgets provide proactive cost awareness by sending alerts when spending is projected to exceed your defined limits. This helps:
-- **Prevent unexpected costs** with early warning alerts
-- **Enable better financial planning** with time-series forecasting
-- **Coordinate with finance teams** through automated notifications
-- **Establish cost governance** as a foundation for FinOps practices
+支出予算は、定義された上限を超えると予測される場合にアラートを送信することで、積極的なコスト意識を提供します。これにより以下が可能になります:
+- 早期警告アラートによる**予期しないコストの防止**
+- 時系列予測による**より良い財務計画の実現**
+- 自動通知による**財務チームとの連携**
+- FinOps 実践の基盤としての**コストガバナンスの確立**
 
-## External Prerequisites
+## 外部前提条件
 
-- Estimated monthly credit budget from your finance team
-- Email addresses or notification endpoints for budget alerts
+- 財務チームからの推定月次クレジット予算
+- 予算アラート用のメールアドレスまたは通知エンドポイント
 
-## Key Concepts
+## 主要な概念
 
-**Budget**
-A Snowflake object that monitors credit consumption against a specified spending limit for a specified time period.
+**予算**
+指定された期間の指定された支出上限に対してクレジット消費を監視する Snowflake オブジェクト。
 
-**Budget Scope**
-Budgets are typically applied at the account level, controlling all compute and cloud services costs. Custom budgets can monitor specific objects or tag-based groups.
+**予算スコープ**
+予算は通常アカウントレベルで適用され、すべてのコンピューティングとクラウドサービスのコストを管理します。カスタム予算では特定のオブジェクトやタグベースのグループを監視できます。
 
-**Credit**
-The unit of consumption for all paid usage on Snowflake (Compute, Cloud Services, and Storage).
+**クレジット**
+Snowflake での有料使用（コンピューティング、クラウドサービス、ストレージ）のすべての消費単位。
 
-**Time-Series Forecasting**
-Snowflake continuously analyzes your spending patterns to predict end-of-period consumption. Alerts are triggered when projected spending exceeds your notification threshold.
+**時系列予測**
+Snowflake は支出パターンを継続的に分析して、期間終了時の消費を予測します。予測支出が通知しきい値を超えるとアラートがトリガーされます。
 
-**How Forecasting and Thresholds Work Together**
-- **Budget Limit**: The total credits allocated for the period (e.g., 5,000 credits/month)
-- **Notification Threshold**: The percentage of the limit that triggers alerts (default: 110%)
-- **Alert Trigger**: When projected spending exceeds (limit × threshold)
+**予測としきい値の連携方法**
+- **予算上限**: 期間に割り当てられた合計クレジット（例: 5,000 クレジット/月）
+- **通知しきい値**: アラートをトリガーする上限のパーセンテージ（デフォルト: 110%）
+- **アラートトリガー**: 予測支出が（上限 × しきい値）を超えた場合
 
-*Example*: You set a monthly budget of 5,000 credits with a 90% notification threshold (4,500 credits). Halfway through the month, Snowflake forecasts that based on current usage, you'll consume 5,000 credits by month's end. Since 5,000 exceeds the 4,500 threshold, an alert is sent immediately—giving you two weeks to adjust.
+*例*: 月次予算 5,000 クレジット、通知しきい値 90%（4,500 クレジット）を設定します。月の半ばに、Snowflake が現在の使用状況に基づいて月末までに 5,000 クレジットを消費すると予測します。5,000 は 4,500 のしきい値を超えているため、すぐにアラートが送信されます — 調整する 2 週間が与えられます。
 
-**Notification Options**
-Budget alerts are configured via email in the next step. This is the simplest approach and works for most organizations. If you later want webhook notifications (Slack/Teams) or cloud service queues (SNS/Event Grid), see the upgrade instructions in the Configure Spending Budgets documentation.
+**通知オプション**
+予算アラートは次のステップでメールを介して設定されます。これは最もシンプルなアプローチで、ほとんどの組織に機能します。後でウェブフック通知（Slack/Teams）やクラウドサービスキュー（SNS/Event Grid）が必要な場合は、支出予算設定ドキュメントのアップグレード手順を参照してください。
 
-**Spend in Currency**
-Viewing spending in currency (vs credits) requires `ORGADMIN` or `GLOBALORGADMIN` role access to the `ORGANIZATION_USAGE` schema.
+**通貨での支出表示**
+支出をクレジットではなく通貨で表示するには、`ORGANIZATION_USAGE` スキーマへの `ORGADMIN` または `GLOBALORGADMIN` ロールアクセスが必要です。
 
-**Budgets vs Resource Monitors**
-- **Budgets**: Alerting and awareness - sends notifications but doesn't stop services
-- **Resource Monitors**: Active cost control - can automatically suspend warehouses
+**予算 vs リソースモニター**
+- **予算**: アラートと認識 — 通知を送るがサービスを停止しない
+- **リソースモニター**: アクティブなコスト制御 — ウェアハウスを自動的に一時停止できる
 
-**Best Practice: Use Native Budgets**
-Snowflake's native budget feature is the most efficient way to monitor credit consumption, requiring no external tools or infrastructure setup.
+**ベストプラクティス: ネイティブ予算を使用する**
+Snowflake のネイティブ予算機能は、外部ツールやインフラのセットアップを必要とせず、クレジット消費を監視する最も効率的な方法です。
 
-## More Information
+## 追加情報
 
-* [Monitor credit usage with budgets](https://docs.snowflake.com/en/user-guide/budgets) — Overview of Snowflake's native budget feature
-* [Notifications for budgets](https://docs.snowflake.com/en/user-guide/budgets/notifications) — Configuring alerts and notification methods
-* [SET_SPENDING_LIMIT Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_spending_limit) — Setting credit limits on budgets
-* [SET_NOTIFICATION_THRESHOLD Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_notification_threshold) — Configuring alert thresholds
-* [SET_REFRESH_TIER Class Method](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_refresh_tier) — Setting forecast update frequency
+* [予算によるクレジット使用の監視](https://docs.snowflake.com/en/user-guide/budgets) — Snowflake のネイティブ予算機能の概要
+* [予算の通知](https://docs.snowflake.com/en/user-guide/budgets/notifications) — アラートと通知方法の設定
+* [SET_SPENDING_LIMIT クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_spending_limit) — 予算にクレジット上限を設定する
+* [SET_NOTIFICATION_THRESHOLD クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_notification_threshold) — アラートしきい値の設定
+* [SET_REFRESH_TIER クラスメソッド](https://docs.snowflake.com/en/sql-reference/classes/budget/methods/set_refresh_tier) — 予測更新頻度の設定
 
-### Configuration Questions
+### 設定の質問
 
-#### Do you want to set up spending budgets? (`enable_budgets`: multi-select)
-**What is this asking?**
-Decide whether to use Snowflake's native budget feature for automated spending monitoring and alerts.
+#### 支出予算を設定しますか？（`enable_budgets`: multi-select）
+**何を聞いているか？**
+自動化された支出監視とアラートに Snowflake のネイティブ予算機能を使用するかどうかを決定します。
 
-**Why does this matter?**
-Budgets provide proactive cost awareness by sending alerts when spending is projected to exceed your defined limits. This helps prevent unexpected costs and enables better financial planning.
+**なぜ重要か？**
+予算は、支出が定義された上限を超えると予測される場合にアラートを送信することで、積極的なコスト意識を提供します。これにより予期しないコストを防ぎ、より良い財務計画が可能になります。
 
-**Options explained:**
+**オプションの説明:**
 
-**Yes (Recommended):**
-- Use Snowflake's native budget feature
-- Set monthly spending limits (in credits)
-- Receive automated email alerts when thresholds are exceeded
-- Time-series forecasting predicts budget overruns
-- No additional infrastructure required
+**はい（推奨）:**
+- Snowflake のネイティブ予算機能を使用する
+- 月次支出上限（クレジット単位）を設定する
+- しきい値を超えた場合に自動メールアラートを受信する
+- 時系列予測が予算超過を予測する
+- 追加のインフラ不要
 
-**No:**
-- Monitor spending without automated alerts
-- Suitable if you have other cost control mechanisms
-- Can still use Resource Monitors for hard limits
+**いいえ:**
+- 自動アラートなしで支出を監視する
+- 他のコスト管理メカニズムがある場合に適している
+- 引き続きリソースモニターをハードリミット用に使用できる
 
-**Recommendation:**
-Use Snowflake's native budgets for automated monitoring and alerts. They're easy to set up and provide valuable early warning of cost overruns.
+**推奨事項:**
+自動監視とアラートのために Snowflake のネイティブ予算を使用します。設定が簡単で、コスト超過の早期警告として価値があります。
 
-**More Information:**
-* [Monitor credit usage with budgets](https://docs.snowflake.com/en/user-guide/budgets)
-**Options:**
+**追加情報:**
+* [予算によるクレジット使用の監視](https://docs.snowflake.com/en/user-guide/budgets)
+**オプション:**
 - Yes
 - No

@@ -1,140 +1,141 @@
-# Platform Cost Management
+# プラットフォームコスト管理
 
-## Summary
-Set up Snowflake's native budget feature for automated spending alerts,
-configure account-level resource monitors with hard limits, extend the tagging
-framework with cost center and ownership tracking, and create cost reporting views.
+## 概要
+自動支出アラートのための Snowflake ネイティブ予算機能をセットアップし、
+ハードリミット付きのアカウントレベルのリソースモニターを設定し、
+コストセンターとオーナーシップ追跡でタグ付けフレームワークを拡張し、
+コスト報告ビューを作成します。
 
-## External Requirements
-- Task 1 (Platform Foundation) completed
-- Task 2 (Security & Identity Configuration) completed
-- Estimated monthly credit budget from finance team
-- List of cost centers for chargeback (if applicable)
+## 外部要件
+- タスク 1（プラットフォーム基盤）の完了
+- タスク 2（セキュリティとアイデンティティ設定）の完了
+- 財務チームからの推定月次クレジット予算
+- チャージバック用コストセンターのリスト（該当する場合）
 
-## Personas
-- FinOps Team
-- Finance Team
-- Platform Administrator
+## ペルソナ
+- FinOps チーム
+- 財務チーム
+- プラットフォーム管理者
 
-## Role Requirements
-- ACCOUNTADMIN role access
+## ロール要件
+- ACCOUNTADMIN ロールアクセス
 
-## Details
-This task builds on the infrastructure created in Task 1 (Account Strategy & Nomenclature) and should be executed after Task 2 (Security & Identity Configuration).
+## 詳細
+このタスクはタスク 1（アカウント戦略と命名規則）で作成されたインフラに基づいており、タスク 2（セキュリティとアイデンティティ設定）の後に実行する必要があります。
 
-**Account Context:** All steps in this task should be executed in your Organization Account (if created in the Create Organization Account step) or your primary account.
+**アカウントコンテキスト:** このタスクのすべてのステップは、組織アカウント（組織アカウント作成ステップで作成された場合）またはプライマリアカウントで実行する必要があります。
 
-## Steps in This Task
+## このタスクのステップ
 
-| Step | Title | Purpose |
+| ステップ | タイトル | 目的 |
 |------|-------|---------|
-| 3.1 | Enable Spending Budgets | Decide whether to use Snowflake's native budget feature |
-| 3.2 | Configure Spending Budgets | Set monthly limits and notification preferences |
-| 3.3 | Enable Resource Monitors | Decide whether to implement account-level resource monitors |
-| 3.4 | Configure Resource Monitors | Set credit limits and suspension actions |
-| 3.5 | Enable Cost Allocation Tags | Decide whether to add cost-focused tags |
-| 3.6 | Configure Cost Allocation Tags | Create additional tags and cost reporting views |
+| 3.1 | 支出予算の有効化 | Snowflake のネイティブ予算機能を使用するかどうかを決定する |
+| 3.2 | 支出予算の設定 | 月次制限と通知設定を設定する |
+| 3.3 | リソースモニターの有効化 | アカウントレベルのリソースモニターを実装するかどうかを決定する |
+| 3.4 | リソースモニターの設定 | クレジット制限とサスペンションアクションを設定する |
+| 3.5 | コスト配分タグの有効化 | コスト重視のタグを追加するかどうかを決定する |
+| 3.6 | コスト配分タグの設定 | 追加タグとコスト報告ビューを作成する |
 
-**Note on conditional steps:**
-- Configure Spending Budgets is shown only if you enable budgets in Enable Spending Budgets
-- Configure Resource Monitors is shown only if you enable resource monitors in Enable Resource Monitors
-- Configure Cost Allocation Tags is shown only if you enable additional cost tags in Enable Cost Allocation Tags
+**条件付きステップに関する注記:**
+- 支出予算の設定は「支出予算の有効化」で予算を有効にした場合のみ表示されます
+- リソースモニターの設定は「リソースモニターの有効化」でリソースモニターを有効にした場合のみ表示されます
+- コスト配分タグの設定は「コスト配分タグの有効化」で追加のコストタグを有効にした場合のみ表示されます
 
-## Time Estimate
+## 所要時間の見積もり
 
-- **Quick Path** (budgets only): 15-20 minutes
-- **Standard Path** (budgets + resource monitors): 25-35 minutes
-- **Full Path** (all features): 35-45 minutes
+- **クイックパス**（予算のみ）: 15〜20 分
+- **標準パス**（予算 + リソースモニター）: 25〜35 分
+- **フルパス**（すべての機能）: 35〜45 分
 
-## Key Decisions
+## 主要な決定事項
 
-### 1. Spending Budgets
-**Decision:** Whether to enable Snowflake's native budget feature
-**Stakeholders:** FinOps team, Finance, Platform team
-**Recommendation:** Enable budgets for all environments. They provide valuable early warning of spending trends with no risk of disruption.
+### 1. 支出予算
+**決定:** Snowflake のネイティブ予算機能を有効にするかどうか
+**ステークホルダー:** FinOps チーム、財務、プラットフォームチーム
+**推奨事項:** すべての環境で予算を有効にしてください。支出傾向の早期警告を提供し、中断のリスクはありません。
 
-### 2. Resource Monitors
-**Decision:** Whether to implement hard credit limits that suspend warehouses
-**Stakeholders:** Platform team, Finance, Business stakeholders
-**Recommendation:** Enable for production environments to prevent unexpected cost overruns. Consider the impact on users if warehouses are suspended.
+### 2. リソースモニター
+**決定:** ウェアハウスをサスペンドするハードクレジット制限を実装するかどうか
+**ステークホルダー:** プラットフォームチーム、財務、ビジネスステークホルダー
+**推奨事項:** 予期しないコスト超過を防ぐために本番環境で有効にしてください。ウェアハウスがサスペンドされた場合のユーザーへの影響を考慮してください。
 
-### 3. Cost Allocation Tags
-**Decision:** Which additional tags to implement beyond the core tags from Task 1
-**Stakeholders:** FinOps team, Finance, Department leads
-**Recommendation:** At minimum, add `cost_center` and `owner` tags for chargeback and accountability.
+### 3. コスト配分タグ
+**決定:** タスク 1 のコアタグを超えてどの追加タグを実装するか
+**ステークホルダー:** FinOps チーム、財務、部門リーダー
+**推奨事項:** 少なくとも、チャージバックと説明責任のために `cost_center` と `owner` タグを追加してください。
 
-## Budgets vs Resource Monitors
+## 予算 vs リソースモニター
 
-Understanding the difference is critical:
+違いを理解することが重要です:
 
-| Feature | Budgets | Resource Monitors |
+| 機能 | 予算 | リソースモニター |
 |---------|---------|-------------------|
-| **Purpose** | Alerting & awareness | Active cost control |
-| **Action** | Send notifications | Can suspend warehouses |
-| **Limit Type** | Soft (can exceed) | Hard (enforced) |
-| **Forecasting** | Time-series prediction | Simple threshold |
-| **User Impact** | None | May interrupt work |
-| **Best For** | Planning & monitoring | Cost protection |
+| **目的** | アラートと認識 | アクティブなコスト管理 |
+| **アクション** | 通知の送信 | ウェアハウスのサスペンドが可能 |
+| **制限タイプ** | ソフト（超過可能） | ハード（強制） |
+| **予測** | 時系列予測 | シンプルなしきい値 |
+| **ユーザーへの影響** | なし | 作業を中断する場合がある |
+| **最適な用途** | 計画とモニタリング | コスト保護 |
 
-**Recommendation:** Use both! Budgets for early warning, resource monitors as a safety net.
+**推奨事項:** 両方を使用してください！予算は早期警告のため、リソースモニターはセーフティネットとして。
 
-## Cost Allocation Strategy
+## コスト配分戦略
 
-This task extends the tagging framework established in Task 1:
+このタスクはタスク 1 で確立されたタグ付けフレームワークを拡張します:
 
-**Core Tags (from Task 1):**
-- `domain` - Business unit (e.g., Finance, Marketing)
-- `environment` - SDLC stage (e.g., Dev, Prod)
-- `dataproduct` - Data product identifier
-- `workload` - Workload type (Ingest, Transform, BI, etc.)
-- `zone` - Data zone (Raw, Curated, Consumption, etc.)
+**コアタグ（タスク 1 から）:**
+- `domain` - ビジネスユニット（例: 財務、マーケティング）
+- `environment` - SDLC ステージ（例: 開発、本番）
+- `dataproduct` - データプロダクト識別子
+- `workload` - ワークロードタイプ（取り込み、変換、BI など）
+- `zone` - データゾーン（生データ、キュレーション、消費など）
 
-**Additional Tags (this task):**
-- `cost_center` - Accounting cost center code
-- `owner` - Team or individual responsible
-- `project` - Specific project or initiative
-- `application` - Application or system name
+**追加タグ（このタスク）:**
+- `cost_center` - 会計コストセンターコード
+- `owner` - 責任チームまたは個人
+- `project` - 特定のプロジェクトまたはイニシアチブ
+- `application` - アプリケーションまたはシステム名
 
-## Deliverables
+## 成果物
 
-Upon completing this task, you will have:
+このタスクの完了時に以下が得られます:
 
-1. **If budgets enabled:**
-   - Account-level spending budget configured
-   - Notification recipients set up
-   - Budget refresh interval configured
+1. **予算を有効にした場合:**
+   - アカウントレベルの支出予算の設定
+   - 通知受信者のセットアップ
+   - 予算更新間隔の設定
 
-2. **If resource monitors enabled:**
-   - Account-level resource monitor protecting all warehouses
-   - Credit limit with notification thresholds
-   - Suspension action configured
+2. **リソースモニターを有効にした場合:**
+   - すべてのウェアハウスを保護するアカウントレベルのリソースモニター
+   - 通知しきい値付きのクレジット制限
+   - サスペンションアクションの設定
 
-3. **If cost tags enabled:**
-   - Additional tags in governance schema
-   - Cost reporting views created
-   - Infrastructure database tagged
+3. **コストタグを有効にした場合:**
+   - ガバナンススキーマの追加タグ
+   - 作成されたコスト報告ビュー
+   - タグ付けされたインフラデータベース
 
-4. **Documentation:**
-   - Configuration summary in dynamic content
-   - SQL code for all configurations
-   - Cost reporting queries
+4. **ドキュメント:**
+   - ダイナミックコンテンツの設定サマリー
+   - すべての設定の SQL コード
+   - コスト報告クエリ
 
-## What's Next
+## 次のステップ
 
-After completing Cost Management, you've finished the **Platform Foundation Setup** workflow. Your Snowflake environment now has:
+コスト管理の完了後、**プラットフォーム基盤セットアップ**ワークフローが完了します。あなたの Snowflake 環境には以下が整います:
 
-- ✅ Account strategy and nomenclature defined
-- ✅ Security and identity configured
-- ✅ Cost management in place
+- ✅ アカウント戦略と命名規則の定義
+- ✅ セキュリティとアイデンティティの設定
+- ✅ コスト管理の実施
 
-**Next Workflow:** Proceed to **Data Product Configuration** to set up individual data products with:
-- Databases and schemas
-- Warehouses sized for workloads
-- Warehouse-level resource monitors
-- Functional and access roles
-- Tag application to resources
+**次のワークフロー:** **データプロダクト設定**に進み、以下を持つ個別のデータプロダクトをセットアップします:
+- データベースとスキーマ
+- ワークロードに合わせたサイズのウェアハウス
+- ウェアハウスレベルのリソースモニター
+- ファンクショナルロールとアクセスロール
+- リソースへのタグ適用
 
-## More Information
+## 追加情報
 
 * [Monitor credit usage with budgets](https://docs.snowflake.com/en/user-guide/budgets)
 * [Working with Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors)

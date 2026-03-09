@@ -1,279 +1,207 @@
-In this step, you'll define the organizational taxonomy and naming standards that structure your entire Snowflake platform. You will create tags that will be added to the infrastructure database and schema created in the previous step:
+このステップでは、Snowflake プラットフォーム全体を構造化する組織分類と命名標準を定義します。前のステップで作成されたインフラデータベースとスキーマに追加されるタグを作成します:
 
-1. **DOMAIN Tag** — With allowed values representing your business units, departments, or entities (e.g., FIN, MKT, HR)
-2. **ENVIRONMENT Tag** — With allowed values representing your Software Development Lifecycle (SDLC) stages (e.g., DEV, TEST, PROD)
-3. **Component Ordering Standard** — The sequence in which Domain, Environment, and Data Product appear in object names
-4. **Additional Tags** — Tags where you can optionally define values in later workflows:
-   - `DATAPRODUCT` — Identifies the specific data product (values defined per data product)
-   - `WORKLOAD` — Classifies warehouse workload types (e.g., INGEST, TRANSFORM, BI)
-   - `ZONE` — Classifies database data zones (e.g., RAW, CURATED, PUBLISHED)
-   - `DATA_CLASSIFICATION` — Indicates data sensitivity level (e.g., PUBLIC, CONFIDENTIAL)
+1. **DOMAIN タグ** — ビジネスユニット、部門、またはエンティティを表す許可値（例: FIN、MKT、HR）
+2. **ENVIRONMENT タグ** — ソフトウェア開発ライフサイクル（SDLC）ステージを表す許可値（例: DEV、TEST、PROD）
+3. **コンポーネント順序標準** — オブジェクト名における Domain、Environment、Data Product の順序
+4. **追加タグ** — 後のワークフローでオプションで値を定義できるタグ:
+   - `DATAPRODUCT` — 特定のデータプロダクトを識別する（データプロダクトごとに値を定義）
+   - `WORKLOAD` — ウェアハウスワークロードタイプを分類する（例: INGEST、TRANSFORM、BI）
+   - `ZONE` — データベースのデータゾーンを分類する（例: RAW、CURATED、PUBLISHED）
+   - `DATA_CLASSIFICATION` — データの機密レベルを示す（例: PUBLIC、CONFIDENTIAL）
 
-Depending on your account strategy, Domain and Environment values will appear at either the **account level** (in account names) or **database object level** (in database, warehouse, and role names). The naming convention you select here will be applied consistently across all accounts and data products in subsequent workflows.
+アカウント戦略に応じて、ドメインと環境の値は**アカウントレベル**（アカウント名）または**データベースオブジェクトレベル**（データベース、ウェアハウス、ロール名）のどちらかに表示されます。ここで選択した命名規則は、後続のワークフローのすべてのアカウントとデータプロダクトに一貫して適用されます。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Consistent domain, environment, and naming standards are essential for organizing your Snowflake platform at scale. These standards:
+一貫したドメイン、環境、および命名標準は、スケールで Snowflake プラットフォームを整理するために不可欠です。これらの標準は:
 
-* **Simplify navigation** — Consistent naming makes objects easy to find in Snowsight, BI tools, and queries
-* **Enable FinOps cost allocation** — Tags allow you to track and allocate costs by business unit and environment
-* **Support governance** — Clear ownership boundaries defined by domain enable effective data stewardship
-* **Future-proof your platform** — Establishing standards now prevents naming inconsistencies that become difficult to correct as your platform grows
+* **ナビゲーションを簡略化する** — 一貫した命名により、Snowsight、BI ツール、クエリでオブジェクトを見つけやすくなります
+* **FinOps コスト配分を可能にする** — タグにより、ビジネスユニットと環境ごとにコストを追跡して配分できます
+* **ガバナンスをサポートする** — ドメインで定義された明確なオーナーシップ境界により、効果的なデータスチュワードシップが可能になります
+* **プラットフォームを将来に向けて対策する** — 今標準を確立することで、プラットフォームの成長に伴い修正が困難になる命名の矛盾を防ぎます
 
-Once objects are deployed to production and referenced by applications and users, renaming can become complex and risky, so we recommend planning carefully.
+オブジェクトが本番環境にデプロイされてアプリケーションやユーザーに参照されると、名前変更は複雑でリスクが高くなるため、慎重に計画することをお勧めします。
 
-**Why create additional tags (DATAPRODUCT, WORKLOAD, ZONE, DATA_CLASSIFICATION) now?**
+**なぜ今追加タグ（DATAPRODUCT、WORKLOAD、ZONE、DATA_CLASSIFICATION）を作成するのか？**
 
-We create all six tags in this step—even though you're only defining allowed values for DOMAIN and ENVIRONMENT tags for several important reasons:
+DOMAIN と ENVIRONMENT タグの許可値のみを定義するにもかかわらず、このステップで 6 つすべてのタグを作成するのにはいくつかの重要な理由があります:
 
-* **Centralized governance** — All tags will be stored in your newly created Infrastructure Database and Governance Schema, ensuring consistent management
-* **Immediate availability** — When you create data products in subsequent workflows, these tags are already available for use
-* **Naming alignment** — Object naming components align directly with tags for consistent cost reporting
+* **集中型ガバナンス** — すべてのタグは新しく作成されたインフラデータベースとガバナンススキーマに保存され、一貫した管理が確保されます
+* **即時利用可能性** — 後続のワークフローでデータプロダクトを作成するとき、これらのタグはすでに利用可能です
+* **命名の整合性** — オブジェクト命名コンポーネントはタグと直接一致し、一貫したコスト報告が可能になります
 
-## Account Context
+## アカウントコンテキスト
 
-This step should be executed in your [Organization Account](https://docs.snowflake.com/en/user-guide/organization-accounts) (if created) or your primary account.
+このステップは、[組織アカウント](https://docs.snowflake.com/en/user-guide/organization-accounts)（作成された場合）またはプライマリアカウントで実行してください。
 
-## Key Concepts
+## 主要な概念
 
-[**Object Identifiers**](https://docs.snowflake.com/en/sql-reference/identifiers), often simply referred to as object names, are used to identify first-class “named” objects in Snowflake such as accounts, databases, and schemas. In this application, we'll use [**tags**](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) to help standardize object names throughout your account(s). 
+[**オブジェクト識別子**](https://docs.snowflake.com/en/sql-reference/identifiers)（単純にオブジェクト名とも呼ばれる）は、アカウント、データベース、スキーマなどの Snowflake のファーストクラス「名前付き」オブジェクトを識別するために使用されます。このアプリケーションでは、[**タグ**](https://docs.snowflake.com/en/user-guide/object-tagging/introduction)を使用してアカウント全体でオブジェクト名を標準化します。
 
-A [**tag**](https://docs.snowflake.com/en/user-guide/object-tagging/introduction) is a schema-level object that can be assigned to another Snowflake object. Tags are stored as key-value pairs, where the tag name is the key and you associate a string value when assigning the tag to an object. For example, you might assign the tag `DOMAIN` with value `FIN` to a database to indicate it belongs to the Finance business unit.
+[**タグ**](https://docs.snowflake.com/en/user-guide/object-tagging/introduction)は、別の Snowflake オブジェクトに割り当てられるスキーマレベルのオブジェクトです。タグはキーと値のペアとして保存され、タグ名がキーとなり、タグをオブジェクトに割り当てる際に文字列値を関連付けます。例えば、データベースに値 `FIN` の `DOMAIN` タグを割り当てて、財務ビジネスユニットに属することを示すことができます。
 
-Key characteristics of tags in Snowflake:
-* **Flexible assignment** — A single tag can be assigned to different object types simultaneously (e.g., a warehouse and a database)
-* **Multiple tags per object** — An object can have up to 50 tags assigned at the same time
-* **Tag inheritance** — Tags are [inherited](https://docs.snowflake.com/en/user-guide/object-tagging/inheritance) down the securable objects hierarchy—for example, a tag set on a database can be inherited by schemas and tables within it
+Snowflake のタグの主な特徴:
+* **柔軟な割り当て** — 単一のタグを異なるオブジェクトタイプに同時に割り当てられます（例: ウェアハウスとデータベースの両方に）
+* **オブジェクトごとに複数のタグ** — オブジェクトには最大 50 個のタグを同時に割り当てられます
+* **タグの継承** — タグはセキュリティ可能なオブジェクト階層を[継承](https://docs.snowflake.com/en/user-guide/object-tagging/inheritance)します — 例えば、データベースに設定されたタグはその中のスキーマとテーブルに継承されます
 
-Allowed Values vs. Any Value:
+許可値 vs. 任意の値:
 
-When creating a tag, you can optionally specify `ALLOWED_VALUES` to restrict which string values can be assigned:
+タグを作成するとき、`ALLOWED_VALUES` をオプションで指定して使用できる文字列値を制限できます:
 
-* **Tags with ALLOWED_VALUES** — Only the specified values can be used when assigning the tag. This enforces consistency and prevents typos or unauthorized values. For example, the DOMAIN tag might only allow `FIN`, `MKT`, `OPS`—any attempt to assign `FINANCE` or `finance` would fail.
+* **ALLOWED_VALUES を持つタグ** — タグを割り当てる際、指定された値のみを使用できます。これにより一貫性が強制されてタイプミスや許可されていない値が防止されます。例えば、DOMAIN タグは `FIN`、`MKT`、`OPS` のみを許可する場合、`FINANCE` や `finance` を割り当てようとすると失敗します。
 
-* **Tags without ALLOWED_VALUES** — Any string value can be used when assigning the tag. This provides flexibility when values aren't known in advance or vary widely across use cases.
+* **ALLOWED_VALUES を持たないタグ** — タグを割り当てる際、任意の文字列値を使用できます。これにより、値が事前にわかっていない場合やユースケースによって大きく異なる場合に柔軟性が提供されます。
 
-In this workflow:
-* `DOMAIN` and `ENVIRONMENT` tags use **ALLOWED_VALUES** based on your selections—ensuring all objects use consistent, pre-approved values for cost allocation
-* `DATAPRODUCT`, `WORKLOAD`, `ZONE`, and `DATA_CLASSIFICATION` tags accept **any value**—allowing flexibility as these values are defined per data product in later workflows
+このワークフローでは:
+* `DOMAIN` と `ENVIRONMENT` タグは選択に基づいた **ALLOWED_VALUES** を使用 — すべてのオブジェクトがコスト配分のために一貫した事前承認済みの値を使用することを確保します
+* `DATAPRODUCT`、`WORKLOAD`、`ZONE`、`DATA_CLASSIFICATION` タグは**任意の値**を受け入れます — 後のワークフローでデータプロダクトごとにこれらの値が定義される際の柔軟性を提供します
 
-## Best Practices
+## ベストプラクティス
 
-**Recommended Object Naming Strategy**
+**推奨オブジェクト命名戦略**
 
-We recommend that account and database objects names consist of the following three core components: 
+アカウントとデータベースのオブジェクト名は、以下の 3 つのコアコンポーネントで構成することをお勧めします:
 
-* **Domain** — Business unit, entity, or department (e.g., FIN, MKT, OPS, HR). Defines ownership boundaries for governance and cost allocation.
-* **Environment** — Software Development Lifecycle (SDLC) stage representing different levels of your development lifecycle (e.g., DEV, TEST, PROD)
-* **Data Product** — A self-contained unit of data serving a specific business purpose (e.g., ANALYTICS, REPORTING). Defined in later workflows.
+* **ドメイン** — ビジネスユニット、エンティティ、または部門（例: FIN、MKT、OPS、HR）。ガバナンスとコスト配分のためのオーナーシップ境界を定義します。
+* **環境** — 開発ライフサイクルの異なるレベルを表すソフトウェア開発ライフサイクル（SDLC）ステージ（例: DEV、TEST、PROD）
+* **データプロダクト** — 特定のビジネス目的を果たす自己完結型のデータ単位（例: ANALYTICS、REPORTING）。後のワークフローで定義されます。
 
-How the naming components are applied depends on your account strategy. Below is a simple example where:
-* **Domain** = Fin
-* **Environment** = Prod
-* **Data Product** = Analytics
+命名コンポーネントの適用方法はアカウント戦略によって異なります。以下は簡単な例です:
+* **ドメイン** = Fin
+* **環境** = Prod
+* **データプロダクト** = Analytics
 
-| Strategy | Account Name | Database Name |
+| 戦略 | アカウント名 | データベース名 |
 |----------|--------------|---------------|
-| Single Account | N/A | `FIN_ANALYTICS_PROD` |
-| Multi-Account (Environment) | `PROD` | `FIN_ANALYTICS` |
-| Multi-Account (Domain) | `FIN` | `ANALYTICS_PROD` |
-| Multi-Account (Domain + Environment) | `FIN_PROD` | `ANALYTICS` |
+| シングルアカウント | N/A | `FIN_ANALYTICS_PROD` |
+| マルチアカウント（環境） | `PROD` | `FIN_ANALYTICS` |
+| マルチアカウント（ドメイン） | `FIN` | `ANALYTICS_PROD` |
+| マルチアカウント（ドメイン + 環境） | `FIN_PROD` | `ANALYTICS` |
 
-**Component Naming Best Practices**
+**コンポーネント命名のベストプラクティス**
 
-* **Uppercase** — All names display in uppercase; Snowflake is case-insensitive
-* **Abbreviate** — Use 3-8 character abbreviations for readability (e.g., `SC` vs `SUPPLY_CHAIN`, `PRD` vs `PRODUCTION`)
-* **No underscores within components** — Use underscores only to separate components names, not within component names
-* **Self-descriptive** — Names should be intuitive for users with organizational knowledge
-* **30 characters max** — Keep names under 30 characters for usability
-* **No type suffixes** — Don't add `_DB`, `_WH`, or `_RL` to object names; these will be redundant in context
+* **大文字** — すべての名前は大文字で表示されます。Snowflake は大文字と小文字を区別しません
+* **省略** — 読みやすさのために 3〜8 文字の略語を使用します（例: `SC` vs `SUPPLY_CHAIN`、`PRD` vs `PRODUCTION`）
+* **コンポーネント内にアンダースコアを使用しない** — アンダースコアはコンポーネント名を区切るためにのみ使用し、コンポーネント名内では使用しない
+* **自己説明的** — 組織の知識を持つユーザーが直感的に理解できる名前にする
+* **最大 30 文字** — 使いやすさのために名前を 30 文字未満に保つ
+* **タイプサフィックスなし** — オブジェクト名に `_DB`、`_WH`、`_RL` を追加しない。コンテキスト上冗長になります
 
-**Component Order Considerations**
+**コンポーネント順序の考慮事項**
 
-* Objects are displayed alphabetically in Snowsight, IDEs, and BI tools
-* Place the most important grouping component first
-* Most organizations prefer domain-first ordering for business-centric clustering
+* Snowsight、IDE、BI ツールではオブジェクトがアルファベット順に表示されます
+* 最も重要なグループ化コンポーネントを先頭に置く
+* ほとんどの組織はビジネス中心のクラスタリングのためにドメイン優先の順序を好みます
 
-**Additional Naming Components (Applied in Later Workflows)**
+**追加の命名コンポーネント（後のワークフローで適用）**
 
-Beyond the three core components (Domain, Environment, Data Product), object names typically include an additional suffix based on the object type. These suffixes align with the additional tags (ZONE, WORKLOAD) created in this step:
+3 つのコアコンポーネント（ドメイン、環境、データプロダクト）以外に、オブジェクト名は通常オブジェクトタイプに基づいた追加サフィックスを含みます。これらのサフィックスはこのステップで作成される追加タグ（ZONE、WORKLOAD）と一致します:
 
-*Database Naming — Zone Suffix*
+*データベース命名 — ゾーンサフィックス*
 
-In many cases, it's best to separate the stages of data processing into different databases distinguished by zone:
-* Common zone examples: `RAW`, `CURATED`, `PUBLISHED` (or `BRONZE`, `SILVER`, `GOLD`)
-* **Recommendation:** For data products that separate processing stages, create separate databases with a zone suffix
-* Example: `FIN_ANALYTICS_PROD_RAW`, `FIN_ANALYTICS_PROD_CURATED`
+多くの場合、データ処理のステージをゾーンで区別された異なるデータベースに分けることが最善です:
+* 一般的なゾーンの例: `RAW`、`CURATED`、`PUBLISHED`（または `BRONZE`、`SILVER`、`GOLD`）
+* **推奨事項:** 処理ステージを分離するデータプロダクトには、ゾーンサフィックスを持つ別々のデータベースを作成する
+* 例: `FIN_ANALYTICS_PROD_RAW`、`FIN_ANALYTICS_PROD_CURATED`
 
-*Warehouse Naming — Workload Suffix*
+*ウェアハウス命名 — ワークロードサフィックス*
 
-Isolating data processing or querying into separate warehouses allows for optimal performance and cost management:
-* Warehouses can be sized differently to suit specific workloads
-* Warehouses can be associated with specific roles for access control
-* Common workload examples: `INGEST`, `TRANSFORM`, `BI`, `ADHOC`, `ML`
-* **Recommendation:** Separate workloads within a data product by creating warehouses with a workload suffix
-* Example: `FIN_ANALYTICS_PROD_TRANSFORM`, `FIN_ANALYTICS_PROD_BI`
+データ処理またはクエリを個別のウェアハウスに分離することで、最適なパフォーマンスとコスト管理が可能になります:
+* ウェアハウスは特定のワークロードに合わせて異なるサイズにできます
+* ウェアハウスはアクセス制御のために特定のロールと関連付けられます
+* 一般的なワークロードの例: `INGEST`、`TRANSFORM`、`BI`、`ADHOC`、`ML`
+* **推奨事項:** ワークロードサフィックスを持つウェアハウスを作成してデータプロダクト内のワークロードを分離する
+* 例: `FIN_ANALYTICS_PROD_TRANSFORM`、`FIN_ANALYTICS_PROD_BI`
 
-## **More Information**
+## **追加情報**
 
-* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers) — Naming rules and conventions
-* [Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging) — Using tags for governance and cost allocation
-* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Overview of Snowflake organizations and accounts
+* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers) — 命名ルールと規則
+* [Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging) — ガバナンスとコスト配分のためのタグの使用
+* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Snowflake 組織とアカウントの概要
 
-### Configuration Questions
+### 設定の質問
 
-#### What do you want to name the platform database? (`platform_database_name`: text)
-**What is the Platform/Infrastructure Database?**  
-  The Infrastructure Database is a centralized "hub" database that houses platform-wide objects including tags, network rules, governance policies, and shared procedures. It is owned by the central platform team and shared across all accounts in multi-account deployments.  
-  **Recommended Naming Approach:**  
-  Use a name that clearly identifies this as a platform-owned, infrastructure-focused database. The format should be: \<domain\>\_\<dataproduct\>  
-  * **Domain:** Use plat (short for "platform") or your platform team's acronym (e.g., cdp, snow, data)  
-  * **Data Product:** Use infra or another term indicating infrastructure purpose  
-* **Example:** PLAT\_INFRA — clearly indicates Platform team ownership and Infrastructure purpose  
-  **Alternative Examples:**  
-  * CDP\_INFRA — Cloud Data Platform Infrastructure  
-  * SNOW\_ADMIN — Snowflake Administration  
-  * DATA\_PLATFORM — Data Platform database  
-* **Important:** Choose carefully\! This name will eventually be referenced by dozens to hundreds of objects, policies, and procedures. Changing it later can be complex and risky.  
-  **More Information:**  
-  * [CREATE DATABASE](https://docs.snowflake.com/en/sql-reference/sql/create-database)  
-  * [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)
+#### プラットフォームデータベースに付ける名前は何ですか？（`platform_database_name`: text）
+**プラットフォーム/インフラデータベースとは何か？**
+  インフラデータベースは、タグ、ネットワークルール、ガバナンスポリシー、共有プロシージャなどのプラットフォーム全体のオブジェクトを格納する集中型「ハブ」データベースです。
+  **推奨命名アプローチ:**
+  プラットフォーム所有のインフラストラクチャを重視するデータベースとして明確に識別する名前を使用します。フォーマットは: &lt;domain&gt;\_&lt;dataproduct&gt;
+  * **ドメイン:** plat（「platform」の略）またはプラットフォームチームの頭字語を使用する
+  * **データプロダクト:** infra またはインフラストラクチャの目的を示す別の用語を使用する
+* **例:** PLAT\_INFRA
+  **代替例:**
+  * CDP\_INFRA — クラウドデータプラットフォームインフラストラクチャ
+  * SNOW\_ADMIN — Snowflake 管理
+  * DATA\_PLATFORM — データプラットフォームデータベース
 
-#### What do you want to name the governance schema? (`governance_name`: text)
-**What is the Governance Schema?**  
-  The Governance schema is created within the Infrastructure Database and contains objects related to security, compliance, and platform governance. This includes platform and FinOps tags, network rules, audit views, and administrative procedures.  
+#### ガバナンススキーマに付ける名前は何ですか？（`governance_name`: text）
+**推奨名:** GOVERNANCE
+  **追加情報:**
+  * [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)
+  * [Managed Access Schemas](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)
 
-  **Recommended Name:** GOVERNANCE  
+#### ドメインの略語は何ですか？（`domain_list`: list）
+**ドメインとは何か？**
+ドメインはビジネス機能、データ、またはオーナーシップの論理的なグループを表します。ドメインは、ガバナンス、コスト配分、データスチュワードシップの境界を定義します。
 
-  This is a straightforward, self-descriptive name that clearly communicates the schema's purpose. Alternative options include:  
-  * ADMIN — Administration  
-  * SECURITY — Security-focused objects  
-  * PLATFORM — Platform-level objects  
+**ドメインの使用方法:**
+アカウント戦略に応じて、ドメインはアカウントレベルまたはデータベースレベルのどちらかに表示されます:
+* マルチアカウント（ドメインベース）: 各ドメインが独自の Snowflake アカウントを取得する
+* シングルアカウント: ドメインはデータベース/ウェアハウス/ロール名のプレフィックスとして表示される
 
-**Schema Configuration:**  
-  This schema will be created with **Managed Access** enabled, which means:  
-  * Only the schema owner (typically [SYSADMIN](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system) - aka System Administrator) can grant privileges on objects  
-  * Prevents "shadow" security configurations where object creators grant their own access  
-  * Provides centralized control over who can access governance objects  
+**タイプ別例:**
+* **ビジネスユニット:** `fin`（財務）、`mkt`（マーケティング）、`ops`（オペレーション）、`hr`（人事）
+* **エンティティ:** `retail`、`wholesale`、`mfg`（製造）
+* **部門:** `sales`、`sc`（サプライチェーン）、`custsvc`（カスタマーサービス）
+* **技術チーム:** `data`、`plat`（プラットフォーム）、`eng`（エンジニアリング）
 
-**Best Practice:** Use a simple, single-word name that represents the functional purpose.  
-  
-**More Information:**  
-  * [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)  
-  * [Managed Access Schemas](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)  
-  * [System Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system)
+**ベストプラクティス:**
+* 読みやすさのために短い略語（3〜8 文字）を使用する
+* ドメイン名内のアンダースコアを避ける — 連結した略語を使用する
+* ユーザーに自己説明的な直感的な名前を選ぶ
+* 将来の成長を考慮する — 後で必要になるかもしれないドメインを追加する
 
-#### What are your domain abbreviations? (`domain_list`: list)
-**What is a Domain?**  
-A domain represents a logical grouping of business functions, data, or ownership. Domains define boundaries for governance, cost allocation, and data stewardship.  
+#### 環境に使用する略語は何ですか？（`environment_list`: list）
+**環境とは何か？**
+環境はソフトウェア開発ライフサイクル（SDLC）のステージを表します。環境は成熟度と安定性に基づいてデータとアプリケーションを分離します。
 
-**How Domains Are Used:**  
-Depending on your account strategy, domains appear at either the account level or database level:  
-* Multi-Account (Domain-based): Each domain gets its own Snowflake account  
-* Single Account: Domains appear as prefixes in database/warehouse/role names  
+**一般的な環境の略語:**
+* `dev` — 開発: 開発者がコードを構築してテストする場所
+* `test` または `qa` — テスト/QA: 品質保証と統合テスト用
+* `stg` または `stage` — ステージング: 本番をミラーリングする本番前環境
+* `prod` — 本番: エンドユーザーにサービスを提供するライブ環境
+* `sbx` — サンドボックス: 実験用の分離環境
+* `uat` — ユーザー受け入れテスト: ビジネスユーザーの検証用
+* `dr` — ディザスタリカバリ: ビジネス継続性のためのフェイルオーバー環境
 
-**Examples by Type:**  
-* **Business Units:** `fin` (Finance), `mkt` (Marketing), `ops` (Operations), `hr` (Human Resources)  
-* **Entities:** `retail`, `wholesale`, `mfg` (Manufacturing)  
-* **Departments:** `sales`, `sc` (Supply Chain), `custsvc` (Customer Service)  
-* **Technical Teams:** `data`, `plat` (Platform), `eng` (Engineering)  
+#### アカウントレベルのオブジェクト名に使用するコアコンポーネント順序は何ですか？（`object_component_order`: multi-select）
+**順序が重要な理由:**
+Snowflake はオブジェクトをアルファベット順に表示します。コンポーネントの順序によって、Snowsight、BI ツール、クエリでオブジェクトがどのようにクラスター化されるかが決まります。
 
-**Best Practices:**  
-* Use short abbreviations (3-8 characters) for readability  
-* Avoid underscores within domain names—use concatenated abbreviations  
-* Choose intuitive names that are self-descriptive to users  
-* Consider future growth—add domains you may need later  
+**オプション 1: `<domain>_<env>_<dataproduct>`**
+* オブジェクトは最初に**ドメイン**でクラスター化される
+* 例: `FIN_PROD_ANALYTICS`、`FIN_DEV_ANALYTICS`、`MKT_PROD_CAMPAIGNS`
+* 最適な対象: ドメインオーナーシップが主要な組織
 
-**More Information:**  
-* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)  
+**オプション 2: `<domain>_<dataproduct>_<env>`**
+* オブジェクトは最初に**ドメイン**、次に**データプロダクト**でクラスター化される
+* 例: `FIN_ANALYTICS_PROD`、`FIN_ANALYTICS_DEV`、`MKT_CAMPAIGNS_PROD`
+* 最適な対象: データプロダクト中心の組織
 
-#### What abbreviations will you use for environments? (`environment_list`: list)
-**What is an Environment?**  
-An environment represents a stage in the Software Development Lifecycle (SDLC). Environments isolate data and applications based on their maturity and stability.  
+**オプション 3: `<env>_<domain>_<dataproduct>`**
+* オブジェクトは最初に**環境**でクラスター化される
+* 例: `PROD_FIN_ANALYTICS`、`PROD_MKT_CAMPAIGNS`、`DEV_FIN_ANALYTICS`
+* 最適な対象: 環境ベースの管理に集中する運用チーム
 
-**How Environments Are Used:**  
-Depending on your account strategy, environments appear at either the account level or database level:  
-* Multi-Account (Environment-based): Each environment gets its own Snowflake account  
-* Single Account: Environments appear as suffixes in database/warehouse/role names  
-
-**Common Environment Abbreviations:**  
-* `dev` — Development: Where developers build and test code  
-* `test` or `qa` — Testing/QA: For quality assurance and integration testing  
-* `stg` or `stage` — Staging: Pre-production environment mirroring production  
-* `prod` — Production: Live environment serving end users  
-* `sbx` — Sandbox: Isolated environments for experimentation  
-* `uat` — User Acceptance Testing: For business user validation  
-* `dr` — Disaster Recovery: Failover environment for business continuity  
-
-**Best Practices:**  
-* Use short abbreviations (3-4 characters) for consistency  
-* Keep abbreviations intuitive and recognizable  
-* Include all environments you'll need—adding later requires renaming objects  
-
-**More Information:**  
-* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)  
-
-#### What core component ordering will be used for account-level object names? (`object_component_order`: multi-select)
-**Why Order Matters:**  
-Snowflake displays objects alphabetically. The component order determines how objects cluster together in Snowsight, BI tools, and queries.  
-
-**Option 1: `<domain>_<env>_<dataproduct>`**  
-* Objects cluster by **domain first**, then by environment  
-* All Finance objects together, all Marketing objects together  
-* Example: `FIN_PROD_ANALYTICS`, `FIN_DEV_ANALYTICS`, `MKT_PROD_CAMPAIGNS`  
-* Best for: Organizations where domain ownership is primary  
-
-**Option 2: `<domain>_<dataproduct>_<env>`**  
-* Objects cluster by **domain first**, then by data product  
-* All Finance Analytics together across environments  
-* Example: `FIN_ANALYTICS_PROD`, `FIN_ANALYTICS_DEV`, `MKT_CAMPAIGNS_PROD`  
-* Best for: Data product-centric organizations  
-
-**Option 3: `<env>_<domain>_<dataproduct>`**  
-* Objects cluster by **environment first**  
-* All Production objects together, all Development objects together  
-* Example: `PROD_FIN_ANALYTICS`, `PROD_MKT_CAMPAIGNS`, `DEV_FIN_ANALYTICS`  
-* Best for: Operations teams focused on environment-based management  
-
-**Recommendation:** Most organizations prefer `<domain>_<env>_<dataproduct>` or `<domain>_<dataproduct>_<env>` for domain-centric clustering.  
-
-**More Information:**  
-* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)  
-**Options:**
+**推奨事項:** ほとんどの組織はドメイン中心のクラスタリングのために `<domain>_<env>_<dataproduct>` または `<domain>_<dataproduct>_<env>` を好みます。
+**オプション:**
 - <domain>_<env>_<dataproduct>
 - <domain>_<dataproduct>_<env>
 - <env>_<domain>_<dataproduct>
 
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+#### どのアカウント戦略を実装したいですか？（`account_strategy`: multi-select）
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)

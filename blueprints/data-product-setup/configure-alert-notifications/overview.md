@@ -1,377 +1,114 @@
-The final step configures alert notifications to ensure the right people are informed when resource thresholds are exceeded. This step creates:
+最終ステップでは、リソースしきい値を超えたときに適切な人々に通知するアラート通知を設定します。このステップでは以下を作成します:
 
-1. **Notification Integration** — Email integration for sending alerts
-2. **Resource Monitor Alert** — Scheduled alert that checks monitor status
+1. **通知統合** — アラート送信のためのメール統合
+2. **リソースモニターアラート** — モニターステータスをチェックするスケジュールされたアラート
 
-While resource monitors have built-in notification capabilities, this alert provides more flexibility and can be customized for your specific needs.
+リソースモニターには組み込みの通知機能がありますが、このアラートはより柔軟性があり、特定のニーズに合わせてカスタマイズできます。
 
-**Account Context:** Execute this SQL with ACCOUNTADMIN to create notification integrations.
+**アカウントコンテキスト:** 通知統合を作成するには ACCOUNTADMIN でこの SQL を実行します。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Alert notifications enable:
-- **Proactive Response**: Know about issues before they become critical
-- **Team Awareness**: Keep stakeholders informed
-- **Cost Prevention**: React before warehouses are suspended
-- **Audit Trail**: Record of threshold crossings
+アラート通知により以下が可能になります:
+- **積極的な対応**: 問題が重大になる前に知る
+- **チームの認識**: ステークホルダーに常に情報を提供
+- **コスト防止**: ウェアハウスが一時停止される前に対応
+- **監査トレイル**: しきい値超過の記録
 
-## Prerequisites
+## 前提条件
 
-- Resource monitor created (Step 5.1)
-- Resource monitor assigned to warehouses (Step 5.2)
+- リソースモニターの作成済み（ステップ 5.1）
+- ウェアハウスへのリソースモニターの割り当て済み（ステップ 5.2）
 
-## Key Concepts
+## 主要な概念
 
-**Notification Integration Types**
+**通知統合のタイプ**
 
-| Type | Use Case |
-|------|----------|
-| EMAIL | Send alerts to email addresses |
-| WEBHOOK | Send alerts to external services |
-| QUEUE | Send to cloud message queues |
+| タイプ | ユースケース |
+|--------|------------|
+| EMAIL | メールアドレスにアラートを送信 |
+| WEBHOOK | 外部サービスにアラートを送信 |
+| QUEUE | クラウドメッセージキューに送信 |
 
-**Alert Components**
+**アラートコンポーネント**
 
-| Component | Purpose |
-|-----------|---------|
-| SCHEDULE | When to check the condition |
-| IF | Condition that triggers the alert |
-| THEN | Action to take when triggered |
+| コンポーネント | 目的 |
+|-------------|------|
+| SCHEDULE | 条件をチェックするタイミング |
+| IF | アラートをトリガーする条件 |
+| THEN | トリガーされたときに取るアクション |
 
-**Built-in Resource Monitor Notifications**
-Resource monitors also support built-in notifications:
-- Configured at threshold level (NOTIFY action)
-- Sent to account admins automatically
-- No additional setup required
+**組み込みリソースモニター通知**
+リソースモニターは組み込み通知もサポートします:
+- しきい値レベルで設定済み（NOTIFY アクション）
+- アカウント管理者に自動的に送信
+- 追加のセットアップは不要
 
-**Custom Alert Benefits**
-- Send to specific recipients
-- Customize message content
-- Add business logic
-- Integrate with external systems
+**カスタムアラートの利点**
+- 特定の受信者に送信可能
+- メッセージ内容をカスタマイズ可能
+- ビジネスロジックを追加可能
+- 外部システムと統合可能
 
-**More Information:**
-* [Notification Integrations](https://docs.snowflake.com/en/user-guide/notifications)
+**追加情報:**
+* [通知統合](https://docs.snowflake.com/en/user-guide/notifications)
 * [CREATE ALERT](https://docs.snowflake.com/en/sql-reference/sql/create-alert)
 * [SYSTEM$SEND_EMAIL](https://docs.snowflake.com/en/sql-reference/stored-procedures/system_send_email)
 
 
-### Configuration Questions
+### 設定の質問
 
-#### What is the name of this data product? (`data_product_name`: text)
-**What is this asking?**
-Provide a descriptive name for your data product. This name will be used in database names, role names, and resource tags.
+#### このデータ製品の名前は何ですか？（`data_product_name`: text）
+データ製品の説明的な名前を提供します。
 
-**Why does this matter?**
-The data product name is a key component of object naming:
-- Databases: `<domain>_<dataproduct>_<zone>_<env>` (based on your naming convention)
-- Roles: `<dataproduct>_owner`, `<dataproduct>_reader`
-- Tags: `DATAPRODUCT = '<dataproduct>'`
-
-A clear, descriptive name makes resources easy to identify and manage.
-
-**Naming Guidelines:**
-- Use lowercase, single words or concatenated words (no underscores)
-- Underscores are reserved for separating naming components (domain, zone, env)
-- Be descriptive but concise
-- Reflect the business purpose or use case
-- Avoid technical jargon unless widely understood
-- Avoid reserved words or special characters
-
-**Examples:**
-| Name | Description |
-|------|-------------|
-| `customer360` | Unified customer data and analytics |
-| `salesanalytics` | Sales reporting and analysis |
-| `supplychain` | Supply chain operations data |
-| `finreporting` | Financial reporting and compliance |
-| `marketing` | Marketing campaign attribution |
-| `productcatalog` | Product information management |
-| `inventory` | Inventory tracking and forecasting |
-
-**Recommendation:**
-Choose a name that business users would recognize. Ask: "If someone searched for this data, what would they type?"
-
-**More Information:**
-* [Identifier Requirements](https://docs.snowflake.com/en/sql-reference/identifiers-syntax) — Valid characters and length limits
-
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+#### どのアカウント戦略を実装しますか？（`account_strategy`: multi-select）
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)
 - Multi-Account (Domain + Environment)
 
-#### Which account will this data product be deployed to? (`target_account_name`: text)
+#### このデータ製品はどのアカウントにデプロイされますか？（`target_account_name`: text）
+Snowflake アカウントの正確な名前を入力します。
 
-**What is this asking?**
-Enter the name of the Snowflake account where this data product will be created.
+#### このデータ製品が属するドメインはどれですか？（`data_product_domain`: multi-select）
+プラットフォームファウンデーションで定義されたビジネスドメインを選択します。
 
-**Why does this matter?**
-This ensures all generated SQL is clearly documented with the target account, preventing deployment errors and providing clear audit trails.
+#### このデータ製品がデプロイされる環境はどれですか？（`data_product_environment`: multi-select）
+デプロイメントの SDLC 環境を選択します。
 
-**How to find your account name:**
-- In Snowsight: Click your account name in the bottom-left corner
-- Run SQL: `SELECT CURRENT_ACCOUNT_NAME();`
-- From your URL: `https://<org>-<account>.snowflakecomputing.com`
+#### コストとアラート通知を受け取るメールアドレスは何ですか？（`notification_email`: text）
+リソースモニターのアラートと通知のメールアドレスを入力します。
 
-**Examples based on strategy:**
+**推奨受信者:**
+- チームの配布リスト（推奨）
+- データ製品オーナー
+- FinOps チーム
 
-**Domain-based strategy:**
-- `ACME_SALES` - Sales domain account
-- `ACME_FINANCE` - Finance domain account
-
-**Environment-based strategy:**
-- `ACME_DEV` - Development environment account
-- `ACME_PROD` - Production environment account
-
-**Domain + Environment strategy:**
-- `ACME_SALES_DEV` - Sales domain, Development environment
-- `ACME_FINANCE_PROD` - Finance domain, Production environment
-
-**Recommendation:**
-Copy the exact account name from your Snowflake session to avoid typos.
-
-**More Information:**
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account names
-
-#### Which domain does this data product belong to? (`data_product_domain`: multi-select)
-**What is this asking?**
-Select the business domain (team, department, or organizational unit) that owns this data product.
-
-**Auto-Detection for Multi-Account Strategies:**
-- **Domain-based accounts**: Your domain is determined by your target account. Select the matching value.
-- **Domain + Environment accounts**: Your domain is derived from the first part of your account name. Select the matching value.
-- **Environment-based accounts**: Domain is not determined by your account. Select from the available options.
-- **Single Account**: Domain is not determined by your account. Select from the available options.
-
-**Why does this matter?**
-Domain assignment determines:
-- **Cost Allocation**: Credits consumed are attributed to this domain
-- **Ownership**: The domain team is responsible for the data product
-- **Access Patterns**: Domain-based roles may have different access levels
-- **Governance**: Domain-specific policies may apply
-
-**How domains are used:**
-- Object names may include the domain abbreviation
-- The `DOMAIN` tag is applied to all resources
-- Cost reports can filter by domain
-
-**Available Domains:**
-Your organization defined these domains in Platform Foundation. If you need a new domain, update Platform Foundation first.
-
-**If your domain isn't listed:**
-Work with your platform team to add the domain to Platform Foundation, then return to this workflow.
-
-**Recommendation:**
-For domain-based and domain+environment strategies, select the domain that matches your target account name.
-
-#### Which environment is this data product being deployed to? (`data_product_environment`: multi-select)
-**What is this asking?**
-Select the SDLC environment for this data product deployment.
-
-**Auto-Detection for Multi-Account Strategies:**
-- **Environment-based accounts**: Your environment is determined by your target account. Select the matching value.
-- **Domain + Environment accounts**: Your environment is derived from the second part of your account name. Select the matching value.
-- **Domain-based accounts**: Environment is not determined by your account. Select from the available options.
-- **Single Account**: Environment is not determined by your account. Select from the available options.
-
-**Why does this matter?**
-Environment assignment determines:
-- **Isolation**: Resources are created in the appropriate context
-- **Access Controls**: Production typically has stricter access
-- **Resource Sizing**: Dev environments may use smaller warehouses
-- **Data Sensitivity**: Production may have real data vs. synthetic in dev
-
-**Common Environments:**
-| Abbreviation | Full Name | Purpose |
-|--------------|-----------|---------|
-| `dev` | Development | Building and testing code |
-| `test` | Testing/QA | Quality assurance |
-| `stg` | Staging | Pre-production validation |
-| `prod` | Production | Live environment |
-
-**Recommendation:**
-For environment-based and domain+environment strategies, select the environment that matches your target account name.
-
-#### What email address should receive cost and alert notifications? (`notification_email`: text)
-**What is this asking?**
-Enter the email address for resource monitor alerts and notifications.
-
-**Recommended recipients:**
-- Team distribution list (preferred)
-- Data product owner
-- FinOps team
-
-**Examples:**
+**例:**
 - `data-team@company.com`
 - `finops@company.com`
 - `john.smith@company.com`
 
-**Note:** Use a distribution list rather than individual email to ensure 
-coverage during absences.
+**注:** 不在時のカバレッジを確保するため、個人のメールではなく配布リストを使用してください。
 
+#### データ製品のデータゾーンを定義してください。（`data_zones`: object-list）
+各データゾーン（論理レイヤー）を定義します。ゾーンはデータパイプラインのステージを表します。
 
-#### Define the data zones for your data product. (`data_zones`: object-list)
-**What is this asking?**
-Define each data zone (logical layer) for your data product. Zones represent 
-stages in your data pipeline.
+#### データ製品のウェアハウスを定義してください。（`warehouse_configuration`: object-list）
+コンピューティングウェアハウスを定義します（名前、サイズ、最小/最大クラスター、自動一時停止）。
 
-**Common Zone Patterns:**
+#### リソースモニターのクレジット上限は何クレジットにしますか？（`resource_monitor_credits`: text）
+このデータ製品のウェアハウスの最大クレジット消費量を設定します。
 
-**Three-Zone (Medallion):**
-| Zone | Purpose | Time Travel |
-|------|---------|-------------|
-| RAW | Landing zone for source data | 1 day |
-| CURATED | Cleansed and validated data | 7 days |
-| CONSUMPTION | Business-ready analytics | 7 days |
-
-**Four-Zone:**
-| Zone | Purpose | Time Travel |
-|------|---------|-------------|
-| LANDING | Raw ingestion | 1 day |
-| BRONZE | Light transformation | 1 day |
-| SILVER | Business logic applied | 7 days |
-| GOLD | Aggregated/consumption | 7 days |
-
-**Why does this matter?**
-- Each zone becomes a separate database
-- Zone structure affects data lineage and access patterns
-- Time travel settings impact storage costs
-
-**Recommendation:** Start with 3 zones. You can add more later.
-
-
-#### Define the warehouses for your data product. (`warehouse_configuration`: object-list)
-**What is this asking?**
-Define compute warehouses for your data product workloads.
-
-**Common Patterns:**
-
-**Simple (1 warehouse):**
-| Name | Size | Min/Max Clusters | Auto-Suspend |
-|------|------|------------------|--------------|
-| GENERAL | Small | 1/1 | 300 |
-
-**Standard (2-3 warehouses):**
-| Name | Size | Min/Max Clusters | Auto-Suspend |
-|------|------|------------------|--------------|
-| ETL | Medium | 1/3 | 60 |
-| QUERY | Small | 1/2 | 300 |
-
-**Advanced (workload isolation):**
-| Name | Size | Min/Max Clusters | Auto-Suspend |
-|------|------|------------------|--------------|
-| INGEST | Large | 1/3 | 60 |
-| TRANSFORM | Medium | 1/3 | 120 |
-| INTERACTIVE | Small | 1/2 | 300 |
-| REPORTING | Medium | 1/4 | 300 |
-
-**Sizing Guidelines:**
-- X-Small/Small: Development, light queries
-- Medium: Standard production workloads
-- Large+: Heavy ETL, complex analytics
-
-**Auto-Suspend Guidelines:**
-- Batch workloads: 60 seconds
-- Interactive: 300-600 seconds
-
-
-#### How many credits should be the limit for the resource monitor? (`resource_monitor_credits`: text)
-**What is this asking?**
-Set the maximum credit consumption for this data product's warehouses.
-
-**How to estimate:**
-- X-Small warehouse ≈ 1 credit/hour
-- Small warehouse ≈ 2 credits/hour
-- Medium warehouse ≈ 4 credits/hour
-- Large warehouse ≈ 8 credits/hour
-
-**Example calculations:**
-- Light usage (8hrs/day, Small): 8 × 2 × 22 = 352 credits/month
-- Medium usage (12hrs/day, Medium): 12 × 4 × 22 = 1,056 credits/month
-- Heavy usage (24/7, Large): 24 × 8 × 30 = 5,760 credits/month
-
-**Recommendation:** Start conservative. You can increase limits later.
-
-**Examples:**
-- `500` — Small data product
-- `1000` — Medium workload
-- `5000` — Heavy ETL and analytics
-
-
-#### How often should the resource monitor credit quota reset? (`resource_monitor_frequency`: multi-select)
-**What is this asking?**
-Choose how often the credit quota resets.
-
-**Recommendations:**
-- **Daily**: Tight cost control, experimental workloads
-- **Weekly**: Development environments
-- **Monthly**: Most production data products (recommended)
-- **Quarterly/Yearly**: Stable, predictable workloads
-- **Never**: Hard lifetime cap
-
-**Why does this matter?**
-- Too frequent resets may interrupt legitimate work
-- Too infrequent may allow cost overruns before detection
-
-**Recommendation:** Monthly for most use cases.
-
-**Options:**
+#### リソースモニターのクレジットクォータはどのくらいの頻度でリセットしますか？（`resource_monitor_frequency`: multi-select）
+**オプション:**
 - Daily
 - Weekly
 - Monthly
 - Quarterly
 - Yearly
-- Never (lifetime limit)
+- Never（ライフタイム上限）
 
-#### What prefix is used for your SCIM provisioner role? (`scim_prefix`: text)
-**What is this asking?**
-If using SCIM for identity management, enter the prefix used for the 
-SCIM provisioner role.
-
-**Common SCIM prefixes:**
-- `AAD` — Microsoft Entra ID (Azure AD)
-- `OKTA` — Okta
-- `PING` — PingIdentity
-
-**How this is used:**
-The SCIM provisioner role is typically named `<PREFIX>_PROVISIONER`.
-For example: `AAD_PROVISIONER`, `OKTA_PROVISIONER`
-
-**Enter `NONE` if:**
-- Not using SCIM integration
-- Managing users manually
-- Using a different identity provisioning approach
-
-**More Information:**
-* [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/scim)
-
+#### SCIM プロビジョナーロールのプレフィックスは何ですか？（`scim_prefix`: text）
+SCIM を使用している場合は、SCIM プロビジョナーロールに使用するプレフィックスを入力します（例: AAD、OKTA）。SCIM を使用しない場合は `NONE` と入力します。

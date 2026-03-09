@@ -1,17 +1,17 @@
-# Account Creation
+# アカウント作成
 
-Create and configure additional Snowflake accounts within your organization with security, identity, and cost management.
+セキュリティ、アイデンティティ、コスト管理を備えた組織内の追加 Snowflake アカウントを作成・設定します。
 
-This workflow guides you through creating a new Snowflake account within your organization. It's a repeatable workflow designed to be run once for each account you need to provision.
+このワークフローでは、組織内に新しい Snowflake アカウントを作成する手順を説明します。プロビジョニングが必要な各アカウントに対して繰り返し実行できるワークフローです。
 
-Starting from your Organization Account, you'll define the account's purpose based on your multi-account strategy (domain-based, environment-based, or both), configure technical parameters, and execute the account creation. You'll then set up the new account with security controls (network policies, authentication, SCIM/SAML), establish emergency access procedures, and configure cost management (budgets, resource monitors, and cost allocation tags).
+組織アカウントを起点として、マルチアカウント戦略（ドメインベース、環境ベース、またはその両方）に基づいてアカウントの目的を定義し、技術的なパラメーターを設定してアカウント作成を実行します。その後、新しいアカウントにセキュリティコントロール（ネットワークポリシー、認証、SCIM/SAML）を設定し、緊急アクセス手順を確立し、コスト管理（予算、リソースモニター、コスト配分タグ）を設定します。
 
-By the end of this workflow, you'll have a fully configured Snowflake account that:
-- Follows your organization's naming conventions
-- Has access to shared governance objects from your Organization Account
-- Is secured with appropriate network and authentication policies
-- Includes break-glass emergency access procedures
-- Has budget monitoring and resource controls in place
-- Is properly tagged for cost allocation and chargeback reporting
+このワークフローの完了後、以下を備えた完全に設定された Snowflake アカウントが得られます:
+- 組織の命名規則に従っている
+- 組織アカウントからの共有ガバナンスオブジェクトへのアクセスがある
+- 適切なネットワークと認証ポリシーで保護されている
+- ブレークグラス緊急アクセス手順が含まれている
+- 予算モニタリングとリソースコントロールが整備されている
+- コスト配分とチャージバックレポートのために適切にタグ付けされている
 
-**Prerequisites**: This workflow assumes you have an existing Snowflake Organization Account. While designed to work with the Platform Foundation workflow, it can also run independently if you provide the required configuration values.
+**前提条件**: このワークフローは既存の Snowflake 組織アカウントがあることを前提としています。プラットフォームファウンデーションワークフローと連携して動作するよう設計されていますが、必要な設定値を提供すれば独立して実行することも可能です。

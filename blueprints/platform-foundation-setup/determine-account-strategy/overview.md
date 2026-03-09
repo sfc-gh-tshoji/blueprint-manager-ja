@@ -1,263 +1,263 @@
-In this step, you'll make a foundational decision that shapes your entire Snowflake platform:
+このステップでは、Snowflake プラットフォーム全体を形作る基盤的な決定を行います:
 
-1. **Account Strategy Selection** — Choose between Single Account or one of three Multi-Account patterns (Domain-based, Environment-based, or Domain + Environment)
+1. **アカウント戦略の選択** — シングルアカウントと 3 つのマルチアカウントパターン（ドメインベース、環境ベース、またはドメイン + 環境）のどれかを選択します
 
-This decision determines how every subsequent step in this workflow behaves. For example:
+この決定は、このワークフローのすべての後続ステップがどのように動作するかを決定します。例えば:
 
-* **Single Account:** All databases, warehouses, and data products exist in one account  
-* **Multi-Account:** You'll create additional accounts (in the Account Creation workflow) organized by domain, environment, or both
+* **シングルアカウント:** すべてのデータベース、ウェアハウス、データプロダクトが 1 つのアカウントに存在します
+* **マルチアカウント:** ドメイン、環境、またはその両方で整理された追加のアカウントを（アカウント作成ワークフローで）作成します
 
-Your answer here (account_strategy) is referenced throughout this workflow to customize SQL output and guidance, and is inherited by the Account Creation and Data Product workflows.
+ここでの回答（account_strategy）は、SQL 出力とガイダンスをカスタマイズするためにこのワークフロー全体で参照され、アカウント作成とデータプロダクトのワークフローに引き継がれます。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-Choosing your Snowflake account strategy is a critical foundational decision that determines how you’ll organize workloads, manage security boundaries, and allocate costs. The right strategy depends on your organization's size, compliance requirements, and operational model. This decision typically involves balancing **isolation** (for security and compliance) with **operational simplicity**. This guide helps you decide between a single-account or multi-account approach and whether to enable organization features. It details the decision criteria to help you choose between four primary strategies, listed by increasing complexity:
+Snowflake のアカウント戦略を選択することは、ワークロードの整理方法、セキュリティ境界の管理方法、コストの配分方法を決定する重要な基盤的決定です。適切な戦略は、組織の規模、コンプライアンス要件、および運用モデルによって異なります。この決定は通常、**分離**（セキュリティとコンプライアンスのため）と**運用の簡略化**のバランスを取ることを含みます。このガイドは、シングルアカウントとマルチアカウントアプローチのどちらを選択するか、および組織機能を有効にするかどうかを決定するのに役立ちます。複雑さの増加順に並べられた 4 つの主要な戦略から選択するための意思決定基準を詳述します:
 
-1. Single Account  
-2. Multi-Account (Domain-based)  
-3. Multi-Account (Environment-based)  
-4. Multi-Account (Domain + Environment)
+1. シングルアカウント
+2. マルチアカウント（ドメインベース）
+3. マルチアカウント（環境ベース）
+4. マルチアカウント（ドメイン + 環境）
 
-## **Prerequisites**
+## **前提条件**
 
-None
+なし
 
-## **Key Concepts**
+## **主要な概念**
 
-To select an account strategy, it is essential to understand what a Snowflake **account** is and the hierarchy of Snowflake objects:
+アカウント戦略を選択するには、Snowflake の**アカウント**とは何か、および Snowflake オブジェクトの階層を理解することが不可欠です:
 
-**Snowflake Object Hierarchy**
+**Snowflake オブジェクト階層**
 
 ![Snowflake Object Hierarchy](../../images/account_strategy_images/snowflake_object_hierarchy.png)
 
-[**Organization**](https://docs.snowflake.com/en/user-guide/organizations) - An organization is a first-class Snowflake object that links the accounts owned by your business entity. This object exists whether or not you choose to create an organization account. An [**organization account**](https://docs.snowflake.com/en/user-guide/organization-accounts) (optional) is a special type of account that organization administrators use to perform tasks that affect all accounts under the organization (e.g., view org level data and query history, manage users across accounts, etc). 
-* **[Snowflake Accounts](https://docs.snowflake.com/en/user-guide/organizations-connect)** - customers can create one or more accounts within an Organization. Each has its own distinct URL composed of the organization and account name. Each account is deployed in a single Cloud Provider (AWS, Azure, GCP) region with a specific [Snowflake Edition](https://docs.snowflake.com/en/user-guide/intro-editions).  
-  * **Accounts contain [databases](https://docs.snowflake.com/en/guides-overview-db)** - each database belongs to a single Snowflake account; databases can be replicated to other accounts but they cannot span multiple accounts  
-    * **Databases contain [schemas](https://docs.snowflake.com/en/sql-reference/commands-database#schema)** - each schema belongs to a single Snowflake database  
-      * **Schemas contain objects** - objects include tables, views, file formats, sequences, UDFs, procedures, etc.
+[**Organization（組織）**](https://docs.snowflake.com/en/user-guide/organizations) - 組織は、ビジネスエンティティが所有するアカウントをリンクする Snowflake のファーストクラスオブジェクトです。このオブジェクトは、組織アカウントを作成するかどうかに関わらず存在します。[**組織アカウント**](https://docs.snowflake.com/en/user-guide/organization-accounts)（オプション）は、組織管理者が組織下のすべてのアカウントに影響するタスクを実行するために使用する特殊なタイプのアカウントです（例: 組織レベルのデータとクエリ履歴の表示、アカウント全体のユーザー管理など）。
+* **[Snowflake アカウント](https://docs.snowflake.com/en/user-guide/organizations-connect)** - 顧客は組織内に 1 つ以上のアカウントを作成できます。各アカウントには、組織名とアカウント名で構成される独自の URL があります。各アカウントは、特定の [Snowflake エディション](https://docs.snowflake.com/en/user-guide/intro-editions)を持つ単一のクラウドプロバイダー（AWS、Azure、GCP）リージョンにデプロイされます。
+  * **アカウントには[データベース](https://docs.snowflake.com/en/guides-overview-db)が含まれる** - 各データベースは単一の Snowflake アカウントに属し、データベースは他のアカウントにレプリケートできますが、複数のアカウントにまたがることはできません
+    * **データベースには[スキーマ](https://docs.snowflake.com/en/sql-reference/commands-database#schema)が含まれる** - 各スキーマは単一の Snowflake データベースに属します
+      * **スキーマにはオブジェクトが含まれる** - オブジェクトにはテーブル、ビュー、ファイルフォーマット、シーケンス、UDF、プロシージャなどが含まれます
 
-## **Considerations**
+## **考慮事項**
 
-The key decision you’ll need to make is whether or to pursue a single or multi-account strategy for your Snowflake setup. Before reviewing the strategies, we recommend answering the following questions:
+決定が必要な主な問題は、Snowflake のセットアップにシングルアカウントとマルチアカウントのどちらの戦略を採用するかです。戦略を確認する前に、以下の質問に答えることをお勧めします:
 
-1. **Data Storage Requirements**: Do your source systems reside in **multiple cloud providers** (AWS, Azure, GCP) or **multiple regions**, necessitating multi-cloud/multi-region organization?  
-2. **Isolation Requirements:** Do you have strict compliance rules (e.g., HIPAA, PCI, GDPR) that require physical separation of production data by environment or region?  
-3. **Cost Management:** Do you need precise, separate invoices for different business units, or is a single bill acceptable?  
-4. **Governance Model:** Is your governance centralized (one team manages everything) or decentralized (autonomous business units manage their own data)?  
-5. **Operational Complexity:** How large is your platform team? Does your team have the staffing/maturity to manage the infrastructure of many accounts?  
-6. **Future Growth:** Are you planning to expand into new regions or acquire other companies?  
-7. **Disaster Recovery (DR) / Business Continuity**: Is multi-region or multi-cloud failover a requirement?
+1. **データストレージ要件**: ソースシステムは**複数のクラウドプロバイダー**（AWS、Azure、GCP）または**複数のリージョン**に存在し、マルチクラウド/マルチリージョン組織が必要ですか？
+2. **分離要件:** HIPAA、PCI、GDPR などの厳格なコンプライアンスルールにより、環境またはリージョンごとに本番データの物理的な分離が必要ですか？
+3. **コスト管理:** 異なるビジネスユニットに対して正確な別々の請求書が必要ですか、または単一の請求書で問題ないですか？
+4. **ガバナンスモデル:** ガバナンスは集中型（1 つのチームがすべてを管理）ですか、それとも分散型（自律的なビジネスユニットが自分自身のデータを管理）ですか？
+5. **運用の複雑さ:** プラットフォームチームの規模はどれくらいですか？多くのアカウントのインフラを管理するためのスタッフ/成熟度がありますか？
+6. **将来の成長:** 新しいリージョンへの拡張や他の会社の買収を計画していますか？
+7. **ディザスタリカバリ（DR）/ ビジネス継続性**: マルチリージョンまたはマルチクラウドのフェイルオーバーが必要ですか？
 
-## **Best Practices**
+## **ベストプラクティス**
 
-### Always create an Organization Account
+### 常に組織アカウントを作成する
 
-Even if you’re leaning toward a single account initially, if there is any potential in the future for more than one account, it will be best to set up the [Organization Account]((https://docs.snowflake.com/en/user-guide/organization-accounts)) at the onset as this allows for centralization of several key features.
+最初はシングルアカウントに傾いている場合でも、将来複数のアカウントを持つ可能性がある場合は、最初から[組織アカウント](https://docs.snowflake.com/en/user-guide/organization-accounts)を設定することが最善です。これにより、いくつかの主要な機能の集中化が可能になります。
 
-### Common Multi-Account Strategies
+### 一般的なマルチアカウント戦略
 
-For customers wanting to implement a multi-account strategy, we recommend segregating accounts by one or both of the following:
+マルチアカウント戦略を実装したい顧客には、以下の 1 つまたは両方でアカウントを分離することをお勧めします:
 
-**By Environment**
+**環境別**
 
-An **Environment** represents a stage in the Software Development Life Cycle (SDLC). It is used to isolate the data/app product development stages based on their maturity and stability.
+**環境**はソフトウェア開発ライフサイクル（SDLC）のステージを表します。成熟度と安定性に基づいてデータ/アプリプロダクトの開発ステージを分離するために使用されます。
 
-* **Definition:** An SDLC phase used to separate development, testing, and production workloads  
-* **Examples:** SBX (Sandbox), DEV (Development), TST (QA/Testing), PRD (Production)  
-* **Role in Strategy:** Environments isolate changes to prevent non-production activities from impacting production stability. In an environment-based multi-account strategy, distinct accounts are created for each stage (e.g., <org>_DEV, <org>_PROD)
+* **定義:** 開発、テスト、および本番ワークロードを分離するために使用される SDLC フェーズ
+* **例:** SBX（サンドボックス）、DEV（開発）、TST（QA/テスト）、PRD（本番）
+* **戦略における役割:** 環境は変更を分離して、非本番活動が本番の安定性に影響しないようにします。環境ベースのマルチアカウント戦略では、各ステージに別々のアカウントが作成されます（例: &lt;org&gt;_DEV、&lt;org&gt;_PROD）
 
-**By Domain**
+**ドメイン別**
 
-A **Domain** represents a logical grouping of business functions, data, or ownership. It is typically used to define boundaries for governance, cost allocation, and data stewardship.
+**ドメイン**はビジネス機能、データ、またはオーナーシップの論理的なグループを表します。通常、ガバナンス、コスト配分、データスチュワードシップの境界を定義するために使用されます。
 
-* **Definition:** A business unit/entity, and/or departments  
-* **Examples:** SupplyChain, Retail, Manufacturing, and/or Finance, Marketing, HR  
-* **Role in Strategy:** In multi-account strategies, domains often serve as one of the primary boundaries for separate Snowflake accounts (e.g., a dedicated HR account to ensure autonomy or Manufacturing for clear chargeback)
+* **定義:** ビジネスユニット/エンティティ、および/または部門
+* **例:** サプライチェーン、小売、製造、および/または財務、マーケティング、HR
+* **戦略における役割:** マルチアカウント戦略では、ドメインは別々の Snowflake アカウントの主要な境界の 1 つとして機能することが多いです（例: 自律性のための専用 HR アカウント、明確なチャージバックのための製造アカウント）
 
-### **Account Strategy Options**
+### **アカウント戦略のオプション**
 
-NOTE: The options in this guide are common Snowflake account strategies, synthesized from industry best practices and typical customer requirements. They are oriented towards customers using [Snowflake Standard or Enterprise editions](https://docs.snowflake.com/en/user-guide/intro-editions). While our experience is that following these patterns typically leads to successful outcomes for organizations, each organization is unique. If after reading this guide you believe additional support is required to choose the right solution, please reach out to your account and/or services team before proceeding to the next steps.
+注記: このガイドのオプションは、業界のベストプラクティスと一般的な顧客要件から統合された一般的な Snowflake アカウント戦略です。[Snowflake Standard または Enterprise エディション](https://docs.snowflake.com/en/user-guide/intro-editions)を使用している顧客を対象としています。これらのパターンに従うことが通常組織の成功につながると私たちは経験していますが、各組織はユニークです。このガイドを読んだ後に適切なソリューションを選択するために追加のサポートが必要と思われる場合は、次のステップに進む前にアカウントおよび/またはサービスチームに連絡してください。
 
-Customers should also seek additional guidance if they have highly complex, specialized, or strict regulatory requirements. We recommend checking out [Snowflake Professional Services](https://www.snowflake.com/en/solutions/professional-services/) and/or our [Partner offerings](https://www.snowflake.com/en/why-snowflake/partners/)\!
+非常に複雑、特殊、または厳格な規制要件がある場合は、追加のガイダンスを求めることも検討してください。[Snowflake Professional Services](https://www.snowflake.com/en/solutions/professional-services/)および/または[パートナー提供](https://www.snowflake.com/en/why-snowflake/partners/)をご確認ください！
 
-|  | Single Account | Multi-Account (Environment) | Multi-Account (Domain) | Multi-Account (Domain + Env) |
+|  | シングルアカウント | マルチアカウント（環境） | マルチアカウント（ドメイン） | マルチアカウント（ドメイン + 環境） |
 | :---- | :---- | :---- | :---- | :---- |
-| **Requirement** | "We need to get started quickly with minimal overhead for a PoC or a small team." | "Production data must be physically separated from developers." | "The Marketing team pays for their own compute and manages their own admins." | "We need strict regulatory compliance AND autonomous business units." |
-| **Ideal For** | Proof-of-concept or Small Orgs | Compliance Software Development | Autonomous business units | Larger enterprises |
-| **Primary Data Isolation** | Logical (Database/Schema) | Physical (Account) | Physical (Account) | Physical (Account) |
-| **Cost Tracking** | Requires Tagging | Separate bills per eomain | Separate bills per domain | Precise granularity |
-| **Data Sharing** | Zero Copy Cloning | Data Sharing | Secure Data Sharing | Complex Sharing |
-| **Complexity** | Low | Medium | Medium | High |
+| **要件** | 「PoC または小規模チームのために最小限のオーバーヘッドで素早く開始する必要がある。」 | 「本番データは開発者から物理的に分離されていなければならない。」 | 「マーケティングチームは自分のコンピュートの費用を支払い、独自の管理者を管理する。」 | 「厳格な規制コンプライアンスと自律的なビジネスユニットの両方が必要である。」 |
+| **最適な対象** | PoC または小規模組織 | コンプライアンスソフトウェア開発 | 自律的なビジネスユニット | より大きなエンタープライズ |
+| **主なデータ分離** | 論理的（データベース/スキーマ） | 物理的（アカウント） | 物理的（アカウント） | 物理的（アカウント） |
+| **コスト追跡** | タグ付けが必要 | ドメインごとの別々の請求書 | ドメインごとの別々の請求書 | 精密な粒度 |
+| **データ共有** | ゼロコピークローン | データ共有 | セキュアデータ共有 | 複雑な共有 |
+| **複雑さ** | 低 | 中 | 中 | 高 |
 
-### **Which strategy is right for my organization?**
+### **どの戦略が自分の組織に適しているか？**
 
-**1. Single Account Strategy**  
-**Best For:** Small organizations, centralized data teams, and proof-of-concepts.
+**1. シングルアカウント戦略**
+**最適な対象:** 小規模組織、集中型データチーム、PoC（概念実証）。
 
-**How does this strategy work?**
+**この戦略の仕組みは？**
 
-In this model, all data environments (Dev, Test, Prod) and business domains exist within one Snowflake account.
+このモデルでは、すべてのデータ環境（Dev、Test、Prod）とビジネスドメインが 1 つの Snowflake アカウント内に存在します。
 
-**Pros and Cons**
+**長所と短所**
 
-* **Pros:**  
-  * **Simplified Operations:** Provides for an integrated, enterprise view of your data; lowest administrative overhead; single pane of glass for monitoring.  
-  * **Data Accessibility:** Easiest cross-database queries and joins; zero-copy cloning is available between environments (e.g., cloning Prod to Dev).  
-  * **Centralized Governance:** Security and policies are managed in one place.  
-* **Cons:**  
-  * **Risk:** Lower isolation; a change in a non-production environment could theoretically impact production resource limits.  
-  * **Security Boundaries:** Single security boundary for all data.
+* **長所:**
+  * **簡略化された運用:** 統合されたエンタープライズビューを提供し、管理オーバーヘッドが最も低く、モニタリングのための単一のガラス越しのビューを提供します。
+  * **データアクセシビリティ:** クロスデータベースクエリとジョインが最も簡単で、環境間でゼロコピークローンが利用可能です（例: 本番から開発へのクローン）。
+  * **集中型ガバナンス:** セキュリティとポリシーが 1 か所で管理されます。
+* **短所:**
+  * **リスク:** 分離が低く、非本番環境での変更が理論的に本番リソース制限に影響する可能性があります。
+  * **セキュリティ境界:** すべてのデータに対して単一のセキュリティ境界。
 
-**Is this right for you?**
+**これはあなたに適していますか？**
 
-✅ **Choose this strategy if:**
+✅ **この戦略を選ぶ場合:**
 
-* You have a **centralized data team** that manages all data assets and security.  
-* You want the **simplest possible administration** with a "single pane of glass" for monitoring  
-* You prioritize **developer agility**, such as the ability to use "Zero-Copy Cloning" to instantly create Dev environments from Prod data  
-* You have **simple cost allocation** needs that can be handled by tagging resources rather than separate invoices.
+* すべてのデータアセットとセキュリティを管理する**集中型データチーム**がある場合。
+* モニタリングのための「単一のガラス越しのビュー」で**最もシンプルな管理**を求める場合。
+* 本番データから即座に Dev 環境を作成する「ゼロコピークローン」機能など、**開発者の俊敏性**を優先する場合。
+* 別々の請求書ではなくリソースのタグ付けで処理できる**シンプルなコスト配分**ニーズがある場合。
 
-❌ **Avoid this strategy if:**
+❌ **この戦略を避ける場合:**
 
-* You have strict compliance requirements that mandate **physical isolation** of production data  
-* You have distinct business units that require **complete autonomy** over their own security and release schedules.
-
----
-
-**2. Multi-Account (Environment-based)**  
-**Best For:** Organizations requiring strong isolation between Software Development Lifecycle (SDLC) stages (e.g., Dev, Test, Prod).
-
-**How does this strategy work?**
-
-This strategy separates environments into distinct Snowflake accounts. A common pattern is one account for Production and separate accounts for each of the Non-Production environments (Dev & Test).
-
-**Pros & Cons**
-
-* **Pros:**  
-  * **Maximum SDLC Isolation:** Strongest separation between production and non-production workloads; reduces the risk of non-prod impacting production performance.  
-  * **Independent Security:** Security controls and access policies can be distinct for each environment.  
-  * **Cost Optimization:** Ability to use different Snowflake Editions per environment to optimize costs
-  * **Compliance:** Often required for strict regulatory environments.  
-* **Cons:**  
-  * **Data Friction:** You cannot "clone" databases across accounts. Moving data from Prod to Dev requires data sharing or replication, which adds complexity.  
-  * **Operational Overhead:** Requires managing security and users across multiple accounts.
-
-**Is this right for you?**
-
-✅ **Choose this strategy if:**
-
-* **Environment isolation is critical:** You need to ensure that non-production workloads (Dev/Test) strictly cannot impact Production performance or security limits  
-* **Security policies differ by environment:** For example, you need strict IP allow-listing for Production but looser access for Development  
-* **Compliance is a driver:** Your audit or regulatory requirements specify distinct boundaries for production environments  
-* You want to enable **different Snowflake Editions** (e.g., Standard for Dev, Business Critical for Prod) to optimize costs.
-
-❌ **Avoid this strategy if:**
-
-* Your teams rely heavily on **instant cloning** of production data for testing. Moving data between accounts requires replication or data sharing, which adds friction
+* 本番データの**物理的な分離**を義務付ける厳格なコンプライアンス要件がある場合。
+* 独自のセキュリティとリリーススケジュールに対して**完全な自律性**を必要とする別々のビジネスユニットがある場合。
 
 ---
 
-**3. Multi-Account (Domain-based)**  
-**Best For:** Large enterprises with autonomous business units (Domains) that operate independently.
+**2. マルチアカウント（環境ベース）**
+**最適な対象:** ソフトウェア開発ライフサイクル（SDLC）ステージ（Dev、Test、Prod など）間の強力な分離が必要な組織。
 
-**How does this strategy work?**
+**この戦略の仕組みは？**
 
-In this federated model, distinct business units (e.g., Finance, Marketing, HR) are given their own accounts. This aligns with a **Data Mesh** architecture where domains have decentralized accountadmin level ownership.
+この戦略は環境を別々の Snowflake アカウントに分離します。一般的なパターンは、本番用の 1 つのアカウントと、各非本番環境（Dev と Test）の別々のアカウントです。
 
-**Pro & Cons**
+**長所と短所**
 
-* **Pros:**  
-  * **Cost Allocation:** precise chargeback; you know exactly how much each business unit is spending.  
-  * **Autonomy:** Domains can govern their own data, release schedules, and maintenance windows independently.  
-  * **Scalability:** Independent scaling of compute resources per domain.  
-* **Cons:**  
-  * **Complexity:** Higher complexity in governance and standardization.  
-  * **Silos:** Requires a robust data sharing framework to prevent data silos and enable cross-domain analytics.
+* **長所:**
+  * **最大 SDLC 分離:** 本番と非本番ワークロード間の最強の分離。非本番が本番パフォーマンスに影響するリスクを低減します。
+  * **独立したセキュリティ:** セキュリティコントロールとアクセスポリシーを各環境で異なるものにできます。
+  * **コスト最適化:** コストを最適化するために環境ごとに異なる Snowflake エディションを使用できます。
+  * **コンプライアンス:** 厳格な規制環境で必要とされることが多いです。
+* **短所:**
+  * **データの摩擦:** アカウント間でデータベースを「クローン」することはできません。本番から開発へのデータ移動はデータ共有またはレプリケーションが必要で、複雑さが増します。
+  * **運用オーバーヘッド:** 複数のアカウントにわたるセキュリティとユーザーの管理が必要です。
 
-**Is this right for you?**
+**これはあなたに適していますか？**
 
-✅ **Choose this strategy if:**
+✅ **この戦略を選ぶ場合:**
 
-* **Decentralized ownership is the goal:** You follow a **Data Mesh** architecture where business units (e.g., Finance, Marketing) operate as independent entities with their own administrators  
-* **Chargeback is a priority:** You need clear, separate billing for each business unit without complex tagging logic  
-* **Data sovereignty/Residency:** Your domains operate in different geographic regions (e.g., EU data must stay in an EU account)  
-* Different domains have **different release cadences** or maintenance windows
+* **環境分離が重要な場合:** 非本番ワークロード（Dev/Test）が本番パフォーマンスまたはセキュリティ制限に影響しないことを確保する必要がある場合。
+* **セキュリティポリシーが環境によって異なる場合:** 例えば、本番には厳格な IP 許可リストが必要だが、開発にはより緩いアクセスが必要な場合。
+* **コンプライアンスが要因の場合:** 監査または規制要件が本番環境の明確な境界を指定している場合。
+* **異なる Snowflake エディション**（例: Dev には Standard、本番には Business Critical）を有効にしてコストを最適化したい場合。
 
-❌ **Avoid this strategy if:**
+❌ **この戦略を避ける場合:**
 
-* Your business units frequently need to **join data across domains**. Cross-account data sharing works well but requires more setup than simple cross-database joins
+* チームがテスト用に本番データの**即時クローン**に大きく依存している場合。アカウント間のデータ移動にはレプリケーションまたはデータ共有が必要で、摩擦が生じます。
 
 ---
 
-**4. Multi-Account (Domain + Environment)**  
-**Best For:** Large organizations requiring maximum isolation and precise control over both domains and environments.
+**3. マルチアカウント（ドメインベース）**
+**最適な対象:** 独立して運営する自律的なビジネスユニット（ドメイン）を持つ大企業。
 
-**How does this strategy work?**
+**この戦略の仕組みは？**
 
-This is the most complex and granular strategy. Each Business Unit has separate accounts for their environments (e.g., Finance_Prod, Finance_Dev, Marketing_Prod).
+このフェデレーションモデルでは、別々のビジネスユニット（例: 財務、マーケティング、HR）に独自のアカウントが与えられます。これは、ドメインが分散型の ACCOUNTADMIN レベルのオーナーシップを持つ**データメッシュ**アーキテクチャと一致します。
 
-**Pros & Cons**
+**長所と短所**
 
-* **Pros:**  
-  * **Total Isolation:** Strongest security and compliance posture with clear ownership boundaries.  
-  * **Granular Chargeback:** Most precise tracking of costs by team and lifecycle stage.  
-* **Cons:**  
-  * **High Overhead:** Highest operational complexity; requires automation to manage the large number of accounts.  
-  * **Data Movement:** Requires extensive data sharing and replication configuration to move data between domains and environments.
+* **長所:**
+  * **コスト配分:** 正確なチャージバック。各ビジネスユニットがどれだけ支出しているかを正確に把握できます。
+  * **自律性:** ドメインは自分のデータ、リリーススケジュール、メンテナンスウィンドウを独立して管理できます。
+  * **スケーラビリティ:** ドメインごとにコンピュートリソースを独立してスケールできます。
+* **短所:**
+  * **複雑さ:** ガバナンスと標準化の複雑さが高まります。
+  * **サイロ:** データサイロを防ぎ、クロスドメイン分析を可能にするための堅牢なデータ共有フレームワークが必要です。
 
-**Is this right for you?**
+**これはあなたに適していますか？**
 
-✅ **Choose this strategy if:**
+✅ **この戦略を選ぶ場合:**
 
-* You are a **large enterprise** with complex governance needs that cannot be met by the other strategies  
-* You require the **highest level of isolation**: A breach or issue in "Marketing Dev" must technically be impossible to affect "Finance Prod"  
-* You have a **mature platform team** capable of automating the management of dozens or hundreds of accounts
+* **分散型オーナーシップが目標の場合:** ビジネスユニット（例: 財務、マーケティング）が独自の管理者を持つ独立したエンティティとして運営する**データメッシュ**アーキテクチャに従っている場合。
+* **チャージバックが優先事項の場合:** 複雑なタグ付けロジックなしで各ビジネスユニットに対して明確で別々の請求が必要な場合。
+* **データ主権/居住:** ドメインが異なる地理的リージョンで運営されている場合（例: EU データは EU アカウントに留まる必要がある）。
+* 異なるドメインに**異なるリリースケイデンス**またはメンテナンスウィンドウがある場合。
 
-❌ **Avoid this strategy if:**
+❌ **この戦略を避ける場合:**
 
-* You do not have robust **automation (Infrastructure as Code)**. Managing this many accounts manually is operationally prohibitive
+* ビジネスユニットが頻繁に**ドメイン間でデータを結合**する必要がある場合。クロスアカウントデータ共有は機能しますが、シンプルなクロスデータベースジョインよりも多くのセットアップが必要です。
 
-## **More Information**
+---
 
-* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Overview of Snowflake organizations  
-* [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts) — Managing multiple accounts with an organization account  
-* [Snowflake Editions](https://docs.snowflake.com/en/user-guide/intro-editions) — Feature comparison across editions  
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding account naming and URLs  
-* [Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — Sharing data across accounts  
-* [Database Replication](https://docs.snowflake.com/en/user-guide/database-replication-intro) — Replicating data between accounts
+**4. マルチアカウント（ドメイン + 環境）**
+**最適な対象:** ドメインと環境の両方に対して最大の分離と正確な制御が必要な大規模組織。
 
-### Configuration Questions
+**この戦略の仕組みは？**
 
-#### What account strategy do you wish to implement? (`account_strategy`: multi-select)
-Choose the account strategy that best fits your organization. Your choice determines how domain (business unit/entity) and environment are organized:  
-  **Single Account:**  
-  * Best for: Small to medium organizations, centralized teams, simpler governance  
-  * Naming: Domain \+ Environment \+ Data Product at database level  
-  * Pros: Lower operational overhead, easier cross-database queries, centralized management  
-  * Cons: Less isolation, shared resource limits, single security boundary  
-  * Recommendation: Consider setting up an organization account even for single-account deployments to enable future growth  
-* **Multi-Account (Environment-based):**  
-  * Best for: Organizations requiring strong environment isolation (dev/test/prod)  
-  * Naming: Environment at account level, Domain \+ Data Product at database level  
-  * Pros: Complete environment isolation, independent security controls, separate billing  
-  * Cons: More complex data sharing, higher operational overhead  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain-based):**  
-  * Best for: Large enterprises with autonomous business units/domains  
-  * Naming: Domain at account level, Environment \+ Data Product at database level  
-  * Pros: Clear cost allocation per domain, independent governance, domain autonomy  
-  * Cons: Higher complexity, requires data sharing for cross-domain analytics  
-  * Requirement: Organization account required  
-* **Multi-Account (Domain \+ Environment):**  
-  * Best for: Large organizations needing both domain and environment isolation  
-  * Naming: Domain \+ Environment at account level, Data Product at database level  
-  * Pros: Maximum isolation, clear ownership and environment separation  
-  * Cons: Highest complexity and operational overhead, most accounts to manage  
-  * Requirement: Organization account required  
-* **More Information:**  
-  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)  
-  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)  
-**Options:**
+これは最も複雑で細かい戦略です。各ビジネスユニットには環境ごとに別々のアカウントがあります（例: Finance_Prod、Finance_Dev、Marketing_Prod）。
+
+**長所と短所**
+
+* **長所:**
+  * **完全な分離:** 明確なオーナーシップ境界を持つ最強のセキュリティとコンプライアンスの態勢。
+  * **細かなチャージバック:** チームとライフサイクルステージによるコストの最も正確な追跡。
+* **短所:**
+  * **高いオーバーヘッド:** 最高の運用複雑さ。大量のアカウントを管理するための自動化が必要です。
+  * **データ移動:** ドメインと環境間でデータを移動するための広範なデータ共有とレプリケーション設定が必要です。
+
+**これはあなたに適していますか？**
+
+✅ **この戦略を選ぶ場合:**
+
+* 他の戦略では満たすことができない複雑なガバナンスニーズを持つ**大企業**の場合。
+* **最高レベルの分離**が必要な場合: 「マーケティング Dev」での侵害または問題が「財務 Prod」に影響することが技術的に不可能でなければならない場合。
+* 数十または数百のアカウントの管理を自動化できる**成熟したプラットフォームチーム**がある場合。
+
+❌ **この戦略を避ける場合:**
+
+* 強固な**自動化（Infrastructure as Code）**がない場合。これほど多くのアカウントを手動で管理することは運用上実行不可能です。
+
+## **追加情報**
+
+* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Snowflake 組織の概要
+* [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts) — 組織アカウントで複数のアカウントを管理する
+* [Snowflake Editions](https://docs.snowflake.com/en/user-guide/intro-editions) — エディション間の機能比較
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — アカウントの命名と URL の理解
+* [Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — アカウント間でデータを共有する
+* [Database Replication](https://docs.snowflake.com/en/user-guide/database-replication-intro) — アカウント間でデータをレプリケートする
+
+### 設定の質問
+
+#### どのアカウント戦略を実装したいですか？（`account_strategy`: multi-select）
+組織に最も適したアカウント戦略を選択します。選択によって、ドメイン（ビジネスユニット/エンティティ）と環境の整理方法が決まります:
+  **シングルアカウント:**
+  * 最適な対象: 小〜中規模組織、集中型チーム、シンプルなガバナンス
+  * 命名: データベースレベルでのドメイン + 環境 + データプロダクト
+  * 長所: 運用オーバーヘッドが低い、クロスデータベースクエリが容易、集中管理
+  * 短所: 分離が少ない、共有リソース制限、単一セキュリティ境界
+  * 推奨: 将来の成長を可能にするために、シングルアカウントのデプロイでも組織アカウントの設定を検討する
+* **マルチアカウント（環境ベース）:**
+  * 最適な対象: 強力な環境分離（dev/test/prod）が必要な組織
+  * 命名: アカウントレベルでの環境、データベースレベルでのドメイン + データプロダクト
+  * 長所: 完全な環境分離、独立したセキュリティコントロール、別々の請求
+  * 短所: より複雑なデータ共有、高い運用オーバーヘッド
+  * 要件: 組織アカウントが必要
+* **マルチアカウント（ドメインベース）:**
+  * 最適な対象: 自律的なビジネスユニット/ドメインを持つ大企業
+  * 命名: アカウントレベルでのドメイン、データベースレベルでの環境 + データプロダクト
+  * 長所: ドメインごとの明確なコスト配分、独立したガバナンス、ドメインの自律性
+  * 短所: 高い複雑さ、クロスドメイン分析にはデータ共有が必要
+  * 要件: 組織アカウントが必要
+* **マルチアカウント（ドメイン + 環境）:**
+  * 最適な対象: ドメインと環境の両方の分離が必要な大規模組織
+  * 命名: アカウントレベルでのドメイン + 環境、データベースレベルでのデータプロダクト
+  * 長所: 最大の分離、明確なオーナーシップと環境分離
+  * 短所: 最高の複雑さと運用オーバーヘッド、最も多くのアカウントを管理
+  * 要件: 組織アカウントが必要
+* **追加情報:**
+  * [Organizations](https://docs.snowflake.com/en/user-guide/organizations)
+  * [Managing Multiple Accounts](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts)
+**オプション:**
 - Single Account
 - Multi-Account (Environment-based)
 - Multi-Account (Domain-based)

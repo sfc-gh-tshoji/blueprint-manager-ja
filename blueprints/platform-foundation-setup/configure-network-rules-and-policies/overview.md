@@ -1,287 +1,154 @@
-In this step, you'll configure network rules and policies to control which IP addresses and networks can access your Snowflake account.
+このステップでは、Snowflake アカウントにアクセスできる IP アドレスとネットワークを制御するネットワークルールとポリシーを設定します。
 
-**Account Context:** These network policies apply to your Organization Account (if created) or your primary account. Network rules are stored in the Infrastructure Database's governance schema.
+**アカウントコンテキスト:** これらのネットワークポリシーは組織アカウント（作成済みの場合）またはプライマリアカウントに適用されます。ネットワークルールはインフラデータベースのガバナンススキーマに保存されます。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Network policies are a critical security control that restricts access to your Snowflake account based on network location. Without network policies, anyone with valid credentials could access your account from anywhere in the world.
+ネットワークポリシーは、ネットワークの場所に基づいて Snowflake アカウントへのアクセスを制限する重要なセキュリティコントロールです。ネットワークポリシーなしでは、有効な資格情報を持つ誰でも世界中どこからでもアカウントにアクセスできます。
 
-Network policies provide:
-- **IP Allowlisting**: Only allow connections from trusted networks
-- **Defense in Depth**: Additional layer beyond authentication
-- **Compliance**: Meet regulatory requirements for network access controls
-- **Reduced Attack Surface**: Limit exposure to credential-based attacks
-- **Geographic Restrictions**: Prevent access from unexpected locations
+ネットワークポリシーが提供するもの:
+- **IP ホワイトリスト**: 信頼できるネットワークからの接続のみを許可する
+- **多層防御**: 認証を超えた追加の層
+- **コンプライアンス**: ネットワークアクセス制御の規制要件を満たす
+- **攻撃面の削減**: 資格情報ベースの攻撃への露出を制限する
+- **地理的制限**: 予期しない場所からのアクセスを防ぐ
 
-## External Prerequisites
+## 外部前提条件
 
-- List of corporate network IP ranges (offices, VPN, etc.)
-- List of cloud service IPs that need access (ETL tools, BI tools)
-- Understanding of your organization's network topology
+- 会社のネットワーク IP 範囲のリスト（オフィス、VPN など）
+- アクセスが必要なクラウドサービス IP のリスト（ETL ツール、BI ツール）
+- 組織のネットワークトポロジーの理解
 
-## Key Concepts
+## 主要な概念
 
-**Network Rule**
-A Snowflake object that defines a list of IP addresses or CIDR ranges. Think of network rules as "guest lists" that define who's allowed in from where.
+**ネットワークルール**
+IP アドレスまたは CIDR 範囲のリストを定義する Snowflake オブジェクト。ネットワークルールを、どこから誰が入れるかを定義する「ゲストリスト」と考えてください。
 
-**Network Policy**
-A Snowflake object that combines network rules into allow/block lists. This is the "bouncer" that checks IP addresses against the guest list before allowing access.
+**ネットワークポリシー**
+ネットワークルールを許可/ブロックリストに組み合わせる Snowflake オブジェクト。これはアクセスを許可する前にゲストリストに対して IP アドレスをチェックする「バウンサー」です。
 
-**Account-Level Policy**
-A network policy applied to the entire account—the "front door security" that applies to everyone by default.
+**アカウントレベルポリシー**
+アカウント全体に適用されるネットワークポリシー — デフォルトですべての人に適用される「玄関のセキュリティ」。
 
-**User-Level Policy**
-A network policy applied to specific users. This is like a "VIP entrance" that overrides the standard front door rules for certain users.
+**ユーザーレベルポリシー**
+特定のユーザーに適用されるネットワークポリシー。これは特定のユーザーのために標準の玄関ルールを上書きする「VIP 入口」のようなものです。
 
-**Best Practice: Defense in Depth**
-Network policies are your first line of defense—even if credentials are stolen, attackers can't connect from unauthorized networks.
+**ベストプラクティス: 多層防御**
+ネットワークポリシーは防御の最前線です — 資格情報が盗まれても、攻撃者は権限のないネットワークから接続できません。
 
-**More Information:**
-* [Network Policies](https://docs.snowflake.com/en/user-guide/network-policies) — Overview of IP-based access control
-* [Network Rules](https://docs.snowflake.com/en/user-guide/network-rules) — Creating and managing network rules
-* [CREATE NETWORK RULE](https://docs.snowflake.com/en/sql-reference/sql/create-network-rule) — SQL command reference
+**追加情報:**
+* [ネットワークポリシー](https://docs.snowflake.com/en/user-guide/network-policies) — IP ベースのアクセス制御の概要
+* [ネットワークルール](https://docs.snowflake.com/en/user-guide/network-rules) — ネットワークルールの作成と管理
+* [CREATE NETWORK RULE](https://docs.snowflake.com/en/sql-reference/sql/create-network-rule) — SQL コマンドリファレンス
 
-### Configuration Questions
+### 設定の質問
 
-#### What do you want to name the platform database? (`platform_database_name`: text)
-**What is the Platform/Infrastructure Database?**  
-  The Infrastructure Database is a centralized "hub" database that houses platform-wide objects including tags, network rules, governance policies, and shared procedures. It is owned by the central platform team and shared across all accounts in multi-account deployments.  
-  **Recommended Naming Approach:**  
-  Use a name that clearly identifies this as a platform-owned, infrastructure-focused database. The format should be: \<domain\>\_\<dataproduct\>  
-  * **Domain:** Use plat (short for "platform") or your platform team's acronym (e.g., cdp, snow, data)  
-  * **Data Product:** Use infra or another term indicating infrastructure purpose  
-* **Example:** PLAT\_INFRA — clearly indicates Platform team ownership and Infrastructure purpose  
-  **Alternative Examples:**  
-  * CDP\_INFRA — Cloud Data Platform Infrastructure  
-  * SNOW\_ADMIN — Snowflake Administration  
-  * DATA\_PLATFORM — Data Platform database  
-* **Important:** Choose carefully\! This name will eventually be referenced by dozens to hundreds of objects, policies, and procedures. Changing it later can be complex and risky.  
-  **More Information:**  
-  * [CREATE DATABASE](https://docs.snowflake.com/en/sql-reference/sql/create-database)  
-  * [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)
+#### プラットフォームデータベースに付ける名前は何ですか？（`platform_database_name`: text）
+**例:** PLAT\_INFRA
+**追加情報:**
+* [CREATE DATABASE](https://docs.snowflake.com/en/sql-reference/sql/create-database)
+* [Object Identifiers](https://docs.snowflake.com/en/sql-reference/identifiers)
 
-#### What do you want to name the governance schema? (`governance_name`: text)
-**What is the Governance Schema?**  
-  The Governance schema is created within the Infrastructure Database and contains objects related to security, compliance, and platform governance. This includes platform and FinOps tags, network rules, audit views, and administrative procedures.  
+#### ガバナンススキーマに付ける名前は何ですか？（`governance_name`: text）
+**推奨名:** GOVERNANCE
+**追加情報:**
+* [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)
+* [マネージドアクセススキーマ](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)
 
-  **Recommended Name:** GOVERNANCE  
+#### 許可された IP アドレスのネットワークルールを定義する（`allowed_network_rules`: object-list）
+**何を聞いているか？**
+1 つ以上のネットワークルールを作成します。各ルールには説明的な名前と、Snowflake への接続を許可する IP アドレスまたは CIDR 範囲のリストがあります。
 
-  This is a straightforward, self-descriptive name that clearly communicates the schema's purpose. Alternative options include:  
-  * ADMIN — Administration  
-  * SECURITY — Security-focused objects  
-  * PLATFORM — Platform-level objects  
+**なぜ重要か？**
+ネットワークルールは Snowflake アカウントにアクセスできる IP アドレスを定義します。関連する IP を名前付きルールにグループ化することで管理と監査が簡単になります。
 
-**Schema Configuration:**  
-  This schema will be created with **Managed Access** enabled, which means:  
-  * Only the schema owner (typically [SYSADMIN](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system) - aka System Administrator) can grant privileges on objects  
-  * Prevents "shadow" security configurations where object creators grant their own access  
-  * Provides centralized control over who can access governance objects  
+**フィールド:**
+- **rule_name**: ルールの説明的な名前（例: `corporate_vpn`、`fivetran`、`tableau_cloud`）
+- **cidr_blocks**: カンマ区切りの IP アドレスまたは CIDR 範囲（例: `192.168.1.0/24, 10.0.0.1`）
 
-**Best Practice:** Use a simple, single-word name that represents the functional purpose.  
-  
-**More Information:**  
-  * [CREATE SCHEMA](https://docs.snowflake.com/en/sql-reference/sql/create-schema)  
-  * [Managed Access Schemas](https://docs.snowflake.com/en/user-guide/security-access-control-overview#managed-access-schemas)  
-  * [System Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-access-control-overview-roles-system)
-
-#### Define the network rules for allowed IP addresses (`allowed_network_rules`: object-list)
-**What is this asking?**
-Create one or more network rules, each with a descriptive name and a list of IP addresses or CIDR ranges that should be allowed to connect to Snowflake.
-
-**Why does this matter?**
-Network rules define which IP addresses can access your Snowflake account. Grouping related IPs into named rules makes management and auditing easier.
-
-**Fields:**
-- **rule_name**: A descriptive name for the rule (e.g., `corporate_vpn`, `fivetran`, `tableau_cloud`)
-- **cidr_blocks**: Comma-separated list of IP addresses or CIDR ranges (e.g., `192.168.1.0/24, 10.0.0.1`)
-
-**Common rule examples:**
-| Rule Name | CIDR Blocks | Purpose |
-|-----------|-------------|---------|
-| `corporate_vpn` | `203.0.113.0/24, 198.51.100.50` | Corporate VPN and office IPs |
-| `fivetran` | `52.0.2.4, 34.75.100.0/24` | Fivetran ETL service |
+**一般的なルールの例:**
+| ルール名 | CIDR ブロック | 目的 |
+|----------|--------------|------|
+| `corporate_vpn` | `203.0.113.0/24, 198.51.100.50` | 会社の VPN とオフィス IP |
+| `fivetran` | `52.0.2.4, 34.75.100.0/24` | Fivetran ETL サービス |
 | `tableau_cloud` | `44.192.0.0/16` | Tableau Cloud BI |
-| `aws_lambda` | `3.5.0.0/16` | AWS Lambda functions |
+| `aws_lambda` | `3.5.0.0/16` | AWS Lambda 関数 |
 
-**How to find IP ranges:**
-- Corporate networks: Check with your IT/network team or use `curl ifconfig.me`
-- Cloud services: Check the provider's documentation for published IP ranges
-- Many services publish static IP lists that you can add
+**IP 範囲の見つけ方:**
+- 会社のネットワーク: IT/ネットワークチームに確認するか `curl ifconfig.me` を使用
+- クラウドサービス: 公開 IP 範囲のプロバイダーのドキュメントを確認
+- 多くのサービスが追加できる静的 IP リストを公開しています
 
-**Naming conventions:**
-- Use lowercase with underscores: `corporate_vpn`, `dbt_cloud`
-- Be descriptive: `ny_office` instead of just `office`
-- Include the service name for third-party tools
+**命名規則:**
+- 小文字とアンダースコアを使用: `corporate_vpn`、`dbt_cloud`
+- 説明的にする: `office` の代わりに `ny_office`
+- サードパーティツールにはサービス名を含める
 
-**More Information:**
-* [Network Rules](https://docs.snowflake.com/en/user-guide/network-rules)
+**追加情報:**
+* [ネットワークルール](https://docs.snowflake.com/en/user-guide/network-rules)
 * [CREATE NETWORK RULE](https://docs.snowflake.com/en/sql-reference/sql/create-network-rule)
 
-#### Define any network rules for blocked IP addresses (`blocked_network_rules`: object-list)
-**What is this asking?**
-Optionally create network rules for IP addresses that should be explicitly blocked from accessing Snowflake.
+#### ブロックされた IP アドレスのネットワークルールを定義する（`blocked_network_rules`: object-list）
+**何を聞いているか？**
+オプションで、Snowflake へのアクセスを明示的にブロックする IP アドレスのネットワークルールを作成します。
 
-**Why does this matter?**
-Block rules take precedence over allow rules. This is useful for blocking specific IPs within an otherwise allowed range.
+**なぜ重要か？**
+ブロックルールは許可ルールより優先されます。これは、許可された範囲内の特定の IP をブロックするのに便利です。
 
-**Fields:**
-- **rule_name**: A descriptive name for the block rule (e.g., `blocked_regions`, `former_vendor`)
-- **cidr_blocks**: Comma-separated list of IP addresses or CIDR ranges to block
+**フィールド:**
+- **rule_name**: ブロックルールの説明的な名前（例: `blocked_regions`、`former_vendor`）
+- **cidr_blocks**: ブロックする IP アドレスまたは CIDR 範囲のカンマ区切りリスト
 
-**Example block rules:**
-| Rule Name | CIDR Blocks | Purpose |
-|-----------|-------------|---------|
-| `blocked_countries` | `185.0.0.0/8, 91.0.0.0/8` | Block traffic from specific regions |
-| `former_vendor` | `203.0.113.100, 203.0.113.101` | Block former vendor's static IPs |
-| `known_malicious` | `192.0.2.0/24` | Known malicious IP range |
-| `excluded_subnet` | `10.0.5.0/24` | Exclude specific subnet from broader allow |
+**ブロックルールの例:**
+| ルール名 | CIDR ブロック | 目的 |
+|----------|--------------|------|
+| `blocked_countries` | `185.0.0.0/8, 91.0.0.0/8` | 特定のリージョンからのトラフィックをブロック |
+| `former_vendor` | `203.0.113.100, 203.0.113.101` | 元ベンダーの静的 IP をブロック |
+| `known_malicious` | `192.0.2.0/24` | 既知の悪意ある IP 範囲 |
+| `excluded_subnet` | `10.0.5.0/24` | 広い許可から特定のサブネットを除外 |
 
-**Use cases:**
-- Blocking known malicious IP ranges
-- Blocking specific hosts within an allowed CIDR range
-- Blocking IPs from former vendors or partners
-- Geographic restrictions (blocking entire country IP ranges)
+**使用ケース:**
+- 既知の悪意ある IP 範囲のブロック
+- 許可された CIDR 範囲内の特定のホストのブロック
+- 元のベンダーやパートナーの IP のブロック
+- 地理的制限（国全体の IP 範囲のブロック）
 
-**Leave empty** if you don't need to explicitly block any IPs. Most organizations only use allow rules.
+**明示的に IP をブロックする必要がない場合は空のままにします。**ほとんどの組織は許可ルールのみを使用します。
 
-**More Information:**
-* [Network Policies](https://docs.snowflake.com/en/user-guide/network-policies)
+**追加情報:**
+* [ネットワークポリシー](https://docs.snowflake.com/en/user-guide/network-policies)
 
-#### Should the network policy be applied at the account level? (`enable_account_network_policy`: multi-select)
-**What is this asking?**
-Decide whether to apply the network policy to all users in the account by default, or only to specific users.
+#### ネットワークポリシーをアカウントレベルで適用しますか？（`enable_account_network_policy`: multi-select）
+**何を聞いているか？**
+デフォルトでアカウント内のすべてのユーザーにネットワークポリシーを適用するか、特定のユーザーのみに適用するかを決定します。
 
-**Why does this matter?**
-- **Yes (Account-level)**: All users must connect from allowed networks. More secure but requires complete IP list upfront.
-- **No (User-level only)**: Network policy only applies to users you explicitly assign it to. More flexible during rollout.
+**なぜ重要か？**
+- **はい（アカウントレベル）**: すべてのユーザーは許可されたネットワークから接続する必要があります。より安全ですが、事前に完全な IP リストが必要です。
+- **いいえ（ユーザーレベルのみ）**: ネットワークポリシーは明示的に割り当てたユーザーにのみ適用されます。展開時により柔軟です。
 
-**Recommendation:**
-- Start with **No** during initial setup and testing
-- Move to **Yes** once you've validated all required IPs are included
-- Always ensure break-glass accounts can bypass the policy
+**推奨事項:**
+- 初期設定とテスト中は**いいえ**から始める
+- 必要なすべての IP が含まれていることを確認したら**はい**に移行する
+- ブレークグラスアカウントがポリシーをバイパスできることを常に確認する
 
-**Caution:**
-If you enable account-level policy without including all necessary IPs, you could lock yourself out!
+**注意:**
+必要なすべての IP を含めずにアカウントレベルのポリシーを有効にすると、自分自身をロックアウトする可能性があります！
 
-**More Information:**
-* [Activating Network Policies](https://docs.snowflake.com/en/user-guide/network-policies#activating-a-network-policy)
-**Options:**
+**追加情報:**
+* [ネットワークポリシーの有効化](https://docs.snowflake.com/en/user-guide/network-policies#activating-a-network-policy)
+**オプション:**
 - Yes - Apply to all users by default
 - No - Apply only to specific users
 
-#### Which Identity Provider will you use for SCIM integration? (`identity_provider`: multi-select)
-**What is this asking?**
-Select the Identity Provider (IdP) that your organization uses to manage user identities. This IdP will be the source of truth for user provisioning to Snowflake.
-
-**Why does this matter?**
-Different IdPs have different configuration steps and capabilities. Snowflake provides specific documentation for major IdPs like Okta and Azure AD, while other SCIM 2.0 compatible providers use a generic configuration.
-
-**Options explained:**
-- **Okta**: Enterprise IdP with native Snowflake SCIM integration
-- **Microsoft Entra ID (Azure AD)**: Microsoft's cloud identity service with gallery app for Snowflake
-- **Other SCIM 2.0 Compatible IdP**: Any IdP that supports SCIM 2.0 protocol
-- **None - Manual User Management**: Skip SCIM and manage users manually (not recommended)
-
-**Recommendation:**
-If your organization has an enterprise IdP, we strongly recommend configuring SCIM integration. The initial setup effort is minimal compared to the ongoing benefits of automated provisioning.
-
-**More Information:**
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim)
-* [Supported Identity Providers](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
-**Options:**
+#### SCIM 統合にどの ID プロバイダーを使用しますか？（`identity_provider`: multi-select）
+**オプション:**
 - Okta
 - Microsoft Entra ID (Azure ID)
 - Other SCIM 2.0 Compatible IdP
 - None - Manual User Management
 
-#### Who should be set up as administrators? (`manual_admin_users`: object-list)
-**What is this asking?**
-Define the administrators who will manage your Snowflake account. For each administrator, provide their details and specify their administrative role.
+#### 管理者として設定するのは誰ですか？（`manual_admin_users`: object-list）
+管理者ロール（admin_role フィールド）オプション: ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN
 
-**SSO-Ready Recommendation: Use Email as Username**
-We strongly recommend using the user's **email address** as the `username`, even if you are not currently using SSO. Benefits include:
-- **SSO-Ready:** Most identity providers (Okta, Azure AD, etc.) use email as the default identifier. Using email now ensures seamless SSO integration later.
-- **Uniqueness:** Email addresses are globally unique and prevent naming conflicts.
-- **Consistency:** Users log in with the same identifier across all systems.
-
-**Administrative Role (admin_role field)**
-
-Enter ONE of the following values exactly as shown:
-
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
-
-**Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
-
-**Example Entries (SSO-Ready):**
-
-| username | email | first_name | last_name | admin_role |
-|----------|-------|------------|-----------|------------|
-| `john.smith@company.com` | `john.smith@company.com` | `John` | `Smith` | `ACCOUNTADMIN` |
-| `jane.doe@company.com` | `jane.doe@company.com` | `Jane` | `Doe` | `ACCOUNTADMIN` |
-| `bob.wilson@company.com` | `bob.wilson@company.com` | `Bob` | `Wilson` | `SYSADMIN` |
-
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- Use email addresses as usernames for SSO-readiness
-- Use corporate email addresses (not personal emails)
-
-**Security Notes:**
-- All users will be created with `MUST_CHANGE_PASSWORD = TRUE`
-- Users will receive an initial password that must be changed on first login
-- Consider enabling MFA after initial setup (Enable Multi-Factor Authentication step)
-
-**More Information:**
-* [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user)
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
-
-#### Who should be granted administrative roles? (`scim_admin_users`: object-list)
-**What is this asking?**
-Define which SCIM-provisioned users should receive administrative roles. For each administrator, provide their login name and the role to grant.
-
-**Login Name Format**
-
-The login name must match exactly how the user was provisioned via SCIM from your Identity Provider:
-- **Most common:** Email address (e.g., `john.smith@company.com`) - default for Okta, Azure AD
-- **Alternative:** Username format (e.g., `john.smith`) - if your IdP is configured differently
-
-**Tip:** Run `SHOW USERS;` in Snowflake to see the exact `LOGIN_NAME` format your IdP uses.
-
-**Administrative Role (admin_role field)**
-
-Enter ONE of the following values exactly as shown:
-
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
-
-**⚠️ Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
-
-**Example Entries:**
-
-| login_name | admin_role |
-|------------|------------|
-| `john.smith@company.com` | `ACCOUNTADMIN` |
-| `jane.doe@company.com` | `ACCOUNTADMIN` |
-| `bob.wilson@company.com` | `SYSADMIN` |
-| `alice.chen@company.com` | `SECURITYADMIN` |
-
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- ACCOUNTADMIN users will also be granted SECURITYADMIN and SYSADMIN for role hierarchy
-
-**SCIM Provisioning Reminder:**
-Users must first be provisioned through SCIM before roles can be granted. Run the SQL **after** users appear in `SHOW USERS;`.
-
-**More Information:**
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
-* [System-Defined Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles)
+#### 管理者ロールを付与するのは誰ですか？（`scim_admin_users`: object-list）
+管理者ロール（admin_role フィールド）オプション: ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN

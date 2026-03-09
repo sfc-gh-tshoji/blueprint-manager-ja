@@ -2,110 +2,110 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Answers Init
+# Blueprints 回答ファイル初期化
 
-Generate a skeleton answer file with all questions for a blueprint.
+ブループリントのすべての質問を含むスケルトン回答ファイルを生成します。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:answers:init <blueprint-name> [options]
 ```
 
-## Arguments
+## 引数
 
-- `<blueprint-name>`: The blueprint ID to generate answers for
+- `<blueprint-name>`: 回答を生成するブループリント ID
 
-## Options
+## オプション
 
-- `--output <file>`: Output file path (default: `answers_<blueprint>_<timestamp>.yaml`)
-- `--project <name>`: Project to save the answer file in
-- `--format <full|minimal>`: Output format (default: full)
-  - `full`: Include question text and guidance as comments
-  - `minimal`: Just variable names with null values
+- `--output <file>`: 出力ファイルパス（デフォルト: `answers_<blueprint>_<timestamp>.yaml`）
+- `--project <name>`: 回答ファイルを保存するプロジェクト
+- `--format <full|minimal>`: 出力フォーマット（デフォルト: full）
+  - `full`: コメントとして質問テキストとガイダンスを含める
+  - `minimal`: null 値の変数名のみ
 
-## Instructions
+## 手順
 
-Generate a skeleton answer file by:
+以下の手順でスケルトン回答ファイルを生成します:
 
-1. Loading the blueprint's meta.yaml to get the step list
-2. Scanning all step templates (code.sql.jinja, dynamic.md.jinja) for required variables
-3. Loading question definitions from `definitions/questions.yaml`
-4. Creating a YAML file with all variables, organized by category
+1. ブループリントの meta.yaml を読み込んでステップリストを取得する
+2. すべてのステップテンプレート（code.sql.jinja、dynamic.md.jinja）を検索して必要な変数を特定する
+3. `definitions/questions.yaml` から質問定義を読み込む
+4. カテゴリ別に整理されたすべての変数を含む YAML ファイルを作成する
 
-## Output Format (Full)
+## 出力フォーマット（Full）
 
 ```yaml
-# Blueprint: Platform Foundation Setup
-# Generated: 2025-02-10 14:30:22
+# ブループリント: プラットフォーム基盤セットアップ
+# 生成日: 2025-02-10 14:30:22
 # 
-# Instructions:
-# - Fill in values for each variable below
-# - Variables marked [REQUIRED] must have values for rendering
-# - Run 'blueprints validate' to check completeness
+# 手順:
+# - 以下の各変数に値を入力してください
+# - [REQUIRED] とマークされた変数はレンダリングに値が必要です
+# - 'blueprints validate' を実行して完全性を確認してください
 
 # ==============================================================================
-# ACCOUNT STRATEGY
+# アカウント戦略
 # ==============================================================================
 
-# What is your organization's Snowflake account strategy?
-# Options: Single Account, Hub-and-Spoke, Multi-Account
+# 組織の Snowflake アカウント戦略は何ですか？
+# オプション: Single Account、Hub-and-Spoke、Multi-Account
 # [REQUIRED]
 account_strategy: null
 
-# What is your Snowflake organization name?
-# This is used for connectivity configuration
+# Snowflake の組織名は何ですか？
+# これは接続設定に使用されます
 # [REQUIRED]
 snowflake_org_name: null
 
 # ==============================================================================
-# IDENTITY MANAGEMENT
+# IDマネジメント
 # ==============================================================================
 
-# What identity provider will you use?
-# Options: Okta, Azure AD, Other SAML Provider, Snowflake Native
+# どの ID プロバイダーを使用しますか？
+# オプション: Okta、Azure AD、その他の SAML プロバイダー、Snowflake ネイティブ
 identity_provider: null
 
-# ... more variables ...
+# ... 追加の変数 ...
 ```
 
-## Output Format (Minimal)
+## 出力フォーマット（Minimal）
 
 ```yaml
-# Blueprint: Platform Foundation Setup
-# Generated: 2025-02-10 14:30:22
+# ブループリント: プラットフォーム基盤セットアップ
+# 生成日: 2025-02-10 14:30:22
 
 account_strategy: null
 snowflake_org_name: null
 identity_provider: null
-# ... more variables ...
+# ... 追加の変数 ...
 ```
 
-## Implementation
+## 実装
 
-1. Load blueprint meta.yaml
-2. For each step, parse templates to find referenced variables
-3. Load definitions/questions.yaml
-4. Match variables to questions for metadata
-5. Generate organized YAML with comments
-6. Write to output file
+1. ブループリントの meta.yaml を読み込む
+2. 各ステップのテンプレートを解析して参照される変数を特定する
+3. definitions/questions.yaml を読み込む
+4. メタデータのために変数と質問を照合する
+5. コメント付きの整理された YAML を生成する
+6. 出力ファイルに書き込む
 
-## Error Handling
+## エラー処理
 
-- Blueprint not found: `Error: Blueprint '<name>' not found`
-- Cannot write output: `Error: Cannot write to '<path>'`
+- ブループリントが見つからない: `エラー: ブループリント '<name>' が見つかりません`
+- 出力に書き込めない: `エラー: '<path>' に書き込めません`
 
-## Example
+## 例
 
 ```bash
-# Generate full answer file
+# 完全な回答ファイルを生成
 blueprints answers init platform-foundation-setup
 
-# Generate minimal file to specific location
+# 特定の場所に最小限のファイルを生成
 blueprints answers init data-product-setup --output my-answers.yaml --format minimal
 
-# Generate in a project
+# プロジェクト内に生成
 blueprints answers init account-creation --project acme-corp
 ```
 
-Now execute this by analyzing the blueprint and generating the skeleton answer file.
+ブループリントを分析し、スケルトン回答ファイルを生成することで実行してください。

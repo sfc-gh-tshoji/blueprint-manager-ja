@@ -2,23 +2,23 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Projects Create
+# Blueprints プロジェクト作成
 
-Create a new project directory structure for organizing blueprint work.
+ブループリント作業を整理するための新しいプロジェクトディレクトリ構造を作成します。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:projects:create <name>
 ```
 
-## Arguments
+## 引数
 
-- `<name>`: Project name (alphanumeric, underscores, and hyphens only)
+- `<name>`: プロジェクト名（英数字、アンダースコア、ハイフンのみ）
 
-## Instructions
+## 手順
 
-Create a new project directory with the standard structure:
+標準構造で新しいプロジェクトディレクトリを作成します:
 
 ```
 projects/<name>/
@@ -32,53 +32,53 @@ projects/<name>/
         └── .gitkeep
 ```
 
-## Implementation
+## 実装
 
-1. Validate project name (alphanumeric, underscores, hyphens only)
-2. Check if project already exists
-3. Create directory structure
-4. Create .gitkeep files to preserve empty directories in git
+1. プロジェクト名を検証（英数字、アンダースコア、ハイフンのみ）
+2. プロジェクトが既に存在するか確認
+3. ディレクトリ構造を作成
+4. git で空のディレクトリを保持するための .gitkeep ファイルを作成
 
-## Output Format
+## 出力フォーマット
 
-### Success
+### 成功
 ```
-✓ Project 'my-project' created successfully!
+✓ プロジェクト 'my-project' が正常に作成されました！
 
-Project structure:
+プロジェクト構造:
   projects/my-project/
   ├── answers/
   └── output/
       ├── iac/sql/
       └── documentation/
 
-Next steps:
-1. Initialize answers: /blueprints:answers:init <blueprint-name> --project my-project
-2. Build interactively: /blueprints:build <blueprint-name> --project my-project
+次のステップ:
+1. 回答を初期化: /blueprints:answers:init <blueprint-name> --project my-project
+2. インタラクティブに構築: /blueprints:build <blueprint-name> --project my-project
 ```
 
-### Project Already Exists
+### プロジェクトが既に存在する場合
 ```
-Error: Project 'my-project' already exists.
+エラー: プロジェクト 'my-project' は既に存在します。
 
-Use '/blueprints:projects:describe my-project' to view its contents.
+'/blueprints:projects:describe my-project' を使用してその内容を確認してください。
 ```
 
-### Invalid Name
+### 無効な名前
 ```
-Error: Invalid project name 'my project!'.
-Project names can only contain alphanumeric characters, underscores, and hyphens.
+エラー: プロジェクト名 'my project!' は無効です。
+プロジェクト名には英数字、アンダースコア、ハイフンのみ使用できます。
 
-Examples of valid names:
+有効な名前の例:
   - my-project
   - acme_corp
   - customer123
 ```
 
-## Error Handling
+## エラー処理
 
-- Invalid characters in name: Show error with valid name examples
-- Project already exists: Show error and suggest describe command
-- Permission issues: Show filesystem error
+- 名前に無効な文字が含まれる場合: 有効な名前の例でエラーを表示
+- プロジェクトが既に存在する場合: エラーを表示して describe コマンドを提案
+- 権限の問題: ファイルシステムエラーを表示
 
-Now execute this by creating the project directory structure.
+プロジェクトのディレクトリ構造を作成することで実行してください。

@@ -2,73 +2,73 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Command
+# Blueprints コマンド
 
-Manage Snowflake blueprints, projects, and answer files.
+Snowflake ブループリント、プロジェクト、回答ファイルを管理します。
 
-## Usage
+## 使用方法
 
 ```
-/blueprints:<subcommand> [options]
+/blueprints:<サブコマンド> [オプション]
 ```
 
-## Available Subcommands
+## 利用可能なサブコマンド
 
-### Core Commands
-| Command | Description |
+### コアコマンド
+| コマンド | 説明 |
 |---------|-------------|
-| `/blueprints:list` | List available blueprints with metadata |
-| `/blueprints:describe <name>` | Show blueprint details including task/step tree |
-| `/blueprints:build <blueprint-name>` | Start the blueprint building process interactively |
-| `/blueprints:validate <answer-file>` | Check answer file completeness against blueprint requirements |
-| `/blueprints:render <answer-file>` | Generate SQL/Terraform/Documentation from answers |
+| `/blueprints:list` | メタデータ付きで利用可能なブループリントを一覧表示 |
+| `/blueprints:describe <name>` | タスク/ステップツリーを含むブループリントの詳細を表示 |
+| `/blueprints:build <blueprint-name>` | ブループリント構築プロセスをインタラクティブに開始 |
+| `/blueprints:validate <answer-file>` | ブループリント要件に対して回答ファイルの完全性をチェック |
+| `/blueprints:render <answer-file>` | 回答から SQL/Terraform/ドキュメントを生成 |
 
-### Project Management
-| Command | Description |
+### プロジェクト管理
+| コマンド | 説明 |
 |---------|-------------|
-| `/blueprints:projects:list` | List existing projects |
-| `/blueprints:projects:create <name>` | Create a new project directory structure |
-| `/blueprints:projects:describe <name>` | Show project status (answers, outputs, history) |
+| `/blueprints:projects:list` | 既存のプロジェクトを一覧表示 |
+| `/blueprints:projects:create <name>` | 新しいプロジェクトのディレクトリ構造を作成 |
+| `/blueprints:projects:describe <name>` | プロジェクトの状態（回答、出力、履歴）を表示 |
 
-### Answer File Operations
-| Command | Description |
+### 回答ファイル操作
+| コマンド | 説明 |
 |---------|-------------|
-| `/blueprints:answers:init <blueprint-name>` | Generate a skeleton answer file with all questions |
-| `/blueprints:answers:validate <file>` | Check for missing/invalid values |
-| `/blueprints:answers:diff <file1> <file2>` | Compare two answer files |
+| `/blueprints:answers:init <blueprint-name>` | すべての質問を含むスケルトン回答ファイルを生成 |
+| `/blueprints:answers:validate <file>` | 不足/無効な値をチェック |
+| `/blueprints:answers:diff <file1> <file2>` | 2つの回答ファイルを比較 |
 
-## Examples
+## 使用例
 
 ```bash
-# List all available blueprints
+# 利用可能なブループリントをすべて一覧表示
 /blueprints:list
 
-# View details of a specific blueprint
+# 特定のブループリントの詳細を表示
 /blueprints:describe platform-foundation-setup
 
-# Start building a blueprint interactively
+# ブループリントをインタラクティブに構築開始
 /blueprints:build platform-foundation-setup
 
-# Create a new project
+# 新しいプロジェクトを作成
 /blueprints:projects:create my-customer-project
 
-# Generate a skeleton answer file
+# スケルトン回答ファイルを生成
 /blueprints:answers:init platform-foundation-setup --output answers.yaml
 
-# Validate an answer file
+# 回答ファイルを検証
 /blueprints:validate answers.yaml --blueprint platform-foundation-setup
 
-# Render outputs from answers
+# 回答から出力をレンダリング
 /blueprints:render answers.yaml --blueprint platform-foundation-setup --lang sql
 ```
 
-## Getting Started
+## はじめに
 
-1. **List available blueprints**: `/blueprints:list`
-2. **Create a project**: `/blueprints:projects:create <project-name>`
-3. **Initialize answers**: `/blueprints:answers:init <blueprint-name>`
-4. **Build interactively**: `/blueprints:build <blueprint-name>` (or edit answers manually)
-5. **Validate answers**: `/blueprints:validate <answer-file>`
-6. **Generate outputs**: `/blueprints:render <answer-file>`
+1. **利用可能なブループリントを一覧表示**: `/blueprints:list`
+2. **プロジェクトを作成**: `/blueprints:projects:create <project-name>`
+3. **回答を初期化**: `/blueprints:answers:init <blueprint-name>`
+4. **インタラクティブに構築**: `/blueprints:build <blueprint-name>`（または手動で回答を編集）
+5. **回答を検証**: `/blueprints:validate <answer-file>`
+6. **出力を生成**: `/blueprints:render <answer-file>`
 
-For detailed help on any subcommand, run: `/blueprints:<subcommand> --help`
+サブコマンドの詳細ヘルプは次のコマンドで確認できます: `/blueprints:<サブコマンド> --help`

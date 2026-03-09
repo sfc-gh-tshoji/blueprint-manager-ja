@@ -1,303 +1,186 @@
-In this step, you'll configure authentication policies to define how different types of users must authenticate to Snowflake.
+このステップでは、異なるタイプのユーザーが Snowflake に認証する方法を定義する認証ポリシーを設定します。
 
-**Account Context:** These authentication policies apply to your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** これらの認証ポリシーは組織アカウント（作成済みの場合）またはプライマリアカウントに適用されます。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-Authentication policies control which authentication methods are allowed for users. Different user types have different security requirements:
+認証ポリシーは、ユーザーに許可される認証方法を制御します。異なるユーザータイプには異なるセキュリティ要件があります:
 
-* **Human users**: Should authenticate via SSO with MFA for security  
-* **Service accounts**: Should use OAuth, key pairs, or tokens (not passwords)  
-* **Break-glass accounts**: Need password access as a fallback
+* **人間のユーザー**: セキュリティのために MFA を使用した SSO で認証する必要があります
+* **サービスアカウント**: OAuth、キーペア、またはトークンを使用する必要があります（パスワードは不可）
+* **ブレークグラスアカウント**: フォールバックとしてパスワードアクセスが必要です
 
-Without proper authentication policies:
+適切な認証ポリシーがないと:
 
-* Service accounts might use insecure password authentication  
-* Human users might bypass MFA requirements  
-* Break-glass accounts might be used for routine operations
+* サービスアカウントが安全でないパスワード認証を使用するかもしれません
+* 人間のユーザーが MFA 要件をバイパスするかもしれません
+* ブレークグラスアカウントが日常業務に使用されるかもしれません
 
-## **External Prerequisites**
+## **外部前提条件**
 
-* SAML/SSO integration configured  
-* Break-glass account created  
-* Understanding of your organization's authentication requirements
+* SAML/SSO 統合が設定済み
+* ブレークグラスアカウントが作成済み
+* 組織の認証要件の理解
 
-## **Key Concepts**
+## **主要な概念**
 
-**Authentication Policy** A Snowflake object that specifies allowed authentication methods, MFA requirements, and client type restrictions. Think of authentication policies as "entry requirements" at different doors—you can have strict requirements at the front door (human users) and different requirements at the service entrance (service accounts).
+**認証ポリシー** 許可される認証方法、MFA 要件、クライアントタイプの制限を指定する Snowflake オブジェクト。認証ポリシーを、異なるドアの「入場要件」と考えてください — 正面玄関（人間のユーザー）には厳格な要件があり、サービス入口（サービスアカウント）には異なる要件があります。
 
-**Authentication Methods** How a user proves their identity:
+**認証方法** ユーザーが身元を証明する方法:
 
-* PASSWORD: Username and password  
-* SAML: SSO via SAML assertion  
-* OAUTH: OAuth 2.0 tokens  
-* KEYPAIR: RSA key pair authentication  
-* PAT: Personal Access Tokens
+* PASSWORD: ユーザー名とパスワード
+* SAML: SAML アサーションによる SSO
+* OAUTH: OAuth 2.0 トークン
+* KEYPAIR: RSA キーペア認証
+* PAT: パーソナルアクセストークン
 
-**MFA Authentication Methods** Multi-factor authentication options:
+**MFA 認証方法** 多要素認証オプション:
 
-* TOTP: Time-based One-Time Password (authenticator apps)  
-* PASSKEY: FIDO2/WebAuthn passkeys
+* TOTP: タイムベースのワンタイムパスワード（認証アプリ）
+* PASSKEY: FIDO2/WebAuthn パスキー
 
-**Client Types** Which clients can use the authentication:
+**クライアントタイプ** 認証を使用できるクライアント:
 
-* SNOWFLAKE\_UI: Web interface  
-* SNOWSIGHT: Snowsight web app  
-* DRIVERS: JDBC, ODBC, Python, etc.  
+* SNOWFLAKE\_UI: Web インターフェース
+* SNOWSIGHT: Snowsight Web アプリ
+* DRIVERS: JDBC、ODBC、Python など
 * SNOWSQL: SnowSQL CLI
 
-**Best Practice: Layered Security** Different user types need different policies—like having VIP entrances, employee entrances, and delivery entrances at a building, each with appropriate security checks.
+**ベストプラクティス: 多層セキュリティ** 異なるユーザータイプには異なるポリシーが必要です — 建物に VIP 入口、従業員入口、配送入口があり、それぞれに適切なセキュリティチェックがあるようなものです。
 
-**More Information:**
+**追加情報:**
 
-* [Authentication Policies](https://docs.snowflake.com/en/user-guide/authentication-policies) — Overview of authentication policy options  
-* [CREATE AUTHENTICATION POLICY](https://docs.snowflake.com/en/sql-reference/sql/create-authentication-policy) — SQL command reference  
-* [MFA in Snowflake](https://docs.snowflake.com/en/user-guide/security-mfa) — Multi-factor authentication setup
+* [認証ポリシー](https://docs.snowflake.com/en/user-guide/authentication-policies) — 認証ポリシーオプションの概要
+* [CREATE AUTHENTICATION POLICY](https://docs.snowflake.com/en/sql-reference/sql/create-authentication-policy) — SQL コマンドリファレンス
+* [Snowflake の MFA](https://docs.snowflake.com/en/user-guide/security-mfa) — 多要素認証のセットアップ
 
-### Configuration Questions
+### 設定の質問
 
-#### What authentication methods should be allowed for human users in this account? (`human_auth_methods`: multi-select)
-**What is this asking?**
-Choose how human users (interactive users) should authenticate to this account. The value from Platform Foundation is pre-populated—accept it for consistency or change it if this account has different requirements.
+#### このアカウントの人間のユーザーに許可される認証方法は何ですか？（`human_auth_methods`: multi-select）
+**何を聞いているか？**
+人間のユーザー（インタラクティブユーザー）がこのアカウントに認証する方法を選択します。プラットフォームファウンデーションの値が事前入力されています — 一貫性のためにそのまま受け入れるか、このアカウントに異なる要件がある場合は変更してください。
 
-**Why does this matter?**
-Authentication policies are the gateway to your data. The right balance between security and usability ensures:
-- Protection against unauthorized access
-- Compliance with security requirements
-- Good user experience for legitimate users
-- Alignment with your organization's security posture
+**なぜ重要か？**
+認証ポリシーはデータへのゲートウェイです。セキュリティと使いやすさの適切なバランスにより以下が確保されます:
+- 不正アクセスからの保護
+- セキュリティ要件へのコンプライアンス
+- 正当なユーザーの良いエクスペリエンス
+- 組織のセキュリティ姿勢との整合性
 
-**Inherited Value:**
-This answer is pre-populated from your Platform Foundation configuration. Most organizations keep authentication consistent across accounts, but you may want different settings for:
-- Development accounts (less strict for agility)
-- Production accounts (stricter requirements)
-- External-facing accounts (stricter or different IdP)
+**継承値:**
+この回答はプラットフォームファウンデーション設定から事前入力されています。ほとんどの組織はアカウント間で認証を一貫させますが、次の場合は異なる設定が必要なことがあります:
+- 開発アカウント（俊敏性のためにより緩やか）
+- 本番アカウント（より厳格な要件）
+- 外部向けアカウント（より厳格または異なる IdP）
 
-**Options explained:**
+**オプションの説明:**
 
-**SAML Only (SSO required):** *(Only visible if SAML is configured)*
-- Users must authenticate via your Identity Provider
-- Provides strongest centralized control
-- Recommended for production accounts
-- **Note:** Requires break-glass accounts for emergency access
+**SAML のみ（SSO 必須）:** *（SAML が設定されている場合のみ表示）*
+- ユーザーは ID プロバイダーを通じて認証する必要があります
+- 最も強力な集中管理を提供します
+- 本番アカウントに推奨
+- **注記:** 緊急アクセス用のブレークグラスアカウントが必要です
 
-**SAML or Password with MFA:** *(Only visible if SAML is configured)*
-- Users can use SSO or password + MFA
-- Provides flexibility while maintaining security
-- Good for accounts where SSO might not always be available
+**SAML またはパスワード（MFA 付き）:** *（SAML が設定されている場合のみ表示）*
+- ユーザーは SSO またはパスワード + MFA を使用できます
+- セキュリティを維持しながら柔軟性を提供します
+- SSO が常に利用可能とは限らないアカウントに適しています
 
-**Password with MFA Only:**
-- Users authenticate with Snowflake password plus MFA
-- Strong security without SSO dependency
-- Use if this account doesn't integrate with your IdP
+**パスワード（MFA 付き）のみ:**
+- ユーザーは Snowflake パスワードと MFA で認証します
+- SSO 依存なしの強力なセキュリティ
+- このアカウントが IdP と統合していない場合に使用
 
-**Recommendation:**
-Accept the Platform Foundation value unless this account has specific requirements that differ from your standard.
+**推奨事項:**
+このアカウントがプラットフォームファウンデーションとは異なる特定の要件がない限り、プラットフォームファウンデーションの値を受け入れます。
 
-**More Information:**
-* [Authentication Policies](https://docs.snowflake.com/en/user-guide/authentication-policies) — Policy configuration guide
-**Options:**
+**追加情報:**
+* [認証ポリシー](https://docs.snowflake.com/en/user-guide/authentication-policies) — ポリシー設定ガイド
+**オプション:**
 - SAML Only (SSO required)
 - SAML or Password with MFA
 - Password with MFA Only
 
-#### What name would you like to use for the SAML integration? (`saml_integration_name`: text)
-**What is this asking?**
-Provide a name for the SAML security integration that will be created in Snowflake.
-
-**Why does this matter?**
-The integration name is used to reference the SAML configuration and appears in the login URL for IdP-initiated SSO.
-
-**Format:**
-- Use uppercase letters and underscores
-- Include the IdP name for clarity
-- Examples: `OKTA_SSO`, `AZURE_AD_SAML`, `PING_SSO`
-
-**Recommendation:**
-Use a format like `<IDP>_SSO` or `<IDP>_SAML` where `<IDP>` is your Identity Provider name.
-
-**More Information:**
+#### SAML 統合に付ける名前は何ですか？（`saml_integration_name`: text）
+**例:** `OKTA_SSO`、`AZURE_AD_SAML`、`PING_SSO`
+**追加情報:**
 * [CREATE SECURITY INTEGRATION (SAML2)](https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-saml2)
 
-#### What MFA method should be required for password authentication? (`mfa_method`: multi-select)
-**What is this asking?**
-Select the multi-factor authentication method(s) to require when users authenticate with passwords.
+#### パスワード認証にはどの MFA 方法が必要ですか？（`mfa_method`: multi-select）
+**何を聞いているか？**
+ユーザーがパスワードで認証するときに要求する多要素認証方法を選択します。
 
-**Why does this matter?**
-MFA significantly reduces the risk of account compromise from password theft.
+**なぜ重要か？**
+MFA はパスワード盗難によるアカウント侵害のリスクを大幅に軽減します。
 
-**Options explained:**
-- **TOTP (Authenticator Apps)**: Time-based codes from apps like Google Authenticator, Microsoft Authenticator, Duo. Widely supported.
-- **Passkey (FIDO2/WebAuthn)**: Hardware keys or biometric authentication. Most secure but requires compatible devices.
-- **Either TOTP or Passkey**: Users can choose. Recommended for flexibility.
+**オプションの説明:**
+- **TOTP（認証アプリ）**: Google Authenticator、Microsoft Authenticator、Duo などのアプリからのタイムベースコード。広くサポートされています。
+- **パスキー（FIDO2/WebAuthn）**: ハードウェアキーまたは生体認証。最も安全ですが互換デバイスが必要です。
+- **TOTP またはパスキー**: ユーザーが選択できます。柔軟性のために推奨。
 
-**Recommendation:**
-**Either TOTP or Passkey** provides the best balance of security and user flexibility.
+**推奨事項:**
+**TOTP またはパスキー**はセキュリティとユーザーの柔軟性の最適なバランスを提供します。
 
-**More Information:**
-* [MFA in Snowflake](https://docs.snowflake.com/en/user-guide/security-mfa)
-**Options:**
+**追加情報:**
+* [Snowflake の MFA](https://docs.snowflake.com/en/user-guide/security-mfa)
+**オプション:**
 - TOTP (Authenticator Apps)
 - Passkey (FIDO2/WebAuthn)
 - Either TOTP or Passkey
 
-#### What authentication methods should be allowed for service accounts? (`service_auth_methods`: multi-select)
-**What is this asking?**
-Define how service accounts (automated processes, applications) should authenticate.
+#### サービスアカウントに許可される認証方法は何ですか？（`service_auth_methods`: multi-select）
+**何を聞いているか？**
+サービスアカウント（自動化されたプロセス、アプリケーション）の認証方法を定義します。
 
-**Why does this matter?**
-Service accounts should not use password authentication, which is less secure and harder to rotate.
+**なぜ重要か？**
+サービスアカウントはパスワード認証を使用すべきではありません。パスワードはセキュリティが低く、ローテーションが難しいです。
 
-**Options explained:**
-- **OAuth Only**: Services must use OAuth tokens. Best for cloud applications with OAuth support.
-- **Key Pair Only**: Services must use RSA key pairs. Best for on-premise or custom applications.
-- **OAuth or Key Pair**: Either method allowed. Recommended for flexibility.
-- **OAuth, Key Pair, or PAT**: Adds Personal Access Tokens. PATs are easier to manage but less secure.
+**オプションの説明:**
+- **OAuth のみ**: サービスは OAuth トークンを使用する必要があります。OAuth をサポートするクラウドアプリケーションに最適。
+- **キーペアのみ**: サービスは RSA キーペアを使用する必要があります。オンプレミスまたはカスタムアプリケーションに最適。
+- **OAuth またはキーペア**: どちらの方法も許可。柔軟性のために推奨。
+- **OAuth、キーペア、または PAT**: パーソナルアクセストークンを追加。PAT は管理が簡単ですが安全性が低いです。
 
-**Recommendation:**
-**OAuth or Key Pair** provides security while accommodating different integration patterns.
+**推奨事項:**
+**OAuth またはキーペア**は、異なる統合パターンに対応しながらセキュリティを提供します。
 
-**More Information:**
-* [Key Pair Authentication](https://docs.snowflake.com/en/user-guide/key-pair-auth)
+**追加情報:**
+* [キーペア認証](https://docs.snowflake.com/en/user-guide/key-pair-auth)
 * [OAuth](https://docs.snowflake.com/en/user-guide/oauth)
-**Options:**
+**オプション:**
 - OAuth Only
 - Key Pair Only
 - OAuth or Key Pair
 - OAuth, Key Pair, or PAT
 
-#### Should authentication policies be applied at the account level? (`apply_auth_policies_account_level`: multi-select)
-**What is this asking?**
-Decide whether to enforce the human user authentication policy for all users by default.
+#### 認証ポリシーをアカウントレベルで適用しますか？（`apply_auth_policies_account_level`: multi-select）
+**何を聞いているか？**
+デフォルトですべてのユーザーに人間ユーザー認証ポリシーを強制するかどうかを決定します。
 
-**Why does this matter?**
-- **Yes**: All users must comply with the policy unless they have a specific override (like break-glass)
-- **No**: Policies only apply to users you explicitly assign them to
+**なぜ重要か？**
+- **はい**: すべてのユーザーは、特定のオーバーライドがない限り（ブレークグラスなど）ポリシーに準拠する必要があります
+- **いいえ**: ポリシーは明示的に割り当てたユーザーにのみ適用されます
 
-**Recommendation:**
-- Start with **No** during initial rollout and testing
-- Move to **Yes** once you've validated policies work correctly
-- Ensure break-glass accounts have their own policy first
+**推奨事項:**
+- 初期展開とテスト中は**いいえ**から始める
+- ポリシーが正常に動作することを確認したら**はい**に移行する
+- まずブレークグラスアカウントに独自のポリシーがあることを確認する
 
-**More Information:**
-* [Activating Authentication Policies](https://docs.snowflake.com/en/user-guide/authentication-policies#activating-an-authentication-policy)
-**Options:**
+**追加情報:**
+* [認証ポリシーの有効化](https://docs.snowflake.com/en/user-guide/authentication-policies#activating-an-authentication-policy)
+**オプション:**
 - Yes - Apply default policy to all users
 - No - Apply only to specific users
 
-#### Which Identity Provider will you use for SCIM integration? (`identity_provider`: multi-select)
-**What is this asking?**
-Select the Identity Provider (IdP) that your organization uses to manage user identities. This IdP will be the source of truth for user provisioning to Snowflake.
-
-**Why does this matter?**
-Different IdPs have different configuration steps and capabilities. Snowflake provides specific documentation for major IdPs like Okta and Azure AD, while other SCIM 2.0 compatible providers use a generic configuration.
-
-**Options explained:**
-- **Okta**: Enterprise IdP with native Snowflake SCIM integration
-- **Microsoft Entra ID (Azure AD)**: Microsoft's cloud identity service with gallery app for Snowflake
-- **Other SCIM 2.0 Compatible IdP**: Any IdP that supports SCIM 2.0 protocol
-- **None - Manual User Management**: Skip SCIM and manage users manually (not recommended)
-
-**Recommendation:**
-If your organization has an enterprise IdP, we strongly recommend configuring SCIM integration. The initial setup effort is minimal compared to the ongoing benefits of automated provisioning.
-
-**More Information:**
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim)
-* [Supported Identity Providers](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
-**Options:**
+#### SCIM 統合にどの ID プロバイダーを使用しますか？（`identity_provider`: multi-select）
+**オプション:**
 - Okta
 - Microsoft Entra ID (Azure ID)
 - Other SCIM 2.0 Compatible IdP
 - None - Manual User Management
 
-#### Who should be set up as administrators? (`manual_admin_users`: object-list)
-**What is this asking?**
-Define the administrators who will manage your Snowflake account. For each administrator, provide their details and specify their administrative role.
+#### 管理者として設定するのは誰ですか？（`manual_admin_users`: object-list）
+管理者ロール（admin_role フィールド）オプション: ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN
 
-**SSO-Ready Recommendation: Use Email as Username**
-We strongly recommend using the user's **email address** as the `username`, even if you are not currently using SSO. Benefits include:
-- **SSO-Ready:** Most identity providers (Okta, Azure AD, etc.) use email as the default identifier. Using email now ensures seamless SSO integration later.
-- **Uniqueness:** Email addresses are globally unique and prevent naming conflicts.
-- **Consistency:** Users log in with the same identifier across all systems.
-
-**Administrative Role (admin_role field)**
-
-Enter ONE of the following values exactly as shown:
-
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
-
-**Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
-
-**Example Entries (SSO-Ready):**
-
-| username | email | first_name | last_name | admin_role |
-|----------|-------|------------|-----------|------------|
-| `john.smith@company.com` | `john.smith@company.com` | `John` | `Smith` | `ACCOUNTADMIN` |
-| `jane.doe@company.com` | `jane.doe@company.com` | `Jane` | `Doe` | `ACCOUNTADMIN` |
-| `bob.wilson@company.com` | `bob.wilson@company.com` | `Bob` | `Wilson` | `SYSADMIN` |
-
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- Use email addresses as usernames for SSO-readiness
-- Use corporate email addresses (not personal emails)
-
-**Security Notes:**
-- All users will be created with `MUST_CHANGE_PASSWORD = TRUE`
-- Users will receive an initial password that must be changed on first login
-- Consider enabling MFA after initial setup (Enable Multi-Factor Authentication step)
-
-**More Information:**
-* [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user)
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
-
-#### Who should be granted administrative roles? (`scim_admin_users`: object-list)
-**What is this asking?**
-Define which SCIM-provisioned users should receive administrative roles. For each administrator, provide their login name and the role to grant.
-
-**Login Name Format**
-
-The login name must match exactly how the user was provisioned via SCIM from your Identity Provider:
-- **Most common:** Email address (e.g., `john.smith@company.com`) - default for Okta, Azure AD
-- **Alternative:** Username format (e.g., `john.smith`) - if your IdP is configured differently
-
-**Tip:** Run `SHOW USERS;` in Snowflake to see the exact `LOGIN_NAME` format your IdP uses.
-
-**Administrative Role (admin_role field)**
-
-Enter ONE of the following values exactly as shown:
-
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
-
-**⚠️ Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
-
-**Example Entries:**
-
-| login_name | admin_role |
-|------------|------------|
-| `john.smith@company.com` | `ACCOUNTADMIN` |
-| `jane.doe@company.com` | `ACCOUNTADMIN` |
-| `bob.wilson@company.com` | `SYSADMIN` |
-| `alice.chen@company.com` | `SECURITYADMIN` |
-
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- ACCOUNTADMIN users will also be granted SECURITYADMIN and SYSADMIN for role hierarchy
-
-**SCIM Provisioning Reminder:**
-Users must first be provisioned through SCIM before roles can be granted. Run the SQL **after** users appear in `SHOW USERS;`.
-
-**More Information:**
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
-* [System-Defined Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles)
+#### 管理者ロールを付与するのは誰ですか？（`scim_admin_users`: object-list）
+管理者ロール（admin_role フィールド）オプション: ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN

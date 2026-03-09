@@ -1,253 +1,162 @@
-In this step, you'll configure SAML (Security Assertion Markup Language) for Single Sign-On (SSO) to enable federated authentication from your Identity Provider to Snowflake.
+このステップでは、シングルサインオン（SSO）のための SAML（Security Assertion Markup Language）を設定し、ID プロバイダーから Snowflake へのフェデレーテッド認証を有効にします。
 
-**Account Context:** This step configures SSO for your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** このステップでは、組織アカウント（作成済みの場合）またはプライマリアカウントの SSO を設定します。
 
-## Why is this important?
+## なぜこれが重要か？
 
-SAML SSO provides centralized authentication through your Identity Provider, offering:
-- **Single Sign-On**: Users authenticate once through their corporate IdP
-- **Centralized Security**: Authentication policies are managed in one place
-- **Improved User Experience**: No separate Snowflake passwords to manage
-- **Enhanced Security**: Leverage existing MFA, conditional access, and security policies
-- **Compliance**: Meet audit requirements with centralized authentication logs
+SAML SSO は ID プロバイダーを通じた集中認証を提供し、以下を実現します:
+- **シングルサインオン**: ユーザーは会社の IdP で一度認証するだけです
+- **集中セキュリティ**: 認証ポリシーが 1 か所で管理されます
+- **ユーザーエクスペリエンスの向上**: 別の Snowflake パスワードを管理する必要がありません
+- **セキュリティの強化**: 既存の MFA、条件付きアクセス、セキュリティポリシーを活用します
+- **コンプライアンス**: 集中認証ログで監査要件を満たします
 
-## External Prerequisites
+## 外部前提条件
 
-- An Identity Provider (IdP) that supports SAML 2.0
-- Administrative access to your IdP to configure the SAML application
-- ACCOUNTADMIN or SECURITYADMIN role in Snowflake
-- Your IdP's SAML metadata (Certificate, SSO URL, Issuer)
+- SAML 2.0 をサポートする ID プロバイダー（IdP）
+- SAML アプリケーションを設定するための IdP への管理者アクセス
+- Snowflake の ACCOUNTADMIN または SECURITYADMIN ロール
+- IdP の SAML メタデータ（証明書、SSO URL、発行者）
 
-## Key Concepts
+## 主要な概念
 
-**SAML (Security Assertion Markup Language)**
-An open standard for exchanging authentication data between an Identity Provider and a Service Provider. Think of SAML as a "digital passport"—your IdP stamps the passport (creates the assertion), and Snowflake accepts it at the border (verifies and grants access).
+**SAML（Security Assertion Markup Language）**
+ID プロバイダーとサービスプロバイダー間で認証データを交換するオープンスタンダード。SAML を「デジタルパスポート」と考えてください — IdP がパスポートにスタンプを押し（アサーションを作成し）、Snowflake が国境で受け入れます（検証してアクセスを許可）。
 
-**Identity Provider (IdP)**
-The system that authenticates users and issues SAML assertions (e.g., Okta, Azure AD, Ping). The IdP is the "passport office" that verifies your identity.
+**ID プロバイダー（IdP）**
+ユーザーを認証し SAML アサーションを発行するシステム（例: Okta、Azure AD、Ping）。IdP はあなたの身元を確認する「パスポートオフィス」です。
 
-**Service Provider (SP)**
-The application that accepts SAML assertions (Snowflake). Snowflake is the "destination" that trusts passports issued by your IdP.
+**サービスプロバイダー（SP）**
+SAML アサーションを受け入れるアプリケーション（Snowflake）。Snowflake は IdP が発行したパスポートを信頼する「目的地」です。
 
 **SSO URL**
-The URL where users are redirected to authenticate with the IdP. This is where users go to "get their passport stamped."
+ユーザーが IdP で認証するためにリダイレクトされる URL。これはユーザーが「パスポートにスタンプを押してもらう」場所です。
 
-**X.509 Certificate**
-The certificate used to verify SAML assertions from the IdP. This is how Snowflake knows the passport is genuine and not forged.
+**X.509 証明書**
+IdP からの SAML アサーションを検証するために使用される証明書。これは Snowflake がパスポートが本物で偽造されていないことを確認する方法です。
 
-**More Information:**
-* [Federated Authentication](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth) — Overview of SSO and federated auth in Snowflake
-* [SAML Overview](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-overview) — Understanding SAML concepts and flow
-* [Configuring Snowflake as SP](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake) — Service provider setup guide
+**追加情報:**
+* [フェデレーテッド認証](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth) — Snowflake における SSO とフェデレーテッド認証の概要
+* [SAML 概要](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-overview) — SAML の概念とフローの理解
+* [Snowflake を SP として設定する](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake) — サービスプロバイダーのセットアップガイド
 
-### Configuration Questions
+### 設定の質問
 
-#### Which Identity Provider will you use for SCIM integration? (`identity_provider`: multi-select)
-**What is this asking?**
-Select the Identity Provider (IdP) that your organization uses to manage user identities. This IdP will be the source of truth for user provisioning to Snowflake.
-
-**Why does this matter?**
-Different IdPs have different configuration steps and capabilities. Snowflake provides specific documentation for major IdPs like Okta and Azure AD, while other SCIM 2.0 compatible providers use a generic configuration.
-
-**Options explained:**
-- **Okta**: Enterprise IdP with native Snowflake SCIM integration
-- **Microsoft Entra ID (Azure AD)**: Microsoft's cloud identity service with gallery app for Snowflake
-- **Other SCIM 2.0 Compatible IdP**: Any IdP that supports SCIM 2.0 protocol
-- **None - Manual User Management**: Skip SCIM and manage users manually (not recommended)
-
-**Recommendation:**
-If your organization has an enterprise IdP, we strongly recommend configuring SCIM integration. The initial setup effort is minimal compared to the ongoing benefits of automated provisioning.
-
-**More Information:**
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim)
-* [Supported Identity Providers](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
-**Options:**
+#### SCIM 統合にどの ID プロバイダーを使用しますか？（`identity_provider`: multi-select）
+**オプション:**
 - Okta
 - Microsoft Entra ID (Azure ID)
 - Other SCIM 2.0 Compatible IdP
 - None - Manual User Management
 
-#### What name would you like to use for the SAML integration? (`saml_integration_name`: text)
-**What is this asking?**
-Provide a name for the SAML security integration that will be created in Snowflake.
+#### SAML 統合に付ける名前は何ですか？（`saml_integration_name`: text）
+**何を聞いているか？**
+Snowflake に作成される SAML セキュリティ統合の名前を提供します。
 
-**Why does this matter?**
-The integration name is used to reference the SAML configuration and appears in the login URL for IdP-initiated SSO.
+**なぜ重要か？**
+統合名は SAML 設定を参照するために使用され、IdP 起点の SSO のログイン URL に表示されます。
 
-**Format:**
-- Use uppercase letters and underscores
-- Include the IdP name for clarity
-- Examples: `OKTA_SSO`, `AZURE_AD_SAML`, `PING_SSO`
+**形式:**
+- 大文字とアンダースコアを使用する
+- 明確にするために IdP 名を含める
+- 例: `OKTA_SSO`、`AZURE_AD_SAML`、`PING_SSO`
 
-**Recommendation:**
-Use a format like `<IDP>_SSO` or `<IDP>_SAML` where `<IDP>` is your Identity Provider name.
+**推奨事項:**
+`<IdP>_SSO` または `<IdP>_SAML` の形式を使用します（`<IdP>` は ID プロバイダー名）。
 
-**More Information:**
+**追加情報:**
 * [CREATE SECURITY INTEGRATION (SAML2)](https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-saml2)
 
-#### What is your Identity Provider's Issuer/Entity ID? (`saml_issuer`: text)
-**What is this asking?**
-Provide the Issuer (also called Entity ID) from your Identity Provider. This uniquely identifies your IdP.
+#### ID プロバイダーの発行者/エンティティ ID は何ですか？（`saml_issuer`: text）
+**何を聞いているか？**
+ID プロバイダーからの発行者（エンティティ ID とも呼ばれる）を提供します。これにより IdP が一意に識別されます。
 
-**Why does this matter?**
-The Issuer is used to verify that SAML assertions are coming from the expected Identity Provider.
+**なぜ重要か？**
+発行者は SAML アサーションが期待された ID プロバイダーから来ていることを確認するために使用されます。
 
-**How to find this:**
-- **Okta**: Found in the SAML application settings under "Identity Provider Issuer"
-- **Azure AD**: Found as "Azure AD Identifier" in the SAML configuration
-- **Ping**: Found in the application connection settings as "Entity ID"
+**見つけ方:**
+- **Okta**: SAML アプリケーション設定の「Identity Provider Issuer」に表示
+- **Azure AD**: SAML 設定の「Azure AD Identifier」として表示
+- **Ping**: アプリケーション接続設定の「Entity ID」に表示
 
-**Format:**
-Typically a URL like: `http://www.okta.com/exk1234567890` or a URN.
+**形式:**
+通常、次のような URL: `http://www.okta.com/exk1234567890` または URN。
 
-**More Information:**
-* [SAML Configuration](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake)
+**追加情報:**
+* [SAML 設定](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake)
 
-#### What is your Identity Provider's SSO URL? (`saml_sso_url`: text)
-**What is this asking?**
-Provide the SSO URL from your Identity Provider. This is where Snowflake will redirect users for authentication.
+#### ID プロバイダーの SSO URL は何ですか？（`saml_sso_url`: text）
+**何を聞いているか？**
+ID プロバイダーからの SSO URL を提供します。これは Snowflake がユーザーを認証のためにリダイレクトする場所です。
 
-**Why does this matter?**
-This URL is required for SP-initiated SSO, where users start at Snowflake and are redirected to the IdP.
+**なぜ重要か？**
+この URL は SP 起点の SSO に必要です。ユーザーが Snowflake から始めて IdP にリダイレクトされます。
 
-**How to find this:**
-- **Okta**: Found in the SAML application settings under "Identity Provider Single Sign-On URL"
-- **Azure AD**: Found in the Enterprise Application SAML configuration under "Login URL"
-- **Ping**: Found in the application connection settings
+**見つけ方:**
+- **Okta**: SAML アプリケーション設定の「Identity Provider Single Sign-On URL」に表示
+- **Azure AD**: エンタープライズアプリケーションの SAML 設定の「Login URL」に表示
+- **Ping**: アプリケーション接続設定に表示
 
-**Format:**
-A full URL, typically: `https://your-idp.com/app/snowflake/sso/saml`
+**形式:**
+完全な URL、通常: `https://your-idp.com/app/snowflake/sso/saml`
 
-**More Information:**
-* [SAML Configuration](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake)
+**追加情報:**
+* [SAML 設定](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake)
 
-#### What is your Identity Provider's X.509 signing certificate? (`saml_certificate`: text)
-**What is this asking?**
-Provide the X.509 certificate from your Identity Provider. This certificate is used to verify SAML assertions.
+#### ID プロバイダーの X.509 署名証明書は何ですか？（`saml_certificate`: text）
+**何を聞いているか？**
+ID プロバイダーからの X.509 証明書を提供します。この証明書は SAML アサーションを検証するために使用されます。
 
-**Why does this matter?**
-Snowflake uses this certificate to verify that SAML assertions actually came from your IdP and haven't been tampered with.
+**なぜ重要か？**
+Snowflake はこの証明書を使用して、SAML アサーションが実際に IdP から来ており、改ざんされていないことを確認します。
 
-**How to find this:**
-- Download the certificate from your IdP's SAML configuration
-- Open the certificate file in a text editor
-- Copy the entire contents including `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`
+**見つけ方:**
+- IdP の SAML 設定から証明書をダウンロードする
+- テキストエディタで証明書ファイルを開く
+- `-----BEGIN CERTIFICATE-----` と `-----END CERTIFICATE-----` を含む全内容をコピーする
 
-**Format:**
-The full certificate in PEM format, including the BEGIN and END markers.
+**形式:**
+BEGIN と END マーカーを含む PEM 形式の完全な証明書。
 
-**Security Note:**
-The certificate is a public key and is safe to include in configuration. Do not confuse this with a private key.
+**セキュリティノート:**
+証明書は公開鍵であり、設定に含めることは安全です。秘密鍵と混同しないでください。
 
-**More Information:**
-* [SAML Certificate Requirements](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake#label-fed-auth-configure-cert)
+**追加情報:**
+* [SAML 証明書要件](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake#label-fed-auth-configure-cert)
 
-#### What is your Snowflake organization name? (`snowflake_org_name`: text)
-Your Snowflake organization name is the first part of your account URL and connection identifiers. This is a required component of all Account Identifiers.  
-  **How to find your organization name:**  
-  Look at your current Snowflake URL. The organization name is the portion before the dash:  
-  * https://\*\*ACME\*\*-prod.snowflakecomputing.com → Organization name is ACME  
-  * https://\*\*XY12345\*\*-prod.snowflakecomputing.com → Organization name is XY12345  
-* **Types of Organization Names:**  
-  * **Custom Name:** A human-readable name like ACME or INITECH that was requested from Snowflake. These provide better branding and more readable URLs.  
-  * **System-Generated:** An auto-assigned alphanumeric code like XY12345 or AB98765, created automatically during self-service sign up. Companies typically keep this name if transparency of your organization name in the URL is unnecessary or undesirable.   
-* **To request a custom name:** If you have a system-generated name and want to change it, [contact Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge) or your account team. Custom names must be globally unique, start with a letter, and contain only letters and numbers.  
-  **More Information:**  
-  * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) 
-
-#### What prefix (if any) should be added to all account names? (`account_name_prefix`: text)
-An account name prefix is an optional string added to the beginning of every account name for consistency and organization identification.  
-
-**When to use a prefix:**  
-* If your organization name is system-generated (e.g., `XY12345`) and you want your company name visible in account names  
-* If you want to enforce consistent naming across all accounts  
-* If you have multiple organizations or business units sharing Snowflake and need differentiation  
-
-**Example with prefix:**  
-* Prefix: `acme`  
-* Account names become: `acme_prod`, `acme_dev`, `acme_finance`  
-* URL: `https://XY12345-acme_prod.snowflakecomputing.com`  
-
-**Example without prefix:**  
-* Account names: `prod`, `dev`, `finance`  
-* URL: `https://ACME-prod.snowflakecomputing.com`  
-
-**Recommendations:**  
-* If you have a **custom organization name** (like `ACME`), a prefix is typically unnecessary since your identity is already in the URL  
-* If you have a **system-generated name**, consider using an abbreviated company name as a prefix  
-* Keep prefixes short (3-8 characters) with no underscores  
-
-**Enter `NONE` if you do not want to use an account name prefix.**  
-
-**More Information:**  
+#### あなたの Snowflake 組織名は何ですか？（`snowflake_org_name`: text）
+**追加情報:**
 * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)
 
-#### What do you want to name your organization account? (`org_account_name`: text)
-**Recommended Name:** ORG  
-  Since there can be only one Organization Account per organization, the name should clearly indicate this special purpose. We recommend simply naming it ORG.  
-  
-  **Example URLs with Organization Account name ORG:**  
-  * With Custom Org Name: [https://ACME-ORG.snowflakecomputing.com](https://ACME-ORG.snowflakecomputing.com)  
-    * Org Name \= ACME  
-    * Org Account Name \= Org  
-  * System-generated Org Name: [https://XY12345-ORG.snowflakecomputing.com](https://XY12345-ORG.snowflakecomputing.com)  
-    * Org Name \= XY12345  
-    * Org Account Name \= Org  
-* **Requirements:**  
-  * Snowflake Enterprise Edition or higher  
-  * ORGADMIN role granted in the existing account  
-* **More Information:**  
-  * [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts)  
-  * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)
+#### すべてのアカウント名に追加するプレフィックスは何ですか？（`account_name_prefix`: text）
+**プレフィックスを使用しない場合は `NONE` と入力してください。**
+**追加情報:**
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)
 
-#### Should the Snowflake login page show a button to log in with SSO? (`saml_sso_login_page`: multi-select)
-**What is this asking?**
-Decide whether to add a "Log in using SSO" button to the Snowflake login page.
+#### 組織アカウントに付ける名前は何ですか？（`org_account_name`: text）
+**推奨名:** ORG
+**追加情報:**
+* [Organization Accounts](https://docs.snowflake.com/en/user-guide/organization-accounts)
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)
 
-**Why does this matter?**
-- **Yes**: Users see a button on the login page to authenticate via your IdP (recommended)
-- **No**: Users must use IdP-initiated SSO or the direct SSO URL
+#### Snowflake ログインページに SSO でログインするボタンを表示しますか？（`saml_sso_login_page`: multi-select）
+**何を聞いているか？**
+Snowflake ログインページに「SSO でログイン」ボタンを追加するかどうかを決定します。
 
-**Recommendation:**
-Select **Yes** to provide users with an easy SSO option on the login page.
+**なぜ重要か？**
+- **はい**: ユーザーはログインページで IdP を通じて認証するボタンを表示します（推奨）
+- **いいえ**: ユーザーは IdP 起点の SSO または直接 SSO URL を使用する必要があります
 
-**More Information:**
-* [Login Page Options](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake#label-fed-auth-configure-login-page)
-**Options:**
+**推奨事項:**
+ユーザーにログインページで簡単な SSO オプションを提供するために**はい**を選択します。
+
+**追加情報:**
+* [ログインページオプション](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-configure-snowflake#label-fed-auth-configure-login-page)
+**オプション:**
 - Yes
 - No
 
-#### Will you configure SAML/SSO for single sign-on? (`configure_saml`: multi-select)
-**What is this asking?**
-Decide whether to configure SAML-based Single Sign-On (SSO) as part of this setup, or defer it for later.
-
-**Why does this matter?**
-SAML/SSO allows users to authenticate to Snowflake using your Identity Provider, providing a seamless login experience and centralized authentication control.
-
-**Options explained:**
-
-**Yes - Configure SAML now:**
-- A dedicated step will guide you through SAML configuration
-- Recommended if your IdP is ready and you want SSO from day one
-
-**No - Configure later:**
-- Skip SAML configuration for now
-- Users will authenticate with username/password + MFA
-- You can configure SAML later without rebuilding
-
-**When to choose "Configure later":**
-- Your IdP isn't fully set up yet
-- You want to get the basics working first
-- You need to coordinate with your identity team
-- You're doing a proof-of-concept
-
-**Note:** Even without SAML, password + MFA provides strong authentication. SAML adds convenience and centralized control, not necessarily more security.
-
-**Recommendation:**
-If you selected a SCIM provider and your IdP is ready, configure SAML now for a complete SSO experience. Otherwise, defer and configure later.
-
-**More Information:**
-* [SAML/SSO Configuration](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth) — Federated authentication setup
-**Options:**
+#### シングルサインオン用に SAML/SSO を設定しますか？（`configure_saml`: multi-select）
+**オプション:**
 - Yes - Configure SAML now
 - No - Configure later or use password authentication

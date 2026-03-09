@@ -1,73 +1,73 @@
-In this step, you'll define the initial Account Administrators who will manage your Snowflake environment. These users will be provisioned through SCIM from your Identity Provider, and you'll grant them the appropriate administrative roles.
+このステップでは、Snowflake 環境を管理する初期アカウント管理者を定義します。これらのユーザーは ID プロバイダーから SCIM を通じてプロビジョニングされ、適切な管理者ロールが付与されます。
 
-**Account Context:** These administrators are being configured for your Organization Account (if created) or your primary account. If you have a multi-account strategy, additional accounts will need their own administrators configured separately.
+**アカウントコンテキスト:** これらの管理者は、組織アカウント（作成済みの場合）またはプライマリアカウント向けに設定されています。マルチアカウント戦略がある場合、追加のアカウントには別途管理者を設定する必要があります。
 
-## Why is this important?
+## なぜこれが重要か？
 
-Account Administrators (ACCOUNTADMIN role) have the highest level of privileges in a Snowflake account. They can:
-- Create and manage all objects
-- Grant privileges to any role
-- Manage account-level settings
-- Access all data
+アカウント管理者（ACCOUNTADMIN ロール）は Snowflake アカウントで最高レベルの権限を持ちます。以下が可能です:
+- すべてのオブジェクトの作成と管理
+- 任意のロールへの権限付与
+- アカウントレベルの設定管理
+- すべてのデータへのアクセス
 
-Properly configuring your initial administrators ensures:
-- **Redundancy**: Multiple admins prevent lockout scenarios
-- **Accountability**: Named individuals are responsible for administrative actions
-- **Security**: Limiting the number of admins reduces risk
+初期管理者を適切に設定することで次のことが確保されます:
+- **冗長性**: 複数の管理者がロックアウトシナリオを防ぎます
+- **説明責任**: 具体的な個人が管理アクションに責任を持ちます
+- **セキュリティ**: 管理者数を制限することでリスクを軽減します
 
-## External Prerequisites
+## 外部前提条件
 
-- SCIM integration configured in the previous step
-- Users assigned to Snowflake application in your Identity Provider
-- Users provisioned to Snowflake via SCIM
+- 前のステップで SCIM 統合を設定済み
+- ID プロバイダーの Snowflake アプリケーションにユーザーが割り当て済み
+- SCIM 経由で Snowflake にユーザーがプロビジョニング済み
 
-## Key Concepts
+## 主要な概念
 
-**ACCOUNTADMIN Role**
-The most privileged system-defined role in Snowflake. Should be limited to 2-3 trusted individuals.
+**ACCOUNTADMIN ロール**
+Snowflake で最も権限が高いシステム定義ロール。2〜3 名の信頼できる個人に限定すべきです。
 
-**SECURITYADMIN Role**
-Can manage grants on all objects in the account. Use this for day-to-day security management instead of ACCOUNTADMIN.
+**SECURITYADMIN ロール**
+アカウント内のすべてのオブジェクトへの付与を管理できます。ACCOUNTADMIN の代わりに日常のセキュリティ管理に使用します。
 
-**SYSADMIN Role**
-Can create databases, warehouses, and other objects. Use this for day-to-day infrastructure management.
+**SYSADMIN ロール**
+データベース、ウェアハウス、その他のオブジェクトを作成できます。日常のインフラ管理に使用します。
 
-**USERADMIN Role**
-Can create and manage users and roles. Often delegated for operational user management.
+**USERADMIN ロール**
+ユーザーとロールを作成・管理できます。運用上のユーザー管理に委任されることがよくあります。
 
-## More Information
+## 追加情報
 
-* [System-Defined Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles) — Overview of built-in administrative roles
-* [Access Control Privileges](https://docs.snowflake.com/en/user-guide/security-access-control-privileges) — Detailed privilege reference
+* [システム定義ロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles) — 組み込み管理者ロールの概要
+* [アクセスコントロール権限](https://docs.snowflake.com/en/user-guide/security-access-control-privileges) — 詳細な権限リファレンス
 
-### Configuration Questions
+### 設定の質問
 
-#### Who should be granted administrative roles? (`scim_admin_users`: object-list)
-**What is this asking?**
-Define which SCIM-provisioned users should receive administrative roles. For each administrator, provide their login name and the role to grant.
+#### 管理者ロールを付与するのは誰ですか？（`scim_admin_users`: object-list）
+**何を聞いているか？**
+どの SCIM プロビジョニングされたユーザーが管理者ロールを受け取るべきかを定義します。各管理者に対して、ログイン名と付与するロールを提供します。
 
-**Login Name Format**
+**ログイン名の形式**
 
-The login name must match exactly how the user was provisioned via SCIM from your Identity Provider:
-- **Most common:** Email address (e.g., `john.smith@company.com`) - default for Okta, Azure AD
-- **Alternative:** Username format (e.g., `john.smith`) - if your IdP is configured differently
+ログイン名は ID プロバイダーから SCIM 経由でユーザーがプロビジョニングされた方法と完全に一致する必要があります:
+- **最も一般的:** メールアドレス（例: `john.smith@company.com`）- Okta、Azure AD のデフォルト
+- **代替:** ユーザー名形式（例: `john.smith`）- IdP が異なる設定の場合
 
-**Tip:** Run `SHOW USERS;` in Snowflake to see the exact `LOGIN_NAME` format your IdP uses.
+**ヒント:** Snowflake で `SHOW USERS;` を実行して、IdP が使用する正確な `LOGIN_NAME` 形式を確認してください。
 
-**Administrative Role (admin_role field)**
+**管理者ロール（admin_role フィールド）**
 
-Enter ONE of the following values exactly as shown:
+次のいずれかの値を正確に入力してください:
 
-| Value to Enter | Purpose | Recommended Count |
-|----------------|---------|-------------------|
-| `ACCOUNTADMIN` | Full account control - most privileged role | 2-3 only |
-| `SECURITYADMIN` | Manage security, grants, and access control | 2-5 |
-| `SYSADMIN` | Manage databases, warehouses, infrastructure | 3-10 |
-| `USERADMIN` | Manage users and custom roles | 2-5 |
+| 入力する値 | 目的 | 推奨人数 |
+|------------|------|----------|
+| `ACCOUNTADMIN` | 完全なアカウントコントロール - 最も権限の高いロール | 2〜3 名のみ |
+| `SECURITYADMIN` | セキュリティ、付与、アクセスコントロールの管理 | 2〜5 名 |
+| `SYSADMIN` | データベース、ウェアハウス、インフラの管理 | 3〜10 名 |
+| `USERADMIN` | ユーザーとカスタムロールの管理 | 2〜5 名 |
 
-**⚠️ Important:** The `admin_role` field must be entered exactly as shown above (case-insensitive, but use uppercase for consistency).
+**⚠️ 重要:** `admin_role` フィールドは上記通りに正確に入力する必要があります（大文字小文字は区別しませんが、一貫性のために大文字を使用してください）。
 
-**Example Entries:**
+**入力例:**
 
 | login_name | admin_role |
 |------------|------------|
@@ -76,38 +76,38 @@ Enter ONE of the following values exactly as shown:
 | `bob.wilson@company.com` | `SYSADMIN` |
 | `alice.chen@company.com` | `SECURITYADMIN` |
 
-**Recommendations:**
-- Create at least **2 ACCOUNTADMIN users** to prevent lockout scenarios
-- Use individual accounts, not shared/generic accounts
-- ACCOUNTADMIN users will also be granted SECURITYADMIN and SYSADMIN for role hierarchy
+**推奨事項:**
+- ロックアウトシナリオを防ぐために少なくとも **2 名の ACCOUNTADMIN ユーザー**を作成する
+- 共有/汎用アカウントではなく個人アカウントを使用する
+- ACCOUNTADMIN ユーザーにはロール階層のため SECURITYADMIN と SYSADMIN も付与されます
 
-**SCIM Provisioning Reminder:**
-Users must first be provisioned through SCIM before roles can be granted. Run the SQL **after** users appear in `SHOW USERS;`.
+**SCIM プロビジョニングの注意:**
+ロールを付与する前に、ユーザーが SCIM 経由でプロビジョニングされている必要があります。`SHOW USERS;` にユーザーが表示された**後**に SQL を実行してください。
 
-**More Information:**
-* [ACCOUNTADMIN Role](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
-* [System-Defined Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles)
+**追加情報:**
+* [ACCOUNTADMIN ロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#label-accountadmin-role)
+* [システム定義ロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#system-defined-roles)
 
-#### Which Identity Provider will you use for SCIM integration? (`identity_provider`: multi-select)
-**What is this asking?**
-Select the Identity Provider (IdP) that your organization uses to manage user identities. This IdP will be the source of truth for user provisioning to Snowflake.
+#### SCIM 統合にどの ID プロバイダーを使用しますか？（`identity_provider`: multi-select）
+**何を聞いているか？**
+組織がユーザー ID の管理に使用する ID プロバイダー（IdP）を選択します。この IdP が Snowflake へのユーザープロビジョニングの信頼できる情報源になります。
 
-**Why does this matter?**
-Different IdPs have different configuration steps and capabilities. Snowflake provides specific documentation for major IdPs like Okta and Azure AD, while other SCIM 2.0 compatible providers use a generic configuration.
+**なぜ重要か？**
+IdP によって設定手順と機能が異なります。Snowflake は Okta や Azure AD などの主要 IdP に特定のドキュメントを提供し、その他の SCIM 2.0 対応プロバイダーには汎用設定を使用します。
 
-**Options explained:**
-- **Okta**: Enterprise IdP with native Snowflake SCIM integration
-- **Microsoft Entra ID (Azure AD)**: Microsoft's cloud identity service with gallery app for Snowflake
-- **Other SCIM 2.0 Compatible IdP**: Any IdP that supports SCIM 2.0 protocol
-- **None - Manual User Management**: Skip SCIM and manage users manually (not recommended)
+**オプションの説明:**
+- **Okta**: ネイティブ Snowflake SCIM 統合を持つエンタープライズ IdP
+- **Microsoft Entra ID (Azure AD)**: Snowflake のギャラリーアプリを持つ Microsoft のクラウド ID サービス
+- **その他の SCIM 2.0 対応 IdP**: SCIM 2.0 プロトコルをサポートする任意の IdP
+- **なし - 手動ユーザー管理**: SCIM をスキップして手動でユーザーを管理する（非推奨）
 
-**Recommendation:**
-If your organization has an enterprise IdP, we strongly recommend configuring SCIM integration. The initial setup effort is minimal compared to the ongoing benefits of automated provisioning.
+**推奨事項:**
+組織にエンタープライズ IdP がある場合、SCIM 統合の設定を強くお勧めします。
 
-**More Information:**
-* [SCIM Overview](https://docs.snowflake.com/en/user-guide/scim)
-* [Supported Identity Providers](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
-**Options:**
+**追加情報:**
+* [SCIM 概要](https://docs.snowflake.com/en/user-guide/scim)
+* [対応 ID プロバイダー](https://docs.snowflake.com/en/user-guide/scim#supported-identity-providers)
+**オプション:**
 - Okta
 - Microsoft Entra ID (Azure ID)
 - Other SCIM 2.0 Compatible IdP

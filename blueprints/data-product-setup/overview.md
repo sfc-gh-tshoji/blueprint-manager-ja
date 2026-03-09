@@ -1,22 +1,21 @@
-# Data Product Setup
+# データ製品セットアップ
 
-Configure a complete data product with databases, roles, warehouses, and cost controls
+データベース、ロール、ウェアハウス、コスト管理を含む完全なデータ製品を設定する
 
-This repeatable workflow guides you through configuring a complete data product in Snowflake. A Data Product is a self-contained, governed unit of data with clear ownership, dedicated resources, and well-defined access controls.
+この繰り返し可能なワークフローは、Snowflake での完全なデータ製品の設定を案内します。データ製品とは、明確な所有権、専用リソース、明確に定義されたアクセス制御を持つ自己完結型の管理されたデータ単位です。
 
-**What You Will Create:**
-- **Core Roles**: ADMIN, CREATE, WRITE, RBAC, READ roles with proper hierarchy
-- **Databases**: Zone-based databases (RAW, TRANSFORM, CURATED)
-- **Schemas**: Organized by source system or subject area within each zone
-- **Database Roles**: Granular access control (DB_R, DB_W, DB_C, SC_R, SC_W, SC_C)
-- **Warehouses**: Workload-specific compute (INGEST, TRANSFORM, QUERY, BI)
-- **Resource Monitors**: Credit quotas and alerts for cost management
+**作成されるもの:**
+- **コアロール**: ADMIN、CREATE、WRITE、RBAC、READ ロール（適切な階層付き）
+- **データベース**: ゾーンベースのデータベース（RAW、TRANSFORM、CURATED）
+- **スキーマ**: 各ゾーン内のソースシステムまたは主題領域別に整理
+- **データベースロール**: きめ細かいアクセス制御（DB_R、DB_W、DB_C、SC_R、SC_W、SC_C）
+- **ウェアハウス**: ワークロード固有のコンピューティング（INGEST、TRANSFORM、QUERY、BI）
+- **リソースモニター**: コスト管理のためのクレジットクォータとアラート
 
-**Key Features:**
-- Supports both SCIM and non-SCIM deployments
-- Flexible zone structure (medallion architecture)
-- Tag-based governance and cost allocation
-- Delegated administration through RBAC role
+**主要な機能:**
+- SCIM と非 SCIM デプロイメントの両方をサポート
+- 柔軟なゾーン構造（メダリオンアーキテクチャ）
+- タグベースのガバナンスとコスト配分
+- RBAC ロールを通じた委任管理
 
-Run this workflow once for each data product you need to deploy.
-
+デプロイする必要があるデータ製品ごとにこのワークフローを 1 回実行します。

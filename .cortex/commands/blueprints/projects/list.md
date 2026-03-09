@@ -2,56 +2,56 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Projects List
+# Blueprints プロジェクト一覧
 
-List all existing projects in the blueprint-manager workspace.
+ブループリントマネージャーワークスペース内の既存プロジェクトをすべて一覧表示します。
 
-## Usage
+## 使用方法
 
 ```
 blueprints projects list
 ```
 
-## Instructions
+## 手順
 
-Scan the `projects/` directory and list all project subdirectories with their status information.
+`projects/` ディレクトリをスキャンし、すべてのプロジェクトサブディレクトリとその状態情報を一覧表示します。
 
-For each project, show:
-- **Name**: Project directory name
-- **Blueprints**: Which blueprints have answer files
-- **Last Modified**: When the project was last updated
-- **Status**: Brief status (e.g., "3 answer files, 2 renders")
+各プロジェクトについて以下を表示:
+- **名前**: プロジェクトのディレクトリ名
+- **ブループリント**: 回答ファイルが存在するブループリント
+- **最終更新**: プロジェクトが最後に更新された日時
+- **状態**: 簡単な状態（例: "3 件の回答ファイル、2 件のレンダリング"）
 
-## Output Format
+## 出力フォーマット
 
 ```
-Projects:
+プロジェクト:
 
-| Project | Blueprints | Answer Files | Last Modified |
+| プロジェクト | ブループリント | 回答ファイル数 | 最終更新 |
 |---------|------------|--------------|---------------|
 | sample-project | platform-foundation-setup, account-creation, data-product-setup | 3 | 2025-01-15 |
 | acme-corp | platform-foundation-setup | 1 | 2025-02-01 |
 | demo-customer | data-product-setup | 2 | 2025-02-10 |
 
-Total: 3 projects
+合計: 3 件のプロジェクト
 ```
 
-## Implementation
+## 実装
 
-1. List all directories in `projects/`
-2. For each project directory:
-   - Check `answers/` subdirectory for blueprint answer files
-   - Count answer files per blueprint
-   - Get last modification time
-3. Display results in a formatted table
+1. `projects/` 内のすべてのディレクトリを一覧表示
+2. 各プロジェクトディレクトリについて:
+   - ブループリント回答ファイルの `answers/` サブディレクトリをチェック
+   - ブループリントごとの回答ファイル数をカウント
+   - 最終更新時刻を取得
+3. 整形されたテーブルで結果を表示
 
-## Empty State
+## 空の状態
 
-If no projects exist:
+プロジェクトが存在しない場合:
 ```
-No projects found.
+プロジェクトが見つかりません。
 
-Create a new project with: /blueprints:projects:create <name>
+新しいプロジェクトを作成するには: /blueprints:projects:create <name>
 ```
 
-Now execute this by scanning the projects directory and presenting the information.
+プロジェクトディレクトリをスキャンして情報を提示することで実行してください。

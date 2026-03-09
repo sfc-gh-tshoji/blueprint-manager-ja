@@ -1,88 +1,88 @@
-# Core Roles & Database Setup
+# コアロールとデータベースセットアップ
 
-## Summary
-Create the foundational infrastructure for your data product including five
-core account-level roles, databases for each zone with database-level access
-roles, schemas with schema-level access roles, and complete role hierarchy.
+## 概要
+データ製品の基本インフラを作成します。5 つのコアアカウントレベルロール、
+各ゾーンのデータベースレベルアクセスロール付きデータベース、スキーマレベルアクセスロール付きスキーマ、
+および完全なロール階層が含まれます。
 
-## External Requirements
-- Task 1 (Data Product Planning) completed
-- Target account accessible
-- data_product_name, data_product_domain, data_product_environment from Task 1
-- scim_prefix, data_zones, schema_configuration from Task 1
+## 外部要件
+- タスク 1（データ製品計画）完了
+- ターゲットアカウントにアクセス可能
+- タスク 1 からの data_product_name、data_product_domain、data_product_environment
+- タスク 1 からの scim_prefix、data_zones、schema_configuration
 
-## Personas
-- Platform Administrator
-- Data Architect
-- Security Administrator
+## ペルソナ
+- プラットフォーム管理者
+- データアーキテクト
+- セキュリティ管理者
 
-## Role Requirements
-- USERADMIN role
-- SYSADMIN role
-- SECURITYADMIN role
+## ロール要件
+- USERADMIN ロール
+- SYSADMIN ロール
+- SECURITYADMIN ロール
 
-## Details
-## **Understanding Snowflake Roles**
+## 詳細
+## **Snowflake ロールの理解**
 
-Snowflake uses **Role-Based Access Control (RBAC)**. Permissions aren't granted directly to users — instead:
+Snowflake は**ロールベースのアクセス制御（RBAC）**を使用します。権限はユーザーに直接付与されません — 代わりに:
 
-1. **Privileges** are granted to **roles**
-2. **Roles** are granted to **users** (or other roles)
-3. **Users** inherit privileges from all their roles
+1. **権限**は**ロール**に付与されます
+2. **ロール**は**ユーザー**（または他のロール）に付与されます
+3. **ユーザー**はすべてのロールから権限を継承します
 
-## **Account Roles vs. Database Roles**
+## **アカウントロール vs データベースロール**
 
-| Type | Scope | Created By | Use Case |
-|------|-------|------------|----------|
-| **Account Role** | Entire account | USERADMIN/SECURITYADMIN | User assignment, cross-database access |
-| **Database Role** | Single database | Database owner | Delegated administration within a database |
+| タイプ | スコープ | 作成者 | 使用ケース |
+|--------|---------|--------|-----------|
+| **アカウントロール** | アカウント全体 | USERADMIN/SECURITYADMIN | ユーザー割り当て、データベース間アクセス |
+| **データベースロール** | 単一データベース | データベース所有者 | データベース内の委任管理 |
 
-## **Understanding Tags**
+## **タグの理解**
 
-**Tags** are metadata labels you attach to Snowflake objects for FinOps, governance, and discovery:
+**タグ**は FinOps、ガバナンス、ディスカバリーのために Snowflake オブジェクトに付けるメタデータラベルです:
 
-| Tag | Applied To | Purpose |
-|-----|------------|---------|
-| `DOMAIN` | Roles, Databases, Warehouses | Cost allocation by business domain |
-| `ENVIRONMENT` | Databases, Warehouses | Distinguish dev/test/prod |
-| `DATAPRODUCT` | Databases, Warehouses | Identify owning data product |
-| `ZONE` | Databases | Data processing stage (RAW, CURATED, etc.) |
-| `WORKLOAD` | Warehouses | Compute purpose (INGEST, TRANSFORM, BI) |
+| タグ | 適用先 | 目的 |
+|------|--------|------|
+| `DOMAIN` | ロール、データベース、ウェアハウス | ビジネスドメイン別コスト配分 |
+| `ENVIRONMENT` | データベース、ウェアハウス | dev/test/prod の区別 |
+| `DATAPRODUCT` | データベース、ウェアハウス | 所有データ製品の識別 |
+| `ZONE` | データベース | データ処理ステージ（RAW、CURATED など） |
+| `WORKLOAD` | ウェアハウス | コンピューティングの目的（INGEST、TRANSFORM、BI） |
 
-## **Steps in This Task**
+## **このタスクのステップ**
 
-| Step | Title | Purpose |
-|------|-------|---------|
-| 2.1 | Create Data Product Core Roles | Create ADMIN, CREATE, WRITE, RBAC, READ account roles |
-| 2.2 | Create Databases | Create zone databases with DB_R/DB_W/DB_C database roles |
-| 2.3 | Create Schemas | Create schemas with SC_R/SC_W/SC_C database roles |
+| ステップ | タイトル | 目的 |
+|---------|---------|------|
+| 2.1 | データ製品コアロールを作成 | ADMIN、CREATE、WRITE、RBAC、READ アカウントロールを作成 |
+| 2.2 | データベースを作成 | DB_R/DB_W/DB_C データベースロール付きのゾーンデータベースを作成 |
+| 2.3 | スキーマを作成 | SC_R/SC_W/SC_C データベースロール付きのスキーマを作成 |
 
-## **Role Architecture**
+## **ロールアーキテクチャ**
 
 ```
 SYSADMIN
-└── <dataproduct>_ADMIN (owns infrastructure)
-    ├── <dataproduct>_CREATE (creates objects, has account access roles)
-    └── <dataproduct>_RBAC (owns access roles)
+└── <dataproduct>_ADMIN（インフラを所有）
+    ├── <dataproduct>_CREATE（オブジェクトを作成、アカウントアクセスロールを持つ）
+    └── <dataproduct>_RBAC（アクセスロールを所有）
 
-Database Roles:  DB_C           DB_W            DB_R
-                   ↑               ↑               ↑
-Schema Roles:   SC_C_<schema> ← SC_W_<schema> ← SC_R_<schema>
+データベースロール:  DB_C           DB_W            DB_R
+                     ↑               ↑               ↑
+スキーマロール:   SC_C_<schema> ← SC_W_<schema> ← SC_R_<schema>
 ```
 
-## **Tag-Based Cost Allocation**
+## **タグベースのコスト配分**
 
-## **Deliverables**
+## **成果物**
 
-Upon completing this task, you will have:
-- ✅ Five core account roles created and hierarchically linked
-- ✅ Account access roles granted to CREATE role
-- ✅ Databases created for each zone with database roles
-- ✅ Schemas created with managed access and schema roles
-- ✅ Complete role hierarchy from schema → database → account level
+このタスクを完了すると、以下が揃います:
+- ✅ 5 つのコアアカウントロールが作成され、階層的にリンク済み
+- ✅ CREATE ロールにアカウントアクセスロールが付与済み
+- ✅ データベースロール付きの各ゾーンのデータベースが作成済み
+- ✅ マネージドアクセスとスキーマロール付きのスキーマが作成済み
+- ✅ スキーマ → データベース → アカウントレベルの完全なロール階層
 
-## **More Information**
+## **追加情報**
 
-* [Access Control Overview](https://docs.snowflake.com/en/user-guide/security-access-control-overview)
-* [Database Roles](https://docs.snowflake.com/en/user-guide/security-access-control-overview#database-roles)
-* [Object Tagging](https://docs.snowflake.com/en/user-guide/object-tagging)
+* [アクセス制御の概要](https://docs.snowflake.com/en/user-guide/security-access-control-overview)
+* [データベースロール](https://docs.snowflake.com/en/user-guide/security-access-control-overview#database-roles)
+* [オブジェクトタグ](https://docs.snowflake.com/en/user-guide/object-tagging)

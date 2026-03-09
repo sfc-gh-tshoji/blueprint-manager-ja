@@ -1,89 +1,87 @@
-# Account Provisioning
+# アカウントプロビジョニング
 
-## Summary
-Define the new account's purpose (domain, environment, description), configure
-account parameters (edition, region, initial administrator), create the account
-in your Snowflake organization, and establish access to shared infrastructure objects.
+## 概要
+新しいアカウントの目的（ドメイン、環境、説明）を定義し、アカウントパラメーター（エディション、リージョン、初期管理者）を設定し、Snowflake 組織内にアカウントを作成し、共有インフラオブジェクトへのアクセスを確立します。
 
-## External Requirements
-- Platform Foundation workflow completed with Multi-Account strategy (recommended)
-- Infrastructure Database Sharing configured (Step 1.8 of Platform Foundation)
+## 外部要件
+- マルチアカウント戦略が完了したプラットフォームファウンデーションワークフロー（推奨）
+- インフラデータベース共有の設定済み（プラットフォームファウンデーションのステップ 1.8）
 
-## Personas
-- Platform Administrator
-- Cloud Team
-- Security Team
+## ペルソナ
+- プラットフォーム管理者
+- クラウドチーム
+- セキュリティチーム
 
-## Role Requirements
-- ORGADMIN role access in the Organization Account
+## ロール要件
+- 組織アカウントでの ORGADMIN ロールアクセス
 
-## Details
-This is a **repeatable workflow** — run it once for each account you need to create.
+## 詳細
+これは**繰り返し可能なワークフロー**です — 作成が必要な各アカウントに対して 1 回実行します。
 
-## Steps in This Task
+## このタスクのステップ
 
-| Step | Title | Purpose | Conditional |
-|------|-------|---------|-------------|
-| 1.0 | Confirm Account Strategy | Confirm or set the multi-account strategy (org-level) | Always shown |
-| 1.1a | Define Account Purpose (Domain-based) | Select domain, description | Domain-based strategy only |
-| 1.1b | Define Account Purpose (Environment-based) | Select environment, description | Environment-based strategy only |
-| 1.1c | Define Account Purpose (Domain + Environment) | Select domain, environment, description | Domain + Environment strategy only |
-| 1.2 | Configure Account Parameters | Set edition, region, and initial administrator | Always shown |
-| 1.3 | Create Account | Execute the account creation from the Organization Account | Always shown |
-| 1.4 | Consume Infrastructure Share | Create database from shared governance objects in the new account | Always shown |
+| ステップ | タイトル | 目的 | 条件 |
+|---------|---------|------|------|
+| 1.0 | アカウント戦略の確認 | マルチアカウント戦略の確認または設定（組織レベル） | 常に表示 |
+| 1.1a | アカウント目的の定義（ドメインベース） | ドメイン、説明の選択 | ドメインベース戦略のみ |
+| 1.1b | アカウント目的の定義（環境ベース） | 環境、説明の選択 | 環境ベース戦略のみ |
+| 1.1c | アカウント目的の定義（ドメイン + 環境） | ドメイン、環境、説明の選択 | ドメイン + 環境戦略のみ |
+| 1.2 | アカウントパラメーターの設定 | エディション、リージョン、初期管理者の設定 | 常に表示 |
+| 1.3 | アカウントの作成 | 組織アカウントからアカウント作成を実行 | 常に表示 |
+| 1.4 | インフラ共有の利用 | 新しいアカウントで共有ガバナンスオブジェクトからデータベースを作成 | 常に表示 |
 
-**Notes:**
-- Step 1.0 captures the account strategy at the organization level. If you completed Platform Foundation or a previous Account Creation run, the value will be pre-populated.
-- Only one of the Step 1.1 variants will be displayed based on the account strategy.
+**注:**
+- ステップ 1.0 は組織レベルでアカウント戦略を取得します。プラットフォームファウンデーションまたは以前のアカウント作成実行が完了している場合、値は事前入力されます。
+- ステップ 1.1 の変種のうち 1 つのみがアカウント戦略に基づいて表示されます。
 
-**Note on Platform Foundation:**
-While this workflow can run independently, it's designed to work with the Platform Foundation workflow. If Platform Foundation was completed, the following values are inherited:
-- Organization name and account prefix
-- Domain and environment options
-- Naming conventions (component order, required components)
-- Infrastructure share name
-- Account strategy (captured in Step 1.0)
+**プラットフォームファウンデーションに関する注記:**
+このワークフローは独立して実行できますが、プラットフォームファウンデーションワークフローと連携するよう設計されています。プラットフォームファウンデーションが完了している場合、以下の値が継承されます:
+- 組織名とアカウントプレフィックス
+- ドメインと環境オプション
+- 命名規則（コンポーネントの順序、必須コンポーネント）
+- インフラ共有名
+- アカウント戦略（ステップ 1.0 で取得）
 
-If Platform Foundation was not completed, Step 1.0 will capture the account strategy, and you'll need to provide other values manually.
+プラットフォームファウンデーションが完了していない場合、ステップ 1.0 でアカウント戦略を取得し、他の値を手動で提供する必要があります。
 
-## Account Execution Context
+## アカウント実行コンテキスト
 
-| Steps | Execute From |
-|-------|--------------|
-| 1.0 - 1.3 | **Organization Account** (where you create accounts) |
-| 1.4 | **New Account** (log into the newly created account) |
+| ステップ | 実行元 |
+|---------|-------|
+| 1.0 - 1.3 | **組織アカウント**（アカウントを作成する場所） |
+| 1.4 | **新しいアカウント**（新たに作成したアカウントにログイン） |
 
-**Important:** After Step 1.3, you must log into the newly created account to continue with Step 1.4.
+**重要:** ステップ 1.3 の後、ステップ 1.4 を続行するために新しく作成したアカウントにログインする必要があります。
 
-## Time Estimate
+## 所要時間目安
 
-- **Define purpose and parameters:** 5-10 minutes
-- **Create account:** 2-5 minutes
-- **Consume infrastructure share:** 2-5 minutes
-- **Total:** 10-20 minutes
+- **目的とパラメーターの定義:** 5〜10 分
+- **アカウントの作成:** 2〜5 分
+- **インフラ共有の利用:** 2〜5 分
+- **合計:** 10〜20 分
 
-## Key Decisions
+## 主要な決定事項
 
-| Decision | Who Should Decide | Impact |
-|----------|-------------------|--------|
-| Account Name | Platform/Cloud Team | Permanent identifier; follows naming conventions |
-| Domain & Environment | Business/Platform Team | Determines cost allocation and governance |
-| Edition | Platform/Finance Team | Feature availability and cost |
-| Cloud Region | Platform/Compliance Team | Data residency, latency, disaster recovery |
-| Initial Administrator | Security/Platform Team | First person with ACCOUNTADMIN access |
+| 決定 | 誰が決定すべきか | 影響 |
+|------|---------------|------|
+| アカウント名 | プラットフォーム/クラウドチーム | 永続的な識別子; 命名規則に従う |
+| ドメインと環境 | ビジネス/プラットフォームチーム | コスト配分とガバナンスを決定 |
+| エディション | プラットフォーム/財務チーム | 機能の可用性とコスト |
+| クラウドリージョン | プラットフォーム/コンプライアンスチーム | データレジデンシー、レイテンシー、DR |
+| 初期管理者 | セキュリティ/プラットフォームチーム | ACCOUNTADMIN アクセス権を持つ最初の人 |
 
-## Deliverables
+## 成果物
 
-Upon completing this task, you will have:
-- ✅ A new Snowflake account created in your organization
-- ✅ Account named according to Platform Foundation conventions
-- ✅ Initial administrator with ACCOUNTADMIN role
-- ✅ Access to shared governance objects (tags, views) from Organization Account
+このタスクを完了すると、以下が得られます:
+- ✅ 組織内に新しい Snowflake アカウントが作成済み
+- ✅ プラットフォームファウンデーションの規則に従って命名されたアカウント
+- ✅ ACCOUNTADMIN ロールを持つ初期管理者
+- ✅ 組織アカウントからの共有ガバナンスオブジェクト（タグ、ビュー）へのアクセス
 
-## More Information
+## 追加情報
 
-* [CREATE ACCOUNT](https://docs.snowflake.com/en/sql-reference/sql/create-account) — SQL command reference
-* [Managing Accounts in an Organization](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — Account lifecycle management
-* [Introduction to Secure Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — Understanding shared databases
-* [Snowflake Editions](https://docs.snowflake.com/en/user-guide/intro-editions) — Feature comparison
-* [Supported Cloud Regions](https://docs.snowflake.com/en/user-guide/intro-regions) — Available regions
+* [CREATE ACCOUNT](https://docs.snowflake.com/en/sql-reference/sql/create-account) — SQL コマンドリファレンス
+* [組織でのアカウント管理](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts) — アカウントライフサイクル管理
+* [セキュアデータ共有の概要](https://docs.snowflake.com/en/user-guide/data-sharing-intro) — 共有データベースの理解
+* [Snowflake エディション](https://docs.snowflake.com/en/user-guide/intro-editions) — 機能比較
+* [サポートされているクラウドリージョン](https://docs.snowflake.com/en/user-guide/intro-regions) — 利用可能なリージョン

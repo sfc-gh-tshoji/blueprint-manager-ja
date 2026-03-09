@@ -1,85 +1,85 @@
-# Warehouse & Access Configuration
+# ウェアハウスとアクセス設定
 
-## Summary
-Create warehouses for each workload type, create warehouse access roles for
-controlled compute access, transfer ownership to admin roles, and wire the
-complete role hierarchy connecting account roles to warehouse access.
+## 概要
+各ワークロードタイプのウェアハウスを作成し、制御されたコンピューティングアクセスのための
+ウェアハウスアクセスロールを作成し、管理者ロールへの所有権を移転し、
+アカウントロールとウェアハウスアクセスを接続する完全なロール階層を構築します。
 
-## External Requirements
-- Task 2 (Core Roles & Database Setup) completed
-- warehouse_definitions from Task 1
-- Core roles created (ADMIN, CREATE, WRITE, RBAC, READ)
-- Databases and schemas with database roles
+## 外部要件
+- タスク 2（コアロールとデータベースセットアップ）完了
+- タスク 1 からの warehouse_definitions
+- コアロール作成済み（ADMIN、CREATE、WRITE、RBAC、READ）
+- データベースロール付きのデータベースとスキーマ
 
-## Personas
-- Platform Administrator
-- Data Team
+## ペルソナ
+- プラットフォーム管理者
+- データチーム
 
-## Role Requirements
-- SYSADMIN role
-- USERADMIN role
-- SECURITYADMIN role
+## ロール要件
+- SYSADMIN ロール
+- USERADMIN ロール
+- SECURITYADMIN ロール
 
-## Details
-## **Understanding Snowflake Warehouses**
+## 詳細
+## **Snowflake ウェアハウスの理解**
 
-In Snowflake, a **warehouse** is a cluster of compute resources — **not storage**. This is different from traditional databases where "warehouse" typically means a data warehouse (storage).
+Snowflake では、**ウェアハウス**はコンピューティングリソースのクラスターです — **ストレージではありません**。これは「ウェアハウス」が通常データウェアハウス（ストレージ）を意味する従来のデータベースとは異なります。
 
-**Key implications:**
-- **Scale independently**: Add more compute without moving data
-- **Workload isolation**: Heavy ETL doesn't slow down BI dashboards
-- **Pay per use**: Warehouses auto-suspend when idle
-- **Multiple simultaneous**: Different teams use different warehouses on the same data
+**主な意味:**
+- **独立したスケール**: データを移動せずにコンピューティングを追加
+- **ワークロード分離**: 重い ETL が BI ダッシュボードを遅くしない
+- **使用量に応じた支払い**: アイドル時にウェアハウスが自動一時停止
+- **複数同時利用**: 異なるチームが同じデータに対して異なるウェアハウスを使用
 
-## **Warehouse Sizing**
+## **ウェアハウスサイジング**
 
-| Size | Credits/Hour | Use Case |
-|------|--------------|----------|
-| X-Small | 1 | Light queries, development |
-| Small | 2 | Ad-hoc analysis, small loads |
-| Medium | 4 | Standard workloads |
-| Large | 8 | Heavy transformations |
-| X-Large | 16 | Large data processing |
+| サイズ | クレジット/時間 | 使用ケース |
+|--------|--------------|-----------|
+| X-Small | 1 | 軽いクエリ、開発 |
+| Small | 2 | アドホック分析、小規模ロード |
+| Medium | 4 | 標準ワークロード |
+| Large | 8 | 重い変換処理 |
+| X-Large | 16 | 大規模データ処理 |
 
-## **Steps in This Task**
+## **このタスクのステップ**
 
-| Step | Title | Purpose |
-|------|-------|---------|
-| 3.1 | Create Warehouses | Create workload-specific warehouses with appropriate sizing |
-| 3.2 | Create Warehouse Access Roles | Create `_WH_U_*` roles for warehouse usage |
-| 3.3 | Transfer Ownership & Wire Hierarchy | Transfer ownership and complete role wiring |
+| ステップ | タイトル | 目的 |
+|---------|---------|------|
+| 3.1 | ウェアハウスを作成 | 適切なサイジングでワークロード固有のウェアハウスを作成 |
+| 3.2 | ウェアハウスアクセスロールを作成 | ウェアハウス使用のための `_WH_U_*` ロールを作成 |
+| 3.3 | 所有権の移転と階層の接続 | 所有権を移転し、ロールの接続を完成させる |
 
-**From Task 1:**
-- `warehouse_definitions` — Warehouse specs (workload, size, timeout)
+**タスク 1 から:**
+- `warehouse_definitions` — ウェアハウス仕様（ワークロード、サイズ、タイムアウト）
 
-**From Task 2:**
-- Core roles created (ADMIN, CREATE, WRITE, RBAC, READ)
-- Databases and schemas with database roles
+**タスク 2 から:**
+- コアロール作成済み（ADMIN、CREATE、WRITE、RBAC、READ）
+- データベースロール付きのデータベースとスキーマ
 
-## **Warehouse Architecture**
+## **ウェアハウスアーキテクチャ**
 
 ```
-Warehouse: <prefix>_<WORKLOAD>
-├── Owner: <dataproduct>_ADMIN
-├── Access Role: _WH_U_<prefix>_<WORKLOAD>
-│   ├── Grants: USAGE, MONITOR
-│   └── Owner: <dataproduct>_RBAC
-└── Properties:
-    ├── Size: (configured per workload)
-    ├── Auto Suspend: 60 seconds
-    └── Auto Resume: TRUE
+ウェアハウス: <prefix>_<WORKLOAD>
+├── 所有者: <dataproduct>_ADMIN
+├── アクセスロール: _WH_U_<prefix>_<WORKLOAD>
+│   ├── 権限: USAGE, MONITOR
+│   └── 所有者: <dataproduct>_RBAC
+└── プロパティ:
+    ├── サイズ: (ワークロードごとに設定)
+    ├── 自動一時停止: 60 秒
+    └── 自動再開: TRUE
 ```
 
-## **Deliverables**
+## **成果物**
 
-Upon completing this task, you will have:
-- ✅ Warehouses created for each workload type
-- ✅ Warehouse access roles created and configured
-- ✅ Ownership transferred to ADMIN/RBAC roles
-- ✅ Complete role hierarchy from account → database → schema → warehouse
+このタスクを完了すると、以下が揃います:
+- ✅ 各ワークロードタイプのウェアハウスが作成済み
+- ✅ ウェアハウスアクセスロールが作成・設定済み
+- ✅ 所有権が ADMIN/RBAC ロールに移転済み
+- ✅ アカウント → データベース → スキーマ → ウェアハウスの完全なロール階層
 
-## **More Information**
+## **追加情報**
 
 * [CREATE WAREHOUSE](https://docs.snowflake.com/en/sql-reference/sql/create-warehouse)
-* [Warehouse Considerations](https://docs.snowflake.com/en/user-guide/warehouses-considerations)
-* [Role Hierarchy](https://docs.snowflake.com/en/user-guide/security-access-control-overview#role-hierarchy-and-privilege-inheritance)
+* [ウェアハウスの考慮事項](https://docs.snowflake.com/en/user-guide/warehouses-considerations)
+* [ロール階層](https://docs.snowflake.com/en/user-guide/security-access-control-overview#role-hierarchy-and-privilege-inheritance)

@@ -4,33 +4,33 @@
 
 ---
 name: blueprint-builder
-description: "Guide users through constructing answer files for Snowflake Blueprint Manager blueprints. Use when: user wants to create or complete an answer file, configure a blueprint, or understand configuration questions. Triggers: create blueprint, build blueprint, configure blueprint, blueprint setup, fill out questionnaire, set up blueprint, set up my first Snowflake account, create my environment, establish my platform, create my account following best practices, configure my snowflake organization, set up my snowflake environment, initialize my snowflake platform, snowflake account best practices."
+description: "Snowflake Blueprint Manager ブループリントの回答ファイル構築をユーザーにガイドします。使用するとき: ユーザーが回答ファイルを作成または完成させたい場合、ブループリントを設定する場合、または設定の質問を理解したい場合。トリガー: ブループリントを作成、ブループリントを構築、ブループリントを設定、ブループリントセットアップ、アンケートに記入、ブループリントを設定、最初の Snowflake アカウントをセットアップ、環境を作成、プラットフォームを確立、ベストプラクティスに従ってアカウントを作成、Snowflake 組織を設定、Snowflake 環境をセットアップ、Snowflake プラットフォームを初期化、Snowflake アカウントのベストプラクティス。"
 ---
 
 # Blueprint Builder
 
-## CRITICAL: SQL/Output Generation Rules
+## 重要: SQL/出力生成ルール
 
-**⚠️ MANDATORY: ALL SQL GENERATION AND OUTPUT RENDERING MUST USE `render_journey.py`**
+**⚠️ 必須: すべての SQL 生成および出力レンダリングは `render_journey.py` を使用しなければなりません**
 
-When the user requests ANY of the following at ANY point during this skill's workflow:
-- Generate SQL
-- Generate infrastructure code
-- Generate output
-- Render the blueprint
-- Create the SQL file
-- Show me the SQL
-- Build the code
-- Export/produce/create infrastructure
-- Any variation of "generate", "render", "create", "build", "export" combined with "SQL", "code", "output", "infrastructure"
+このスキルのワークフロー中のいかなる時点でも、ユーザーが以下のいずれかをリクエストした場合:
+- SQL を生成する
+- インフラコードを生成する
+- 出力を生成する
+- ブループリントをレンダリングする
+- SQL ファイルを作成する
+- SQL を見せる
+- コードをビルドする
+- インフラをエクスポート/生成/作成する
+- "generate"、"render"、"create"、"build"、"export" と "SQL"、"code"、"output"、"infrastructure" の任意の組み合わせ
 
-**YOU MUST:**
-1. Use the `scripts/render_journey.py` script to generate ALL SQL and documentation output
-2. NEVER generate SQL code directly using ad-hoc logic or LLM inference
-3. NEVER write SQL blocks manually based on answer file contents
-4. NEVER attempt to "preview" or "show" SQL by constructing it yourself
+**あなたはしなければなりません:**
+1. すべての SQL とドキュメント出力の生成に `scripts/render_journey.py` スクリプトを使用する
+2. アドホックロジックや LLM 推論を使用して SQL コードを直接生成しない
+3. 回答ファイルの内容に基づいて手動で SQL ブロックを書かない
+4. 自分で構築することで SQL を "プレビュー" または "表示" しようとしない
 
-**The ONLY valid method to generate SQL/output is:**
+**SQL/出力を生成する唯一の有効な方法は:**
 ```bash
 python scripts/render_journey.py \
   [answer_file_path] \
@@ -39,718 +39,717 @@ python scripts/render_journey.py \
   --project [project_name]
 ```
 
-**WHY:** The `render_journey.py` script uses Jinja2 templates from the blueprint's step directories (`code.sql.jinja`, `dynamic.md.jinja`) to ensure:
-- Consistent, tested, and validated SQL output
-- Proper variable substitution from the answer file
-- Correct handling of missing/null values (steps are skipped appropriately)
-- Accurate documentation generation alongside code
+**理由:** `render_journey.py` スクリプトはブループリントのステップディレクトリ（`code.sql.jinja`、`dynamic.md.jinja`）の Jinja2 テンプレートを使用して以下を確保します:
+- 一貫性のある、テスト済みで検証された SQL 出力
+- 回答ファイルからの適切な変数置換
+- 欠損/null 値の正しい処理（ステップが適切にスキップされる）
+- コードと並行した正確なドキュメント生成
 
-**If user asks to "see the SQL" or "preview the code":**
-- Run the render script first
-- Then read and display the generated output file
-- NEVER construct SQL manually
+**ユーザーが "SQL を見せて" または "コードをプレビューして" と要求した場合:**
+- まずレンダリングスクリプトを実行する
+- 次に生成された出力ファイルを読み込んで表示する
+- 絶対に手動で SQL を構築しない
 
 ---
 
-This skill guides users through constructing answer files for Snowflake Blueprint Manager blueprints by first understanding their organization through an open-ended description, then intelligently generating all configuration answers, and finally offering an optional step-by-step review.
+このスキルは、まず自由形式の説明を通じて組織を理解し、次にすべての設定回答をインテリジェントに生成し、最後にオプションのステップバイステップレビューを提供することで、Snowflake Blueprint Manager ブループリントの回答ファイル構築をユーザーにガイドします。
 
-## When to Use
+## 使用するとき
 
-Invoke this skill when users:
-- Want to set up a Snowflake blueprint
-- Need to create or complete an answer file for a blueprint
-- Ask about blueprint configuration
-- Want to configure their Snowflake environment
-- Mention setting up infrastructure or governance
+以下の場合にこのスキルを呼び出します:
+- Snowflake ブループリントをセットアップしたい
+- ブループリントの回答ファイルを作成または完成させる必要がある
+- ブループリントの設定について質問する
+- Snowflake 環境を設定したい
+- インフラやガバナンスのセットアップについて言及する
 
-## Prerequisites
+## 前提条件
 
-1. **Repository structure exists:**
-   - `blueprints/` directory with blueprint definitions
-   - `definitions/questions.yaml` with question definitions
-   - `projects/` directory for organizing work by customer/use case
+1. **リポジトリ構造が存在すること:**
+   - ブループリント定義を含む `blueprints/` ディレクトリ
+   - 質問定義を含む `definitions/questions.yaml`
+   - 顧客/ユースケース別に作業を整理するための `projects/` ディレクトリ
 
-2. **Blueprint components:**
-   - Each blueprint has a `meta.yaml` with blueprint metadata
-   - Steps have `overview.md` files with context and guidance
-   - Questions are defined with types: `multi-select`, `list`, or `text`
+2. **ブループリントコンポーネント:**
+   - 各ブループリントにはブループリントメタデータを含む `meta.yaml` がある
+   - ステップにはコンテキストとガイダンスを含む `overview.md` ファイルがある
+   - 質問は `multi-select`、`list`、または `text` の型で定義されている
 
-## Workflow
+## ワークフロー
 
-### Step 1: Select or Create Project
+### ステップ 1: プロジェクトを選択または作成する
 
-**Goal:** Identify which project the user wants to work with, or create a new one
+**目標:** ユーザーが作業したいプロジェクトを特定するか、新しいプロジェクトを作成する
 
-**Actions:**
+**アクション:**
 
-1. **List existing projects** in the repository:
+1. リポジトリ内の**既存プロジェクトを一覧表示する**:
    ```bash
    ls -la projects/
    ```
 
-2. **Present project options to user:**
+2. **プロジェクトオプションをユーザーに提示する:**
    ```
-   Projects organize your blueprint configurations by customer, account, or use case.
+   プロジェクトは、顧客、アカウント、またはユースケース別にブループリント設定を整理します。
    
-   Existing projects:
+   既存のプロジェクト:
    
-   1. sample-project (example project with sample answers)
-   [... any other existing projects ...]
+   1. sample-project（サンプル回答を含む例のプロジェクト）
+   [... その他の既存プロジェクト ...]
    
-   Would you like to:
+   どうしますか？:
    
-   1. Work with an existing project
-   2. Create a new project
+   1. 既存のプロジェクトで作業する
+   2. 新しいプロジェクトを作成する
    
-   Enter your choice (1-2):
-   ```
-
-**⚠️ MANDATORY STOPPING POINT**: Wait for user to select or create a project.
-
-**If user selects existing project:**
-- Note the project name for use in subsequent steps
-- Proceed to Step 2 (Discover Available Blueprints)
-
-**If user wants to create a new project:**
-1. **Prompt for project name:**
-   ```
-   Enter a name for your new project.
-   
-   Guidelines:
-   - Use only alphanumeric characters, underscores, and hyphens
-   - Example: customer_acme, prod-deployment, pilot-2024
-   
-   Project name:
+   選択を入力 (1-2):
    ```
 
-2. **⚠️ MANDATORY STOPPING POINT**: Wait for user to provide project name.
+**⚠️ 必須停止ポイント**: ユーザーがプロジェクトを選択または作成するまで待ちます。
 
-3. **Validate project name** (alphanumeric, underscores, hyphens only)
+**ユーザーが既存プロジェクトを選択した場合:**
+- 後続のステップで使用するためにプロジェクト名をメモする
+- ステップ 2（利用可能なブループリントの発見）に進む
 
-4. **Create project directory structure:**
+**ユーザーが新しいプロジェクトを作成したい場合:**
+1. **プロジェクト名を確認する:**
+   ```
+   新しいプロジェクトの名前を入力してください。
+   
+   ガイドライン:
+   - 英数字、アンダースコア、ハイフンのみ使用
+   - 例: customer_acme、prod-deployment、pilot-2024
+   
+   プロジェクト名:
+   ```
+
+2. **⚠️ 必須停止ポイント**: ユーザーがプロジェクト名を提供するまで待ちます。
+
+3. **プロジェクト名を検証する**（英数字、アンダースコア、ハイフンのみ）
+
+4. **プロジェクトのディレクトリ構造を作成する:**
    ```bash
    mkdir -p projects/<project_name>/answers
    mkdir -p projects/<project_name>/output/iac/sql
    mkdir -p projects/<project_name>/output/documentation
    ```
 
-5. **Confirm creation:**
+5. **作成を確認する:**
    ```
-   ✓ Created project: <project_name>
+   ✓ プロジェクトを作成しました: <project_name>
    
-   Project directory: projects/<project_name>/
-   ├── answers/           (for answer files)
+   プロジェクトディレクトリ: projects/<project_name>/
+   ├── answers/           （回答ファイル用）
    └── output/
-       ├── iac/sql/       (for generated SQL)
-       └── documentation/ (for generated docs)
+       ├── iac/sql/       （生成された SQL 用）
+       └── documentation/ （生成されたドキュメント用）
    ```
 
-6. **Proceed to Step 2** (Discover Available Blueprints)
+6. **ステップ 2**（利用可能なブループリントの発見）**に進む**
 
-**Output:** Selected or created project name
+**出力:** 選択または作成されたプロジェクト名
 
-### Step 2: Discover Available Blueprints
+### ステップ 2: 利用可能なブループリントを発見する
 
-**Goal:** Identify which blueprints are available and which one the user wants to work with
+**目標:** 利用可能なブループリントとユーザーが使用したいブループリントを特定する
 
-**Actions:**
+**アクション:**
 
-1. **List blueprints** in the repository:
+1. リポジトリ内の**ブループリントを一覧表示する**:
    ```bash
    find blueprints -name "meta.yaml" -type f
    ```
 
-2. **Read blueprint metadata** for each blueprint:
-   - Load `blueprints/<blueprint_id>/meta.yaml`
-   - Extract: `name`, `summary`, `overview`, `is_repeatable`, `steps`
+2. 各ブループリントの**ブループリントメタデータを読み込む**:
+   - `blueprints/<blueprint_id>/meta.yaml` を読み込む
+   - `name`、`summary`、`overview`、`is_repeatable`、`steps` を抽出する
 
-3. **Present blueprints** to user:
+3. **ブループリントをユーザーに提示する:**
    ```
-   Available blueprints:
+   利用可能なブループリント:
    
-   1. [Blueprint Name]
-      Summary: [Brief description]
-      Steps: [Number of steps]
+   1. [ブループリント名]
+      概要: [簡単な説明]
+      ステップ数: [ステップ数]
    
-   2. [Blueprint Name 2]
+   2. [ブループリント名 2]
       ...
    
-   Which blueprint would you like to work with?
+   どのブループリントで作業しますか？
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user to select a blueprint.
+**⚠️ 必須停止ポイント**: ユーザーがブループリントを選択するまで待ちます。
 
-**Output:** Selected blueprint ID and metadata
+**出力:** 選択されたブループリント ID とメタデータ
 
-### Step 3: Initialize or Select Answer File
+### ステップ 3: 回答ファイルを初期化または選択する
 
-**Goal:** Let user choose to create a new answer file or work with an existing one
+**目標:** ユーザーが新しい回答ファイルを作成するか、既存のものを使用するかを選択できるようにする
 
-**Actions:**
+**アクション:**
 
-1. **Check for existing answer files in the project:**
+1. **プロジェクト内の既存の回答ファイルを確認する:**
    ```bash
    find projects/<project_name>/answers/<blueprint_id> -name "*.yaml" -type f 2>/dev/null | sort -r
    ```
 
-2. **Present options to user:**
+2. **オプションをユーザーに提示する:**
    ```
-   Would you like to:
+   どうしますか？:
    
-   1. Create a new answer file
-   2. Work with an existing answer file
+   1. 新しい回答ファイルを作成する
+   2. 既存の回答ファイルを使用する
    
-   Enter your choice (1-2):
+   選択を入力 (1-2):
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+**⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-**If user selects "Create a new answer file":**
+**ユーザーが「新しい回答ファイルを作成する」を選択した場合:**
 
-1. **Generate timestamp:**
+1. **タイムスタンプを生成する:**
    ```bash
    date +%Y%m%d%H%M%S
    ```
 
-2. **Create answer file directory:**
+2. **回答ファイルのディレクトリを作成する:**
    ```bash
    mkdir -p projects/<project_name>/answers/<blueprint_id>
    ```
 
-3. **Create initial answer file:**
-   - Path: `projects/<project_name>/answers/<blueprint_id>/answers_<timestamp>.yaml`
-   - Initialize with header comments (project name, blueprint name, date, blueprint ID)
+3. **初期回答ファイルを作成する:**
+   - パス: `projects/<project_name>/answers/<blueprint_id>/answers_<timestamp>.yaml`
+   - ヘッダーコメント（プロジェクト名、ブループリント名、日付、ブループリント ID）で初期化する
 
-4. **Proceed to Step 4** (Collect User Context)
+4. **ステップ 4**（ユーザーコンテキストの収集）**に進む**
 
-**If user selects "Work with an existing answer file":**
+**ユーザーが「既存の回答ファイルを使用する」を選択した場合:**
 
-1. **List available answer files:**
+1. **利用可能な回答ファイルを一覧表示する:**
    ```
-   Existing answer files for this project and blueprint:
+   このプロジェクトとブループリントの既存の回答ファイル:
    
    1. projects/<project_name>/answers/<blueprint_id>/answers_20251221214657.yaml
-      Created: 2025-12-21 21:46:57
+      作成日: 2025-12-21 21:46:57
       
    2. projects/<project_name>/answers/<blueprint_id>/answers_20251221222441.yaml
-      Created: 2025-12-21 22:24:41
+      作成日: 2025-12-21 22:24:41
    
-   Which file would you like to work with? (1-N):
+   どのファイルを使用しますか？ (1-N):
    ```
 
-2. **⚠️ MANDATORY STOPPING POINT**: Wait for user to select a file.
+2. **⚠️ 必須停止ポイント**: ユーザーがファイルを選択するまで待ちます。
 
-3. **Load selected answer file:**
-   - Read the YAML file
-   - Parse existing answers
-   - Validate structure
+3. **選択した回答ファイルを読み込む:**
+   - YAML ファイルを読み込む
+   - 既存の回答を解析する
+   - 構造を検証する
 
-4. **Present current state:**
+4. **現在の状態を提示する:**
    ```
-   Loaded answer file: [file path]
+   回答ファイルを読み込みました: [ファイルパス]
    
-   Current configuration:
-   - Total questions in workflow: [N]
-   - ✅ Questions answered: [M]
-   - ❓ Requires user input: [P]
-   - ⚠️ Needs more context: [Q]
+   現在の設定:
+   - ワークフローの質問の合計: [N]
+   - ✅ 回答済みの質問: [M]
+   - ❓ ユーザー入力が必要: [P]
+   - ⚠️ 追加コンテキストが必要: [Q]
    ```
 
-5. **Offer next actions:**
+5. **次のアクションを提供する:**
    ```
-   What would you like to do?
+   何をしますか？
    
-   1. Review/update configuration step-by-step
-   2. Fill in required values (account names, emails, etc.)
-   3. View current configuration summary
-   4. Generate infrastructure code (SQL)
-   5. Start over with new context (will prompt for description)
+   1. 設定をステップバイステップで確認/更新する
+   2. 必要な値を入力する（アカウント名、メールなど）
+   3. 現在の設定サマリーを表示する
+   4. インフラコード（SQL）を生成する
+   5. 新しいコンテキストで最初からやり直す（説明を求められます）
    
-   Enter your choice (1-5):
+   選択を入力 (1-5):
    ```
 
-6. **⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+6. **⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-7. **Route based on selection:**
-   - Option 1 → Skip to Step 7 (Interactive Walkthrough)
-   - Option 2 → Skip to Step 8 (Fill in required values)
-   - Option 3 → Skip to Step 6 (Present Summary)
-   - Option 4 → Skip to Step 9 (Generate IaC)
-   - Option 5 → Proceed to Step 4 (will regenerate all answers based on new context)
+7. **選択に基づいてルーティングする:**
+   - オプション 1 → ステップ 7（インタラクティブウォークスルー）にスキップ
+   - オプション 2 → ステップ 8（必要な値の入力）にスキップ
+   - オプション 3 → ステップ 6（サマリーの提示）にスキップ
+   - オプション 4 → ステップ 9（IaC の生成）にスキップ
+   - オプション 5 → ステップ 4 に進む（新しいコンテキストに基づいてすべての回答を再生成）
 
-**Output:** Path to answer file (new or existing) and current state
+**出力:** 回答ファイルへのパス（新規または既存）と現在の状態
 
-### Step 4: Collect User Context (Open-Ended Description)
+### ステップ 4: ユーザーコンテキストを収集する（自由形式の説明）
 
-**Goal:** Request a description of the user's organization and their plans for how they will use snowflake to understand their needs well enough to intelligently fill out all workflow answers.
+**目標:** ユーザーの組織と Snowflake の使用計画に関する説明を求め、すべてのワークフロー回答をインテリジェントに入力できるほど十分にニーズを理解する
 
-**Actions:**
+**アクション:**
 
-1. **Load all question definitions:**
+1. **すべての質問定義を読み込む:**
    ```bash
    read definitions/questions.yaml
    ```
 
-2. **Parse questions** to understand what information is needed across the entire blueprint
+2. ブループリント全体で必要な情報を理解するために**質問を解析する**
 
-3. **Present open-ended request with suggested topics AND step-by-step option:**
+3. **提案されたトピックとステップバイステップオプションを含む自由形式のリクエストを提示する:**
    
-   **Request Template - Adapt based on workflow:**
+   **リクエストテンプレート - ワークフローに基づいて適応:**
    
    ```
-   I can help you configure your Snowflake Blueprint in one of two ways:
+   Snowflake ブループリントの設定を2通りの方法でサポートできます:
    
    ---
    
-   **Option A: Provide a Description (Recommended)**
+   **オプション A: 説明を提供する（推奨）**
    
-   Share an open-ended description of your organization, and I'll intelligently 
-   configure as many settings as possible based on what you tell me.
+   組織の自由形式の説明を共有すれば、あなたが伝えた情報に基づいて
+   できるだけ多くの設定をインテリジェントに設定します。
    
-   Consider including information about:
+   以下の情報を含めることを検討してください:
    
-   **Organization Profile**
-   - Organization size (small startup, mid-size, large enterprise)
-   - Primary Snowflake use case (analytics, data engineering, ML, application, multiple)
-   - Number of users/teams that will use Snowflake
+   **組織プロフィール**
+   - 組織の規模（小規模スタートアップ、中規模、大企業）
+   - Snowflake の主要なユースケース（分析、データエンジニアリング、ML、アプリケーション、複数）
+   - Snowflake を使用するユーザー/チームの数
    
-   **Security & Compliance**
-   - Existing SSO/identity provider (Okta, Azure AD, none, other)
-   - Compliance requirements (SOC2, HIPAA, GDPR, PCI-DSS, none)
-   - Network access controls (strict corporate only, VPN, cloud services, flexible)
+   **セキュリティとコンプライアンス**
+   - 既存の SSO/ID プロバイダー（Okta、Azure AD、なし、その他）
+   - コンプライアンス要件（SOC2、HIPAA、GDPR、PCI-DSS、なし）
+   - ネットワークアクセス制御（厳格な社内のみ、VPN、クラウドサービス、柔軟）
    
-   **Cost & Scale**
-   - Expected monthly budget/usage (under $1K, $1-10K, $10-50K, $50K+, unknown)
-   - Cost control level (strict - prevent overruns, moderate - alerts, flexible - track only)
-   - Deployment approach (start small/dev, straight to production, phased rollout)
+   **コストとスケール**
+   - 予想される月次予算/使用量（$1K 未満、$1-10K、$10-50K、$50K+、不明）
+   - コスト管理レベル（厳格 - 超過防止、中程度 - アラート、柔軟 - 追跡のみ）
+   - デプロイアプローチ（小規模/開発から開始、直接本番、段階的展開）
    
-   **Technical Environment** (if applicable)
-   - Cloud provider preference (AWS, Azure, GCP, multi-cloud)
-   - Existing data sources (databases, cloud storage, APIs, streaming)
-   - Data governance maturity (just starting, have some policies, mature governance)
+   **技術環境**（該当する場合）
+   - クラウドプロバイダーの選好（AWS、Azure、GCP、マルチクラウド）
+   - 既存のデータソース（データベース、クラウドストレージ、API、ストリーミング）
+   - データガバナンスの成熟度（始めたばかり、いくつかのポリシーがある、成熟したガバナンス）
    
-   **Organizational Structure** (if applicable for complex workflows)
-   - Team structure (centralized data team, distributed, hybrid)
-   - Data product approach (single product, multiple domains, not sure yet)
+   **組織構造**（複雑なワークフローに適用可能）
+   - チーム構造（集中型データチーム、分散型、ハイブリッド）
+   - データプロダクトアプローチ（単一プロダクト、複数ドメイン、まだ不明）
    
-   Share as much or as little as feels relevant.
-   
-   ---
-   
-   **Option B: Step-by-Step Walkthrough**
-   
-   If you prefer, I can walk you through each question one at a time, 
-   explaining each option as we go. This takes longer but gives you 
-   full control over every decision.
+   関連性があると感じる情報を多くも少なくも共有してください。
    
    ---
    
-   **How would you like to proceed?**
+   **オプション B: ステップバイステップウォークスルー**
    
-   - Type your organization description to use Option A
-   - Or type "step-by-step" to go through questions one at a time
+   ご希望であれば、各質問を一度に一つずつ説明しながら進めることができます。
+   時間はかかりますが、すべての決定を完全にコントロールできます。
+   
+   ---
+   
+   **どのように進めますか？**
+   
+   - オプション A を使用するには組織の説明を入力してください
+   - または、質問を一つずつ進めるには「ステップバイステップ」と入力してください
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user response.
+**⚠️ 必須停止ポイント**: ユーザーの応答を待ちます。
 
-**If user provides a description:**
-- Proceed to Step 5 (Generate All Workflow Answers based on context)
+**ユーザーが説明を提供した場合:**
+- ステップ 5（コンテキストに基づいてすべてのワークフロー回答を生成する）に進む
 
-**If user types "step-by-step" (or similar):**
-- Skip Step 5 entirely
-- Create answer file with all questions as `null`
-- Proceed directly to Step 7 (Interactive Step-by-Step Walkthrough)
-- Present each question with full guidance, one at a time
+**ユーザーが「ステップバイステップ」（または類似）と入力した場合:**
+- ステップ 5 を完全にスキップする
+- すべての質問を `null` として回答ファイルを作成する
+- ステップ 7（インタラクティブステップバイステップウォークスルー）に直接進む
+- 各質問を完全なガイダンスとともに一度に一つずつ提示する
 
-**Output:** Either user context for auto-generation, or indication to use step-by-step mode
+**出力:** 自動生成のためのユーザーコンテキスト、またはステップバイステップモードの使用を示す指示
 
-### Step 5: Generate All Blueprint Answers
+### ステップ 5: すべてのブループリント回答を生成する
 
-**Goal:** Intelligently fill out blueprint answers based on user's context, being honest about what can and cannot be determined
+**目標:** ユーザーのコンテキストに基づいてブループリント回答をインテリジェントに入力し、何が決定できて何ができないかについて誠実に対応する
 
-**Actions:**
+**アクション:**
 
-1. **Load blueprint steps:**
-   - Read `blueprints/<blueprint_id>/meta.yaml` for step order
-   - Load each step's `overview.md` to understand questions
+1. **ブループリントのステップを読み込む:**
+   - ステップの順序のために `blueprints/<blueprint_id>/meta.yaml` を読む
+   - 質問を理解するために各ステップの `overview.md` を読み込む
 
-2. **For each step, extract questions:**
-   - Parse overview.md for question IDs (format: `` `answer_title` ``)
-   - Look up question definitions from `questions.yaml`
+2. **各ステップで質問を抽出する:**
+   - 質問 ID（フォーマット: `` `answer_title` ``）の overview.md を解析する
+   - `questions.yaml` から質問定義を検索する
 
-3. **Categorize each question into one of three types:**
+3. **各質問を3つの種類のいずれかに分類する:**
 
-   **Category A: Auto-Answerable** - Questions where user context provides enough information to make a confident decision
+   **カテゴリ A: 自動回答可能** - ユーザーのコンテキストが自信を持って決定するのに十分な情報を提供する質問
    
-   **Category B: User-Specific Required** - Questions that ALWAYS require user input (account names, emails, org names, etc.) - these are NOT auto-answerable
+   **カテゴリ B: ユーザー固有の必須** - 常にユーザー入力が必要な質問（アカウント名、メール、組織名など）- これらは自動回答不可
    
-   **Category C: Insufficient Context** - Questions where the user's description doesn't provide enough information to make a reasonable choice
+   **カテゴリ C: コンテキスト不足** - ユーザーの説明が合理的な選択をするのに十分な情報を提供しない質問
 
-4. **⚠️ STRICT RULES FOR ANSWER GENERATION:**
+4. **⚠️ 回答生成の厳格なルール:**
 
-   **DO NOT generate fake TODO answers.** Specifically:
-   - ❌ Do NOT use placeholder values like `YOUR_ACCOUNT_NAME`, `user@example.com`, `YOUR_COMPANY_NAME`
-   - ❌ Do NOT invent domain names, team names, or organizational structures not mentioned by user
-   - ❌ Do NOT guess specific values (IP ranges, user counts, budget amounts) unless explicitly stated
-   - ❌ Do NOT create list items (domains, warehouses, users) that weren't mentioned or clearly implied
+   **偽の TODO 回答を生成しないこと。** 具体的には:
+   - ❌ `YOUR_ACCOUNT_NAME`、`user@example.com`、`YOUR_COMPANY_NAME` などのプレースホルダー値を使用しない
+   - ❌ ユーザーが言及していないドメイン名、チーム名、または組織構造を発明しない
+   - ❌ 明示的に述べられていない限り、特定の値（IP レンジ、ユーザー数、予算額）を推測しない
+   - ❌ 言及または明確に示唆されていないリストアイテム（ドメイン、ウェアハウス、ユーザー）を作成しない
    
-   **INSTEAD:**
-   - ✅ Leave Category B questions unanswered (null/empty in YAML)
-   - ✅ Leave Category C questions unanswered with a comment explaining what information is needed
-   - ✅ Only answer Category A questions where you have genuine confidence
+   **代わりに:**
+   - ✅ カテゴリ B の質問を未回答のままにする（YAML で null/空）
+   - ✅ カテゴリ C の質問を、必要な情報を説明するコメントとともに未回答のままにする
+   - ✅ 真に自信がある場合のみカテゴリ A の質問に回答する
 
-5. **Apply intelligent defaults ONLY when context supports it:**
+5. **コンテキストが支持する場合のみインテリジェントなデフォルトを適用する:**
 
-   **Decision Logic Examples (use only when user provided relevant context):**
+   **意思決定ロジックの例（ユーザーが関連するコンテキストを提供した場合にのみ使用）:**
    
-   **Organization Size (if explicitly mentioned):**
-   - Small startup → Single account, simple RBAC, minimal admins
-   - Mid-size → Consider multi-account, moderate RBAC complexity
-   - Enterprise → Multi-account strategy, complex RBAC, multiple admins
+   **組織の規模（明示的に言及された場合）:**
+   - 小規模スタートアップ → シングルアカウント、シンプルな RBAC、最小限の管理者
+   - 中規模 → マルチアカウントを検討、中程度の RBAC 複雑さ
+   - エンタープライズ → マルチアカウント戦略、複雑な RBAC、複数の管理者
    
-   **Use Case (if explicitly mentioned):**
-   - Analytics/BI → Focus on warehouses for queries, reader roles
-   - Data Engineering → ETL warehouses, writer/owner roles, pipelines
-   - ML/Data Science → Compute-optimized warehouses, data science roles
+   **ユースケース（明示的に言及された場合）:**
+   - 分析/BI → クエリ用のウェアハウスに焦点、リーダーロール
+   - データエンジニアリング → ETL ウェアハウス、ライター/オーナーロール、パイプライン
+   - ML/データサイエンス → コンピュート最適化ウェアハウス、データサイエンスロール
    
-   **Security Posture (if explicitly mentioned):**
-   - Has SSO → Configure SSO/SAML, use IdP for MFA
-   - No SSO → Username/password with MFA, strong password policy
-   - Strict network → Specific IP ranges, service account restrictions
-   - Flexible → Broader access (0.0.0.0/0 with caution notes)
+   **セキュリティ態勢（明示的に言及された場合）:**
+   - SSO あり → SSO/SAML を設定、MFA に IdP を使用
+   - SSO なし → MFA 付きユーザー名/パスワード、強力なパスワードポリシー
+   - 厳格なネットワーク → 特定の IP レンジ、サービスアカウントの制限
+   - 柔軟 → より広いアクセス（注意事項付きの 0.0.0.0/0）
    
-   **Compliance (if explicitly mentioned):**
-   - GDPR/HIPAA/SOC2 → Enable audit schemas, change tracking, data retention policies
-   - None → Balanced policies, monitoring recommended but optional
+   **コンプライアンス（明示的に言及された場合）:**
+   - GDPR/HIPAA/SOC2 → 監査スキーマ、変更追跡、データ保持ポリシーを有効にする
+   - なし → バランスの取れたポリシー、モニタリングは推奨だがオプション
    
-   **Cost Control (if explicitly mentioned):**
-   - Strict → Resource monitors with suspend, hourly budget refresh, required tags
-   - Moderate → Budgets with alerts, daily refresh, recommended tags
-   - Flexible → Budget tracking, no hard limits
+   **コスト管理（明示的に言及された場合）:**
+   - 厳格 → サスペンド付きリソースモニター、毎時予算更新、必須タグ
+   - 中程度 → アラート付き予算、日次更新、推奨タグ
+   - 柔軟 → 予算追跡、ハードリミットなし
    
-   **Budget Range (if explicitly mentioned):**
-   - Under $1K → 250 credits/month budget, small warehouses
-   - $1-10K → 2,500 credits/month, moderate resources
-   - $10-50K → 7,500 credits/month, production scale
-   - $50K+ → Custom based on needs
+   **予算範囲（明示的に言及された場合）:**
+   - $1K 未満 → 月 250 クレジット予算、小規模ウェアハウス
+   - $1-10K → 月 2,500 クレジット、中程度のリソース
+   - $10-50K → 月 7,500 クレジット、本番スケール
+   - $50K 以上 → ニーズに基づいたカスタム
 
-6. **Write answers to YAML file:**
-   - Use `answer_title` as keys
-   - Set values ONLY for Category A questions (auto-answerable with confidence)
-   - Add inline comments explaining reasoning for each answered question
-   - Leave Category B and C questions as `null` or omit entirely
-   - Add comment for each unanswered question explaining why it wasn't answered
+6. **YAML ファイルに回答を書き込む:**
+   - キーとして `answer_title` を使用する
+   - カテゴリ A の質問（自信を持って自動回答可能）のみに値を設定する
+   - 各回答済み質問の根拠を説明するインラインコメントを追加する
+   - カテゴリ B と C の質問は `null` のままにするか完全に省略する
+   - 各未回答質問に、なぜ回答されなかったかを説明するコメントを追加する
 
-7. **Track and report answer status:**
-   - Count questions in each category
-   - Prepare detailed list of unanswered questions with reasons
+7. **回答の状態を追跡して報告する:**
+   - 各カテゴリの質問数をカウントする
+   - 理由付きの未回答質問の詳細リストを準備する
 
-**Output:** Answer file with honest answers and clear tracking of what was/wasn't answered
+**出力:** 誠実な回答と、何が/されなかったかの明確な追跡を含む回答ファイル
 
-### Step 6: Present Summary and Offer Walkthrough
+### ステップ 6: サマリーを提示してウォークスルーを提案する
 
-**Goal:** Show user exactly what was configured, what wasn't, and why
+**目標:** 何が設定されたか、されなかったか、そしてその理由をユーザーに正確に示す
 
-**Actions:**
+**アクション:**
 
-1. **Present detailed configuration summary with transparency:**
+1. **透明性のある詳細な設定サマリーを提示する:**
    ```
    ======================================================================
-    Configuration Summary
+    設定サマリー
    ======================================================================
    
-   ## ✅ Questions Successfully Answered ([M] of [Total])
+   ## ✅ 正常に回答された質問 ([M] / [合計])
    
-   Based on your description, I was able to confidently answer these questions:
+   あなたの説明に基づいて、以下の質問に自信を持って回答できました:
    
-   ### Account Strategy
-   - [Question name]: [Answer] — Reasoning: [why]
+   ### アカウント戦略
+   - [質問名]: [回答] — 根拠: [なぜ]
    
-   ### Security & Compliance
-   - [Question name]: [Answer] — Reasoning: [why]
+   ### セキュリティとコンプライアンス
+   - [質問名]: [回答] — 根拠: [なぜ]
    
-   ### Cost Controls
-   - [Question name]: [Answer] — Reasoning: [why]
+   ### コスト管理
+   - [質問名]: [回答] — 根拠: [なぜ]
    
-   [Continue for all answered questions...]
-   
-   ---
-   
-   ## ❓ Questions Requiring Your Input ([P] of [Total])
-   
-   These questions require information only you can provide:
-   
-   1. **[question_name]** (`answer_title`)
-      - What's needed: [specific information required, e.g., "Your Snowflake account name"]
-      - How to find it: [help text, e.g., "Run SELECT CURRENT_ACCOUNT_NAME(); in Snowflake"]
-   
-   2. **[question_name]** (`answer_title`)
-      - What's needed: [specific information required]
-      - How to find it: [help text]
-   
-   [Continue for all user-specific questions...]
+   [すべての回答済み質問について続ける...]
    
    ---
    
-   ## ⚠️ Questions Not Answered - Insufficient Context ([Q] of [Total])
+   ## ❓ あなたの入力が必要な質問 ([P] / [合計])
    
-   I didn't have enough information from your description to answer these:
+   これらの質問はあなただけが提供できる情報を必要とします:
    
-   1. **[question_name]** (`answer_title`)
-      - Missing context: [what information would help, e.g., "Number of data domains/teams"]
-      - Please provide: [specific ask]
+   1. **[質問名]** (`answer_title`)
+      - 必要な情報: [必要な特定の情報、例: "Snowflake アカウント名"]
+      - 見つける方法: [ヘルプテキスト、例: "Snowflake で SELECT CURRENT_ACCOUNT_NAME(); を実行"]
    
-   2. **[question_name]** (`answer_title`)
-      - Missing context: [what information would help]
-      - Please provide: [specific ask]
+   2. **[質問名]** (`answer_title`)
+      - 必要な情報: [必要な特定の情報]
+      - 見つける方法: [ヘルプテキスト]
    
-   [Continue for all insufficient-context questions...]
+   [すべてのユーザー固有の質問について続ける...]
    
    ---
    
-   Answer file saved: [file path]
+   ## ⚠️ 未回答の質問 - コンテキスト不足 ([Q] / [合計])
    
-   **Summary:**
-   - ✅ Auto-answered: [M] questions
-   - ❓ Needs your input: [P] questions  
-   - ⚠️ Needs more context: [Q] questions
-   - Total: [Total] questions
+   あなたの説明からこれらに回答するのに十分な情報がありませんでした:
+   
+   1. **[質問名]** (`answer_title`)
+      - 不足しているコンテキスト: [何の情報が役立つか、例: "データドメイン/チームの数"]
+      - 提供してください: [具体的な依頼]
+   
+   2. **[質問名]** (`answer_title`)
+      - 不足しているコンテキスト: [何の情報が役立つか]
+      - 提供してください: [具体的な依頼]
+   
+   [すべてのコンテキスト不足の質問について続ける...]
+   
+   ---
+   
+   回答ファイルを保存しました: [ファイルパス]
+   
+   **サマリー:**
+   - ✅ 自動回答済み: [M] 件の質問
+   - ❓ あなたの入力が必要: [P] 件の質問
+   - ⚠️ 追加コンテキストが必要: [Q] 件の質問
+   - 合計: [合計] 件の質問
    ```
 
-2. **Offer walkthrough options:**
+2. **ウォークスルーオプションを提供する:**
    ```
-   What would you like to do next?
+   次に何をしますか？
    
-   1. Provide more context (I'll ask about unanswered questions)
-   2. Fill in required values now (account names, emails, etc.)
-   3. Review all configuration step-by-step
-   4. Generate infrastructure code (SQL) with current answers
-   5. Save and exit
+   1. 追加のコンテキストを提供する（未回答の質問について確認します）
+   2. 必要な値を今すぐ入力する（アカウント名、メールなど）
+   3. すべての設定をステップバイステップで確認する
+   4. 現在の回答でインフラコード（SQL）を生成する
+   5. 保存して終了する
    
-   Enter your choice (1-5):
+   選択を入力 (1-5):
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+**⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-**Route based on selection:**
-- Option 1 → Ask follow-up questions for Category C items, then regenerate
-- Option 2 → Proceed to Step 8 (Update user-specific values)
-- Option 3 → Proceed to Step 7 (Walkthrough)
-- Option 4 → Proceed to Step 9 (Generate IaC) — warn if many questions unanswered
-- Option 5 → End workflow
+**選択に基づいてルーティングする:**
+- オプション 1 → カテゴリ C のアイテムについてフォローアップの質問をして再生成する
+- オプション 2 → ステップ 8（ユーザー固有の値の更新）に進む
+- オプション 3 → ステップ 7（ウォークスルー）に進む
+- オプション 4 → ステップ 9（IaC の生成）に進む — 多くの質問が未回答の場合は警告する
+- オプション 5 → ワークフローを終了する
 
-### Step 7: Interactive Step-by-Step Walkthrough
+### ステップ 7: インタラクティブなステップバイステップウォークスルー
 
-**Goal:** Walk through each blueprint step, showing questions, answers, reasoning, and allowing updates
+**目標:** 各ブループリントのステップを通じて進み、質問、回答、根拠を表示し、更新を可能にする
 
-**For each step in blueprint.steps:**
+**blueprint.steps の各ステップについて:**
 
-#### Step 7.0: Display Task Overview at Task Boundaries
+#### ステップ 7.0: タスク境界でタスク概要を表示する
 
-Before presenting a step's details, check whether this step is the **first step in a new task**. If so, display a task overview before proceeding. This gives users immediate context about what they are about to work on, what roles/access they need, and who should be involved.
+ステップの詳細を提示する前に、このステップが**新しいタスクの最初のステップ**かどうか確認します。そうであれば、進む前にタスク概要を表示します。これにより、ユーザーは何に取り組もうとしているか、どのロール/アクセスが必要か、誰が関わるべきかについてすぐにコンテキストを得られます。
 
-**Actions:**
+**アクション:**
 
-1. **Determine if this is a task boundary:**
-   - Use `get_current_task(current_step_slug, tasks)` to get the parent task
-   - Check if the current step is the first step in that task (i.e., `step_index == 0` in the task's steps list)
+1. **これがタスク境界かどうかを判断する:**
+   - `get_current_task(current_step_slug, tasks)` を使用して親タスクを取得する
+   - 現在のステップがそのタスクの最初のステップかどうかを確認する（つまり、タスクのステップリストで `step_index == 0`）
 
-2. **If this is the first step in a new task, display the task overview:**
+2. **新しいタスクの最初のステップである場合、タスク概要を表示する:**
 
-   First, load the task overview markdown file if available:
+   まず、利用可能であればタスク概要のマークダウンファイルを読み込む:
    ```bash
    read blueprints/<blueprint_id>/tasks/<task_slug>.md
    ```
 
-   Then present the task overview:
+   次にタスク概要を提示する:
 
    ```
    ======================================================================
-    Starting Task [N] of [Total]: [Task Title]
+    タスク [N] / [合計] を開始: [タスクタイトル]
    ======================================================================
 
-   ## What You Will Accomplish
-   [Task summary from the task's `summary` field]
+   ## 達成すること
+   [タスクの `summary` フィールドからのタスクサマリー]
 
-   ## Prerequisites
+   ## 前提条件
 
-   **Snowflake Role Requirements:**
+   **Snowflake ロール要件:**
    - [role_requirement_1]
    - [role_requirement_2]
 
-   **External Requirements:**
+   **外部要件:**
    - [external_requirement_1]
    - [external_requirement_2]
 
-   ## Who Should Be Involved
+   ## 関与すべき人物
    - [persona_1]
    - [persona_2]
 
-   [If task overview markdown file exists, include the Details, Steps in This Task,
-    Key Decisions, and Deliverables sections from it]
+   [タスク概要のマークダウンファイルが存在する場合、詳細、このタスクのステップ、
+    主要な決定、および成果物セクションを含める]
 
    ---
 
-   This task contains [N] steps. Let's begin with the first one.
+   このタスクには [N] ステップがあります。最初のステップから始めましょう。
    ```
 
-   **Rules for displaying the task overview:**
-   - **Summary** comes from the task's `summary` field in meta.yaml
-   - **Role Requirements** comes from the task's `role_requirements` field — show each as a bullet point. If empty, omit this section.
-   - **External Requirements** comes from the task's `external_requirements` field — show each as a bullet point. If empty, omit this section.
-   - **Personas** comes from the task's `personas` field — show each as a bullet point. If empty, omit this section.
-   - If a `tasks/<task_slug>.md` file exists, include its supplementary content (step tables, key decisions, deliverables, execution context, etc.) after the structured overview fields.
-   - If this is the first task in the blueprint, also display a brief introduction to the overall blueprint.
+   **タスク概要を表示するためのルール:**
+   - **サマリー**は meta.yaml のタスクの `summary` フィールドから取得する
+   - **ロール要件**はタスクの `role_requirements` フィールドから取得する — 各項目を箇条書きで表示する。空の場合はこのセクションを省略する。
+   - **外部要件**はタスクの `external_requirements` フィールドから取得する — 各項目を箇条書きで表示する。空の場合はこのセクションを省略する。
+   - **ペルソナ**はタスクの `personas` フィールドから取得する — 各項目を箇条書きで表示する。空の場合はこのセクションを省略する。
+   - `tasks/<task_slug>.md` ファイルが存在する場合、構造化された概要フィールドの後に補足コンテンツ（ステップテーブル、主要な決定、成果物、実行コンテキストなど）を含める。
+   - これがブループリントの最初のタスクである場合、ブループリント全体の簡単な紹介も表示する。
 
-3. **If this is NOT the first step in a task**, skip the task overview and proceed directly to Step 7.1.
+3. **タスクの最初のステップでない場合**、タスク概要をスキップしてステップ 7.1 に直接進む。
 
-#### Step 7.1: Display Step Overview and Questions
+#### ステップ 7.1: ステップ概要と質問を表示する
 
-**Actions:**
+**アクション:**
 
-1. **Read step overview:**
+1. **ステップ概要を読む:**
    ```bash
    read blueprints/<blueprint_id>/<step_id>/overview.md
    ```
 
-2. **Extract questions for this step** (parse overview.md for question IDs)
+2. このステップの**質問を抽出する**（質問 ID の overview.md を解析する）
 
-3. **Load question details** from definitions/questions.yaml for all questions in this step
+3. このステップのすべての質問について definitions/questions.yaml から**質問の詳細を読み込む**
 
-4. **Present step information:**
+4. **ステップ情報を提示する:**
    ```
    ======================================================================
-    Step [N] of [Total]: [Step Name]
+    ステップ [N] / [合計]: [ステップ名]
    ======================================================================
    
-   ## Step Overview
+   ## ステップ概要
    
-   [Full content from overview.md - ALL paragraphs and details]
+   [overview.md からの完全なコンテンツ - すべての段落と詳細]
    
    ---
    
-   ## Configuration Questions and Answers
+   ## 設定の質問と回答
    
-   ### Question 1: [question_text]
+   ### 質問 1: [question_text]
    
-   **Answer:** [your answer]
+   **回答:** [あなたの回答]
    
-   **Reasoning:** [why this answer was chosen based on user context]
+   **根拠:** [ユーザーのコンテキストに基づいてこの回答が選ばれた理由]
    
-   **Question Details:**
-   - **Type:** [answer_type: multi-select, list, or text]
-   - **Guidance:** 
-     [Full guidance text from definitions - all paragraphs and formatting]
-   [For multi-select questions:]
-   - **Available Options:**
-     1. [option 1 text]
-     2. [option 2 text]
+   **質問の詳細:**
+   - **種類:** [answer_type: multi-select、list、または text]
+   - **ガイダンス:** 
+     [定義からの完全なガイダンステキスト - すべての段落とフォーマット]
+   [multi-select 質問の場合:]
+   - **利用可能なオプション:**
+     1. [オプション 1 テキスト]
+     2. [オプション 2 テキスト]
      ...
    
    ---
    
-   ### Question 2: [question_text]
+   ### 質問 2: [question_text]
    
-   **Answer:** [your answer]
+   **回答:** [あなたの回答]
    
-   **Reasoning:** [why this answer was chosen based on user context]
+   **根拠:** [ユーザーのコンテキストに基づいてこの回答が選ばれた理由]
    
-   **Question Details:**
-   - **Type:** [answer_type]
-   - **Guidance:**
-     [Full guidance text from definitions - all paragraphs and formatting]
-   [For multi-select questions:]
-   - **Available Options:**
-     1. [option 1 text]
-     2. [option 2 text]
+   **質問の詳細:**
+   - **種類:** [answer_type]
+   - **ガイダンス:**
+     [定義からの完全なガイダンステキスト - すべての段落とフォーマット]
+   [multi-select 質問の場合:]
+   - **利用可能なオプション:**
+     1. [オプション 1 テキスト]
+     2. [オプション 2 テキスト]
      ...
    
    ---
    
-   [Continue for all questions in this step...]
+   [このステップのすべての質問について続ける...]
    
    ---
    ```
 
-5. **Present step menu:**
+5. **ステップメニューを提示する:**
    ```
-   What would you like to do?
+   何をしますか？
    
-   1. Update answer for Question [1-N]
-   2. Continue to next step
-   3. Go back to previous step
-   4. Jump to specific step
-   5. Generate infrastructure code (SQL) and exit
-   6. Save and exit
+   1. 質問 [1-N] の回答を更新する
+   2. 次のステップに進む
+   3. 前のステップに戻る
+   4. 特定のステップにジャンプする
+   5. インフラコード（SQL）を生成して終了する
+   6. 保存して終了する
    
-   Enter your choice:
+   選択を入力:
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+**⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-#### Step 7.2: Handle User Choice
+#### ステップ 7.2: ユーザーの選択を処理する
 
-**If user selects "Update answer":**
+**ユーザーが「回答を更新する」を選択した場合:**
 
-1. **Prompt for question number:**
+1. **質問番号を確認する:**
    ```
-   Which question would you like to update? (1-N):
+   どの質問を更新しますか？ (1-N):
    ```
 
-2. **Get question details** from definitions/questions.yaml
+2. definitions/questions.yaml から**質問の詳細を取得する**
 
-3. **Show current answer and options:**
+3. **現在の回答とオプションを表示する:**
    ```
-   Question: [question_text]
-   Current Answer: [current value]
+   質問: [question_text]
+   現在の回答: [現在の値]
    
-   [Display guidance from question definition]
+   [質問定義からのガイダンスを表示する]
    
-   [For multi-select: show numbered options]
-   [For list: show current items, prompt to add/remove]
-   [For text: prompt for new value]
+   [multi-select の場合: 番号付きオプションを表示する]
+   [list の場合: 現在のアイテムを表示し、追加/削除を促す]
+   [text の場合: 新しい値を促す]
    
-   Enter your new answer (or 'cancel' to keep current):
+   新しい回答を入力 (または現在の値を保持するには 'cancel'):
    ```
 
-4. **Update answer file:**
-   - Modify the YAML file with new value
-   - Save immediately
+4. **回答ファイルを更新する:**
+   - 新しい値で YAML ファイルを変更する
+   - すぐに保存する
 
-5. **Confirm update:**
+5. **更新を確認する:**
    ```
-   ✓ Updated [answer_title] to: [new value]
+   ✓ [answer_title] を更新しました: [新しい値]
    ```
 
-6. **Return to step menu** (Step 7.1)
+6. **ステップメニューに戻る**（ステップ 7.1）
 
-**If user selects "Continue to next step":**
-- Increment step counter
-- Return to Step 7.1 with next step
+**ユーザーが「次のステップに進む」を選択した場合:**
+- ステップカウンターをインクリメントする
+- 次のステップでステップ 7.1 に戻る
 
-**If user selects "Go back to previous step":**
-- Decrement step counter
-- Return to Step 7.1 with previous step
+**ユーザーが「前のステップに戻る」を選択した場合:**
+- ステップカウンターをデクリメントする
+- 前のステップでステップ 7.1 に戻る
 
-**If user selects "Jump to specific step":**
-- Show list of all steps
-- Let user select step number
-- Return to Step 7.1 with selected step
+**ユーザーが「特定のステップにジャンプする」を選択した場合:**
+- すべてのステップのリストを表示する
+- ユーザーがステップ番号を選択できるようにする
+- 選択したステップでステップ 7.1 に戻る
 
-**If user selects "Generate infrastructure code and exit":**
-- Proceed to Step 9 (Generate IaC)
+**ユーザーが「インフラコードを生成して終了する」を選択した場合:**
+- ステップ 9（IaC の生成）に進む
 
-**If user selects "Save and exit":**
-- Confirm save
-- End workflow
+**ユーザーが「保存して終了する」を選択した場合:**
+- 保存を確認する
+- ワークフローを終了する
 
-### Handling Navigation and Progress Questions During Walkthrough
+### ウォークスルー中のナビゲーションと進捗の質問の処理
 
-During any point in the walkthrough (Step 7), users may ask navigation and progress questions. Use the functions in `scripts/render_journey.py` to answer them accurately.
+ウォークスルー（ステップ 7）のどのポイントでも、ユーザーはナビゲーションと進捗の質問をする場合があります。`scripts/render_journey.py` の関数を使用して正確に回答します。
 
-**Available Navigation Functions:**
+**利用可能なナビゲーション関数:**
 
-The following functions from `render_journey.py` are available for answering navigation queries. Load the blueprint's task metadata first:
+以下の `render_journey.py` の関数がナビゲーションクエリへの回答に利用可能です。最初にブループリントのタスクメタデータを読み込みます:
 
 ```python
 from scripts.render_journey import load_task_metadata, get_current_task, get_remaining_steps, get_task_progress
@@ -758,291 +757,291 @@ from scripts.render_journey import load_task_metadata, get_current_task, get_rem
 tasks = load_task_metadata(blueprint_dir)
 ```
 
-- **`get_current_task(step_slug, tasks)`** — Returns the parent task metadata (slug, title, summary, personas, role_requirements, external_requirements, steps) for a given step
-- **`get_remaining_steps(step_slug, tasks)`** — Returns the list of remaining steps within the current task (respects task boundaries)
-- **`get_task_progress(step_slug, tasks)`** — Returns task-level and blueprint-level completion percentages and counts
+- **`get_current_task(step_slug, tasks)`** — 指定したステップの親タスクメタデータ（slug、title、summary、personas、role_requirements、external_requirements、steps）を返す
+- **`get_remaining_steps(step_slug, tasks)`** — 現在のタスク内の残りのステップのリストを返す（タスク境界を考慮）
+- **`get_task_progress(step_slug, tasks)`** — タスクレベルとブループリントレベルの完了パーセンテージとカウントを返す
 
-#### Responding to "What's next?" queries
+#### 「次は何？」クエリへの回答
 
-When a user asks "what's next?", "what comes after this?", or similar:
+ユーザーが「次は何？」「この後は何？」などを尋ねる場合:
 
-1. Use `get_current_task(current_step_slug, tasks)` to identify the parent task
-2. Use `get_remaining_steps(current_step_slug, tasks)` to get the remaining steps in the current task
-3. Present the response:
+1. `get_current_task(current_step_slug, tasks)` を使用して親タスクを特定する
+2. `get_remaining_steps(current_step_slug, tasks)` を使用して現在のタスクの残りのステップを取得する
+3. 応答を提示する:
 
 ```
-**Current Task:** [Task Title]
+**現在のタスク:** [タスクタイトル]
 
-**Next steps in this task:**
-1. [Next step title]
-2. [Following step title]
+**このタスクの次のステップ:**
+1. [次のステップタイトル]
+2. [その次のステップタイトル]
 ...
 
-[If no remaining steps in current task, check if there are more tasks:]
+[現在のタスクに残りのステップがない場合、さらにタスクがあるか確認:]
 
-You've completed all steps in "[Task Title]". 
-The next task is "[Next Task Title]": [Next task summary]
+"[タスクタイトル]" のすべてのステップを完了しました。
+次のタスクは "[次のタスクタイトル]": [次のタスクサマリー]
 ```
 
-#### Responding to "How much is left?" / Progress queries
+#### 「あとどれくらい？」/ 進捗クエリへの回答
 
-When a user asks "how much is left?", "what's my progress?", "how far along am I?", or similar:
+ユーザーが「あとどれくらい？」「進捗は？」「どれくらい進んだ？」などを尋ねる場合:
 
-1. Use `get_task_progress(current_step_slug, tasks)` to get progress data
-2. Present the response:
-
-```
-**Current Task:** [Task Title] — [completed_steps_in_task]/[total_steps_in_task] steps ([percentage]%)
-
-**Overall Blueprint Progress:** [completed_steps]/[total_steps] steps ([percentage]%)
-  - Completed tasks: [completed_tasks]/[total_tasks]
-```
-
-#### Context Recovery (Returning Users)
-
-When a user returns to an in-progress blueprint (e.g., they resume a previous session or say "where was I?"):
-
-1. Identify the current step from the answer file (the last step with answers provided, or the first step with null/missing answers)
-2. Use `get_current_task(current_step_slug, tasks)` to get the task context
-3. Use `get_task_progress(current_step_slug, tasks)` to show overall progress
-4. Load the task overview for the current task: `read blueprints/<blueprint_id>/tasks/<task_slug>.md`
-5. Present a recovery summary that includes the current task's overview context:
+1. `get_task_progress(current_step_slug, tasks)` を使用して進捗データを取得する
+2. 応答を提示する:
 
 ```
-**Welcome back! Here's where you left off:**
+**現在のタスク:** [タスクタイトル] — [completed_steps_in_task]/[total_steps_in_task] ステップ ([percentage]%)
+
+**ブループリント全体の進捗:** [completed_steps]/[total_steps] ステップ ([percentage]%)
+  - 完了したタスク: [completed_tasks]/[total_tasks]
+```
+
+#### コンテキスト回復（再開するユーザー）
+
+ユーザーが進行中のブループリントに戻る場合（例: 前のセッションを再開、「どこまで進んでいた？」と言う）:
+
+1. 回答ファイルから現在のステップを特定する（最後に回答が提供されたステップ、または最初の null/不足している回答のステップ）
+2. `get_current_task(current_step_slug, tasks)` を使用してタスクのコンテキストを取得する
+3. `get_task_progress(current_step_slug, tasks)` を使用して全体的な進捗を表示する
+4. 現在のタスクのタスク概要を読み込む: `read blueprints/<blueprint_id>/tasks/<task_slug>.md`
+5. 現在のタスクの概要コンテキストを含む回復サマリーを提示する:
+
+```
+**おかえりなさい！続きはここからです:**
 
 ======================================================================
- Current Task [N] of [Total]: [Task Title]
+ 現在のタスク [N] / [合計]: [タスクタイトル]
 ======================================================================
 
-## What You Will Accomplish
-[Task summary from the task's `summary` field]
+## 達成すること
+[タスクの `summary` フィールドからのタスクサマリー]
 
-## Prerequisites
+## 前提条件
 
-**Snowflake Role Requirements:**
+**Snowflake ロール要件:**
 - [role_requirement_1]
 - [role_requirement_2]
 
-**External Requirements:**
+**外部要件:**
 - [external_requirement_1]
 - [external_requirement_2]
 
-## Who Should Be Involved
+## 関与すべき人物
 - [persona_1]
 - [persona_2]
 
 ---
 
-**Current Step:** Step [N of M]: [Step Title]
+**現在のステップ:** ステップ [N/M]: [ステップタイトル]
 
-**Task Progress:** [completed_steps_in_task]/[total_steps_in_task] steps complete ([percentage]%)
+**タスクの進捗:** [completed_steps_in_task]/[total_steps_in_task] ステップ完了 ([percentage]%)
 
-**Remaining steps in this task:**
-1. [Remaining step title]
-2. [Remaining step title]
+**このタスクの残りのステップ:**
+1. [残りのステップタイトル]
+2. [残りのステップタイトル]
 ...
 
 ---
 
-**Previously Completed Tasks:**
-- Task 1: [Task Title] — [summary] (all [N] steps complete)
-- Task 2: [Task Title] — [summary] (all [N] steps complete)
-[List all tasks before the current one that are fully completed]
+**以前に完了したタスク:**
+- タスク 1: [タスクタイトル] — [サマリー] (全 [N] ステップ完了)
+- タスク 2: [タスクタイトル] — [サマリー] (全 [N] ステップ完了)
+[現在のタスクの前で完全に完了したすべてのタスクを一覧表示する]
 
-**Overall Blueprint Progress:** [completed_steps]/[total_steps] steps ([percentage]%)
+**ブループリント全体の進捗:** [completed_steps]/[total_steps] ステップ ([percentage]%)
 
-Would you like to continue from here, or jump to a different step?
+ここから続けますか、それとも別のステップにジャンプしますか？
 ```
 
-**Rules for context recovery:**
-- **Always show the current task's overview** (summary, prerequisites, personas) so the user understands the context of where they are
-- **List previously completed tasks** with a brief summary of each, so the user can recall what was already done. Use the `summary` field from each completed task.
-- **Show remaining steps** in the current task using `get_remaining_steps(current_step_slug, tasks)`
-- **Omit prerequisite sections** (role requirements, external requirements, personas) if they are empty for the current task
-- If the user is on the very first step of the very first task, skip the "Previously Completed Tasks" section
+**コンテキスト回復のルール:**
+- **常に現在のタスクの概要を表示する**（サマリー、前提条件、ペルソナ）— ユーザーがどこにいるかのコンテキストを理解できるようにする
+- **以前に完了したタスクを各サマリーとともに一覧表示する** — ユーザーがすでに完了したことを思い出せるようにする。各完了タスクの `summary` フィールドを使用する。
+- **現在のタスクの残りのステップを表示する** — `get_remaining_steps(current_step_slug, tasks)` を使用する
+- **前提条件セクション**（ロール要件、外部要件、ペルソナ）**を省略する** — 現在のタスクでそれらが空の場合
+- ユーザーが最初のタスクの最初のステップにいる場合は、「以前に完了したタスク」セクションをスキップする
 
-#### Task Boundary Transitions
+#### タスク境界のトランジション
 
-When the user completes the last step in a task (the current step is the final step in its task), proactively inform them about the transition:
+ユーザーがタスクの最後のステップを完了した場合（現在のステップがタスクの最終ステップ）、プロアクティブにトランジションを通知する:
 
-1. Use `get_current_task(current_step_slug, tasks)` — check if this is the last step in the task by comparing position to total steps
-2. Use `get_task_progress(current_step_slug, tasks)` — get blueprint-level progress
-3. Present the transition:
+1. `get_current_task(current_step_slug, tasks)` — 位置を合計ステップと比較することで、これがタスクの最後のステップかどうかを確認する
+2. `get_task_progress(current_step_slug, tasks)` — ブループリントレベルの進捗を取得する
+3. トランジションを提示する:
 
 ```
-**Task Complete: [Current Task Title]**
+**タスク完了: [現在のタスクタイトル]**
 
-You've finished all [N] steps in this task.
+このタスクの全 [N] ステップを完了しました。
 
-**Up Next — Task [M]: [Next Task Title]**
-[Next task summary]
+**次へ — タスク [M]: [次のタスクタイトル]**
+[次のタスクサマリー]
 
-**Prerequisites:**
-- Personas: [personas]
-- Role Requirements: [role_requirements]
-- External Requirements: [external_requirements]
+**前提条件:**
+- ペルソナ: [personas]
+- ロール要件: [role_requirements]
+- 外部要件: [external_requirements]
 
-**Overall Progress:** [completed_tasks]/[total_tasks] tasks complete
+**全体の進捗:** [completed_tasks]/[total_tasks] タスク完了
 
-Ready to continue to the next task?
+次のタスクを続けますか？
 ```
 
-#### Question Grouping by Task for Persona/Role Routing
+#### ペルソナ/ロールのルーティングのためのタスク別質問グループ化
 
-When presenting questions during a walkthrough (Step 7) or summary (Step 6), group questions by their parent task's `personas` field to enable organizational routing. This helps users identify which teams or individuals should review specific answers.
+ウォークスルー（ステップ 7）またはサマリー（ステップ 6）で質問を提示する際、組織的なルーティングを可能にするために、親タスクの `personas` フィールドで質問をグループ化します。これにより、ユーザーはどのチームや個人が特定の回答をレビューすべきかを特定できます。
 
-**How to apply persona-based grouping:**
+**ペルソナベースのグループ化の適用方法:**
 
-1. **At the start of each task's questions**, announce the personas involved:
-
-   ```
-   ## Questions for Task [N]: [Task Title]
-
-   **Reviewers:** The following questions are for your [Persona 1] and [Persona 2] to review.
-   ```
-
-   For example:
-   ```
-   ## Questions for Task 2: Account Security & Identity
-
-   **Reviewers:** The following questions are for your Security Administrator and Network Team to review.
-   ```
-
-2. **When presenting the configuration summary (Step 6)**, group answers by task and annotate each group with the relevant personas:
+1. **各タスクの質問の開始時に**、関与するペルソナを発表する:
 
    ```
-   ### Task 1: Platform Foundation (Reviewers: Platform Administrator, Cloud/Infrastructure Team)
+   ## タスク [N] の質問: [タスクタイトル]
 
-   - [Question name]: [Answer] — Reasoning: [why]
-   - [Question name]: [Answer] — Reasoning: [why]
-
-   ### Task 2: Platform Security & Identity (Reviewers: Security Administrator, Identity Team)
-
-   - [Question name]: [Answer] — Reasoning: [why]
-   - [Question name]: [Answer] — Reasoning: [why]
-
-   ### Task 3: Platform Cost Management (Reviewers: FinOps Team, Finance Team)
-
-   - [Question name]: [Answer] — Reasoning: [why]
+   **レビュアー:** 以下の質問はあなたの [ペルソナ 1] と [ペルソナ 2] がレビューするためのものです。
    ```
 
-3. **When multiple personas share a task**, list all of them. The user can then forward the relevant section to each team for review.
+   例:
+   ```
+   ## タスク 2 の質問: アカウントセキュリティとアイデンティティ
 
-4. **When a task has no personas defined**, omit the reviewer annotation and present questions without grouping metadata.
+   **レビュアー:** 以下の質問はあなたのセキュリティ管理者とネットワークチームがレビューするためのものです。
+   ```
 
-5. **For step-by-step mode (Step 7)**, apply grouping at task boundaries:
-   - When entering a new task, display the persona annotation (as part of the Step 7.0 task overview)
-   - Questions within the same task inherit the task's persona context
-   - When transitioning between tasks, clearly indicate the change in reviewer context
+2. **設定サマリー（ステップ 6）を提示する際**、タスク別に回答をグループ化し、関連するペルソナで各グループに注釈を付ける:
 
-**Why this matters:** Different parts of a blueprint require input from different teams. A security task needs review by the Security Administrator, while a cost management task needs review by FinOps. Grouping by persona enables users to efficiently route configuration decisions to the right people, rather than requiring every reviewer to read the entire blueprint.
+   ```
+   ### タスク 1: プラットフォーム基盤（レビュアー: プラットフォーム管理者、クラウド/インフラチーム）
 
-### Step 8: Fill In Required Values
+   - [質問名]: [回答] — 根拠: [なぜ]
+   - [質問名]: [回答] — 根拠: [なぜ]
 
-**Goal:** Help user provide values that only they can supply (account names, emails, etc.)
+   ### タスク 2: プラットフォームセキュリティとアイデンティティ（レビュアー: セキュリティ管理者、アイデンティティチーム）
 
-**Actions:**
+   - [質問名]: [回答] — 根拠: [なぜ]
+   - [質問名]: [回答] — 根拠: [なぜ]
 
-1. **Parse answer file** for questions marked as ❓ USER INPUT REQUIRED (null values that need user-specific information)
+   ### タスク 3: プラットフォームコスト管理（レビュアー: FinOps チーム、財務チーム）
 
-2. **Present required values list:**
+   - [質問名]: [回答] — 根拠: [なぜ]
+   ```
+
+3. **複数のペルソナがタスクを共有する場合**、すべてを一覧表示する。ユーザーはそれぞれのチームにレビュー用に関連セクションを転送できます。
+
+4. **タスクにペルソナが定義されていない場合**、レビュアー注釈を省略し、グループ化メタデータなしで質問を提示する。
+
+5. **ステップバイステップモード（ステップ 7）**では、タスク境界でグループ化を適用する:
+   - 新しいタスクに入る際、ペルソナ注釈を表示する（ステップ 7.0 タスク概要の一部として）
+   - 同じタスク内の質問はタスクのペルソナコンテキストを継承する
+   - タスク間のトランジション時に、レビュアーのコンテキストの変化を明確に示す
+
+**これが重要な理由:** ブループリントの異なる部分は異なるチームからの入力を必要とします。セキュリティタスクはセキュリティ管理者によるレビューが必要で、コスト管理タスクは FinOps によるレビューが必要です。ペルソナによるグループ化により、すべてのレビュアーがブループリント全体を読む必要なく、ユーザーは設定の決定を適切な人々に効率的にルーティングできます。
+
+### ステップ 8: 必要な値を入力する
+
+**目標:** ユーザーが自分だけが提供できる値（アカウント名、メールなど）を提供するのをサポートする
+
+**アクション:**
+
+1. ❓ ユーザー入力が必要とマークされた質問（ユーザー固有の情報が必要な null 値）の**回答ファイルを解析する**
+
+2. **必要な値のリストを提示する:**
    ```
    ======================================================================
-    Values Only You Can Provide
+    あなただけが提供できる値
    ======================================================================
    
-   These questions require information specific to your organization:
+   これらの質問はあなたの組織に固有の情報を必要とします:
    
-   1. **primary_account_name** (currently: empty)
-      What's needed: Your Snowflake account name
-      How to find it: Run `SELECT CURRENT_ACCOUNT_NAME();` in Snowflake
+   1. **primary_account_name** (現在: 空)
+      必要な情報: あなたの Snowflake アカウント名
+      見つける方法: Snowflake で `SELECT CURRENT_ACCOUNT_NAME();` を実行する
    
-   2. **org_name** (currently: empty)
-      What's needed: Your company/organization name
+   2. **org_name** (現在: 空)
+      必要な情報: あなたの会社/組織名
    
-   3. **accountadmin_users** (currently: empty)
-      What's needed: Email addresses for Snowflake admin users
-      Format: List of email addresses
+   3. **accountadmin_users** (現在: 空)
+      必要な情報: Snowflake 管理者ユーザーのメールアドレス
+      フォーマット: メールアドレスのリスト
    
    ...
    
-   Which value would you like to provide? (1-N, 'all' for guided, 'skip' to continue):
+   どの値を提供しますか？ (1-N、ガイド付きは 'all'、続けるには 'skip'):
    ```
 
-3. **For each selected value:**
-   - Show what information is needed
-   - Provide guidance on how to find it
-   - Prompt for the actual value
-   - Validate format if applicable
-   - Update answer file
-   - Confirm update
+3. **選択した各値について:**
+   - 必要な情報を表示する
+   - それを見つける方法のガイダンスを提供する
+   - 実際の値を入力するよう促す
+   - 該当する場合はフォーマットを検証する
+   - 回答ファイルを更新する
+   - 更新を確認する
 
-4. **After updates, show progress:**
+4. **更新後、進捗を表示する:**
    ```
-   ✅ Updated values:
+   ✅ 更新された値:
    - primary_account_name: ACME_CORP_PROD
    - org_name: Acme Corporation
    
-   Remaining required values: [N]
+   残りの必要な値: [N]
    
-   Would you like to:
-   1. Continue filling in required values
-   2. Provide more context for unanswered questions
-   3. Review configuration step-by-step
-   4. Generate infrastructure code (SQL) and exit
-   5. Save and exit
+   どうしますか？:
+   1. 必要な値を引き続き入力する
+   2. 未回答の質問に追加のコンテキストを提供する
+   3. 設定をステップバイステップで確認する
+   4. インフラコード（SQL）を生成して終了する
+   5. 保存して終了する
    
-   Enter your choice:
+   選択を入力:
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+**⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-**Route based on selection:**
-- Option 1 → Continue in Step 8
-- Option 2 → Ask follow-up questions for ⚠️ INSUFFICIENT CONTEXT items
-- Option 3 → Return to Step 7 (Walkthrough)
-- Option 4 → Proceed to Step 9 (Generate IaC)
-- Option 5 → End workflow
+**選択に基づいてルーティングする:**
+- オプション 1 → ステップ 8 を続ける
+- オプション 2 → ⚠️ コンテキスト不足のアイテムのフォローアップ質問をする
+- オプション 3 → ステップ 7（ウォークスルー）に戻る
+- オプション 4 → ステップ 9（IaC の生成）に進む
+- オプション 5 → ワークフローを終了する
 
-### Step 9: Generate Infrastructure Code
+### ステップ 9: インフラコードを生成する
 
-**Goal:** Run the render_journey.py script to generate SQL infrastructure code
+**目標:** render_journey.py スクリプトを実行して SQL インフラコードを生成する
 
-**⚠️ CRITICAL REMINDER: You MUST use `scripts/render_journey.py` for ALL code generation. NEVER generate SQL manually or use ad-hoc logic. This applies even if the user asks to "just show me" or "preview" the SQL.**
+**⚠️ 重要なリマインダー: すべてのコード生成に `scripts/render_journey.py` を使用しなければなりません。手動で SQL を生成したり、アドホックロジックを使用したりしないでください。これは、ユーザーが "ただ見せて" や "プレビュー" を求める場合にも適用されます。**
 
-**Actions:**
+**アクション:**
 
-1. **Check if Python environment is available:**
+1. **Python 環境が利用可能かどうかを確認する:**
    ```bash
    which python3
    ls -la venv/bin/python
    ```
 
-2. **Present generation options:**
+2. **生成オプションを提示する:**
    ```
    ======================================================================
-    Generate Infrastructure Code
+    インフラコードを生成する
    ======================================================================
    
-   Your answer file: [answer_file_path]
-   Workflow: [workflow_name]
+   あなたの回答ファイル: [answer_file_path]
+   ワークフロー: [workflow_name]
    
-   I can generate the SQL infrastructure code for you now.
+   今すぐ SQL インフラコードを生成できます。
    
-   Options:
-   1. Generate SQL now (I'll run the script)
-   2. Show me the command to run manually
-   3. Go back (don't generate yet)
+   オプション:
+   1. 今すぐ SQL を生成する（スクリプトを実行します）
+   2. 手動で実行するコマンドを表示する
+   3. 戻る（まだ生成しない）
    
-   Enter your choice:
+   選択を入力:
    ```
 
-**⚠️ MANDATORY STOPPING POINT**: Wait for user choice.
+**⚠️ 必須停止ポイント**: ユーザーの選択を待ちます。
 
-**If user selects "Generate SQL now":**
+**ユーザーが「今すぐ SQL を生成する」を選択した場合:**
 
-1. **Run render script with project flag:**
+1. **プロジェクトフラグ付きでレンダリングスクリプトを実行する:**
    ```bash
    python scripts/render_journey.py \
      [answer_file_path] \
@@ -1051,7 +1050,7 @@ When presenting questions during a walkthrough (Step 7) or summary (Step 6), gro
      --project [project_name]
    ```
    
-   OR if venv exists:
+   または venv が存在する場合:
    ```bash
    ./venv/bin/python scripts/render_journey.py \
      [answer_file_path] \
@@ -1060,31 +1059,31 @@ When presenting questions during a walkthrough (Step 7) or summary (Step 6), gro
      --project [project_name]
    ```
 
-2. **Check for output file:**
+2. **出力ファイルを確認する:**
    ```bash
    ls -lt projects/[project_name]/output/iac/sql/ | head -5
    ```
 
-3. **Present results:**
+3. **結果を提示する:**
    ```
-   ✓ SQL infrastructure code generated successfully!
+   ✓ SQL インフラコードが正常に生成されました！
    
-   Output file: projects/[project_name]/output/iac/sql/[workflow_id]_[timestamp].sql
+   出力ファイル: projects/[project_name]/output/iac/sql/[workflow_id]_[timestamp].sql
    
-   Next Steps:
-   1. Review the generated SQL file
-   2. Connect to your Snowflake account
-   3. Execute the SQL in your Snowflake worksheet
-   4. Verify the infrastructure was created correctly
+   次のステップ:
+   1. 生成された SQL ファイルを確認する
+   2. Snowflake アカウントに接続する
+   3. Snowflake ワークシートで SQL を実行する
+   4. インフラが正しく作成されたことを確認する
    
-   Note: The SQL is idempotent - you can run it multiple times safely.
+   注: SQL は冪等性があります — 複数回安全に実行できます。
    ```
 
-**If user selects "Show me the command":**
+**ユーザーが「コマンドを表示する」を選択した場合:**
 
-1. **Display command:**
+1. **コマンドを表示する:**
    ```
-   Run this command to generate your infrastructure code:
+   インフラコードを生成するためにこのコマンドを実行してください:
    
    ```bash
    python scripts/render_journey.py \
@@ -1094,7 +1093,7 @@ When presenting questions during a walkthrough (Step 7) or summary (Step 6), gro
      --project [project_name]
    ```
    
-   Or if you have a virtual environment:
+   または仮想環境がある場合:
    
    ```bash
    ./venv/bin/python scripts/render_journey.py \
@@ -1104,199 +1103,199 @@ When presenting questions during a walkthrough (Step 7) or summary (Step 6), gro
      --project [project_name]
    ```
    
-   Output will be saved to: projects/[project_name]/output/iac/sql/[blueprint_id]_[timestamp].sql
+   出力は以下に保存されます: projects/[project_name]/output/iac/sql/[blueprint_id]_[timestamp].sql
    ```
 
-**If user selects "Go back":**
-- Return to Step 6 (Summary and offer walkthrough)
+**ユーザーが「戻る」を選択した場合:**
+- ステップ 6（サマリーとウォークスルーの提案）に戻る
 
-**Output:** Generated SQL file or command instructions
+**出力:** 生成された SQL ファイルまたはコマンドの手順
 
-### Step 10: Final Summary
+### ステップ 10: 最終サマリー
 
-**Goal:** Provide final summary and close the workflow
+**目標:** 最終サマリーを提供してワークフローを終了する
 
-**Actions:**
+**アクション:**
 
-1. **Present final summary:**
+1. **最終サマリーを提示する:**
    ```
    ======================================================================
-    Landing Zone Configuration Complete
+    ランディングゾーン設定完了
    ======================================================================
    
-   Answer File: [answer_file_path]
-   SQL Output: [sql_file_path] (if generated)
+   回答ファイル: [answer_file_path]
+   SQL 出力: [sql_file_path] (生成された場合)
    
-   Summary:
-   - Workflow: [workflow_name]
-   - Questions answered: [N]
-   - Configuration approach: [summary based on user context]
+   サマリー:
+   - ワークフロー: [workflow_name]
+   - 回答済みの質問数: [N]
+   - 設定アプローチ: [ユーザーコンテキストに基づくサマリー]
    
-   What was configured:
-   - Account strategy: [summary]
-   - Security & compliance: [summary]
-   - Cost controls: [summary]
-   - Data structure: [summary]
+   設定された内容:
+   - アカウント戦略: [サマリー]
+   - セキュリティとコンプライアンス: [サマリー]
+   - コスト管理: [サマリー]
+   - データ構造: [サマリー]
    
-   Next Steps:
-   1. Execute the SQL file in your Snowflake account
-   2. Verify all objects were created successfully
-   3. Test access with your admin users
-   4. Configure any additional settings as needed
+   次のステップ:
+   1. Snowflake アカウントで SQL ファイルを実行する
+   2. すべてのオブジェクトが正常に作成されたことを確認する
+   3. 管理者ユーザーでアクセスをテストする
+   4. 必要に応じて追加の設定を構成する
    
-   For additional data products, run the "New Data Product" workflow.
+   追加のデータプロダクトについては、「新しいデータプロダクト」ワークフローを実行してください。
    ```
 
-**Output:** Workflow complete
+**出力:** ワークフロー完了
 
-## Answer File Format
+## 回答ファイルフォーマット
 
-The generated answer file follows this structure:
+生成された回答ファイルはこの構造に従います:
 
 ```yaml
-# Platform Foundation Setup - Answer File
-# Created: YYYY-MM-DD
-# Blueprint ID: blueprint_id
-# Organization: [user context summary]
+# プラットフォーム基盤セットアップ - 回答ファイル
+# 作成日: YYYY-MM-DD
+# ブループリント ID: blueprint_id
+# 組織: [ユーザーコンテキストサマリー]
 
 # ============================================================================
-# STEP N: Step Name
+# ステップ N: ステップ名
 # ============================================================================
 
-# ✅ AUTO-ANSWERED: Question Text
-answer_title_1: Answer value 1  # Reasoning: why this was chosen based on user context
+# ✅ 自動回答済み: 質問テキスト
+answer_title_1: 回答値 1  # 根拠: ユーザーコンテキストに基づいてこれが選ばれた理由
 
-# ✅ AUTO-ANSWERED: Question Text  
-account_strategy: Single Account  # Reasoning: user mentioned "small startup with 5 users"
+# ✅ 自動回答済み: 質問テキスト  
+account_strategy: Single Account  # 根拠: ユーザーが「5人のユーザーの小規模スタートアップ」と言及
 
-# ❓ USER INPUT REQUIRED: Question Text
-# What's needed: Your Snowflake account name
-# How to find: Run SELECT CURRENT_ACCOUNT_NAME(); in Snowflake
+# ❓ ユーザー入力が必要: 質問テキスト
+# 必要な情報: あなたの Snowflake アカウント名
+# 見つける方法: Snowflake で SELECT CURRENT_ACCOUNT_NAME(); を実行する
 primary_account_name: null
 
-# ❓ USER INPUT REQUIRED: Question Text
-# What's needed: Email addresses for admin users
+# ❓ ユーザー入力が必要: 質問テキスト
+# 必要な情報: 管理者ユーザーのメールアドレス
 accountadmin_users: null
 
-# ⚠️ INSUFFICIENT CONTEXT: Question Text
-# Missing: User didn't specify number of data domains or team structure
-# Please provide: List of data domains/business units that will have separate databases
+# ⚠️ コンテキスト不足: 質問テキスト
+# 不足: ユーザーはデータドメインの数またはチーム構造を指定しなかった
+# 提供してください: 別のデータベースを持つデータドメイン/ビジネスユニットのリスト
 domain_list: null
 
-# ✅ AUTO-ANSWERED: Question Text
-enable_feature: 'Yes'  # Reasoning: user mentioned SOC2 compliance requirement
+# ✅ 自動回答済み: 質問テキスト
+enable_feature: 'Yes'  # 根拠: ユーザーが SOC2 コンプライアンス要件を言及
 ```
 
-**Key points:**
-- Use `answer_title` as the key (not question_text)
-- Group by workflow step with section headers
-- **Mark answer status clearly** with prefixes: ✅ AUTO-ANSWERED, ❓ USER INPUT REQUIRED, ⚠️ INSUFFICIENT CONTEXT
-- Add inline comments explaining reasoning for answered questions
-- Store multi-select as the selected option text (string)
-- Store list as YAML list with `-` items
-- Store text as string (quote if contains special characters)
-- **Leave unanswered questions as `null`** — do NOT use placeholder values
-- **Explain what's needed** for each unanswered question
+**主なポイント:**
+- キーとして `answer_title` を使用する（question_text ではない）
+- セクションヘッダーでワークフローのステップ別にグループ化する
+- **回答の状態を明確にマークする** — プレフィックス: ✅ 自動回答済み、❓ ユーザー入力が必要、⚠️ コンテキスト不足
+- 回答済みの質問の根拠を説明するインラインコメントを追加する
+- multi-select は選択したオプションテキスト（文字列）として保存する
+- list は `-` アイテムの YAML リストとして保存する
+- text は文字列として保存する（特殊文字を含む場合は引用符で囲む）
+- **未回答の質問は `null` のままにする** — プレースホルダー値は使用しない
+- 各未回答の質問について**必要なものを説明する**
 
-## Best Practices
+## ベストプラクティス
 
-**When collecting user context (Step 3):**
+**ユーザーコンテキストを収集する際（ステップ 3）:**
 
-1. ✅ **Request open-ended description** that allows users to share in their own words
-2. ✅ **Provide topic suggestions** not prescriptive questions
-3. ✅ **Include examples** in topic suggestions to guide users
-4. ✅ **Accept flexible descriptions** and interpret intelligently
-5. ✅ **Confirm understanding** before generating answers
+1. ✅ **自由形式の説明を求める** — ユーザーが自分の言葉で共有できるようにする
+2. ✅ **トピックの提案を提供する** — 規定的な質問ではなく
+3. ✅ **トピックの提案に例を含める** — ユーザーをガイドするために
+4. ✅ **柔軟な説明を受け入れる** — インテリジェントに解釈する
+5. ✅ **理解を確認する** — 回答を生成する前に
 
-**When generating answers (Step 4):**
+**回答を生成する際（ステップ 4）:**
 
-1. ✅ **Be honest about uncertainty** — only answer questions where user context provides clear guidance
-2. ✅ **Never fabricate values** — do NOT generate fake placeholders like `YOUR_ACCOUNT_NAME` or `user@example.com`
-3. ✅ **Leave unknowns empty** — if you can't answer confidently, leave the answer as `null` rather than guessing
-4. ✅ **Distinguish answer categories clearly:**
-   - Auto-answered: You have enough context to decide
-   - User-specific: Always requires user input (account names, emails)
-   - Insufficient context: User didn't provide enough information
-5. ✅ **Add reasoning comments** for every answered question explaining why
-6. ✅ **Be conservative with security** — err on the side of caution
-7. ✅ **Scale appropriately** — small startup ≠ enterprise needs (but only if size was mentioned)
+1. ✅ **不確実性について正直にする** — ユーザーコンテキストが明確なガイダンスを提供する質問のみに回答する
+2. ✅ **値を捏造しない** — `YOUR_ACCOUNT_NAME` や `user@example.com` のような偽のプレースホルダーを生成しない
+3. ✅ **不明なものは空のままにする** — 自信を持って回答できない場合は、推測するよりも `null` として回答を残す
+4. ✅ **回答カテゴリを明確に区別する:**
+   - 自動回答済み: 決定するのに十分なコンテキストがある
+   - ユーザー固有: 常にユーザー入力が必要（アカウント名、メール）
+   - コンテキスト不足: ユーザーが十分な情報を提供しなかった
+5. ✅ **各回答済み質問に根拠コメントを追加する** — なぜかを説明する
+6. ✅ **セキュリティには保守的にする** — 慎重な方向に傾ける
+7. ✅ **適切にスケールする** — 小規模スタートアップ ≠ エンタープライズニーズ（ただし規模が言及された場合のみ）
 
-**What NOT to do when generating answers:**
+**回答を生成する際にしないこと:**
 
-1. ❌ **Don't invent organization-specific details** — domains, team names, user lists
-2. ❌ **Don't guess quantities** — user counts, budget amounts, warehouse sizes (unless explicitly stated)
-3. ❌ **Don't create placeholder lists** — like `[domain1, domain2]` or `[user1@company.com]`
-4. ❌ **Don't assume technical details** — IP ranges, cloud regions, compliance requirements
-5. ❌ **Don't fill in just to have something** — an empty answer is better than a fake one
+1. ❌ **組織固有の詳細を発明しない** — ドメイン、チーム名、ユーザーリスト
+2. ❌ **数量を推測しない** — ユーザー数、予算額、ウェアハウスサイズ（明示的に述べられていない限り）
+3. ❌ **プレースホルダーリストを作成しない** — `[domain1, domain2]` や `[user1@company.com]` のようなもの
+4. ❌ **技術的な詳細を仮定しない** — IP レンジ、クラウドリージョン、コンプライアンス要件
+5. ❌ **何かを入力するためだけに埋めない** — 空の回答は偽の回答よりも優れている
 
-**During walkthrough (Step 6):**
+**ウォークスルー中（ステップ 6）:**
 
-1. ✅ **Show reasoning** explain why each answer was chosen
-2. ✅ **Keep explanations concise** 1-2 sentences per answer
-3. ✅ **Allow easy navigation** forward, back, jump, exit anytime
-4. ✅ **Save immediately** when user updates an answer
-5. ✅ **Provide context** from step overview but keep it brief
-6. ✅ **Highlight unanswered questions** — make it clear what still needs input
+1. ✅ **根拠を示す** — 各回答が選ばれた理由を説明する
+2. ✅ **説明を簡潔に保つ** — 各回答に 1-2 文
+3. ✅ **簡単なナビゲーションを可能にする** — いつでも前進、後退、ジャンプ、終了できる
+4. ✅ **ユーザーが回答を更新したらすぐに保存する**
+5. ✅ **ステップ概要からコンテキストを提供する** — ただし簡潔に保つ
+6. ✅ **未回答の質問をハイライトする** — まだ入力が必要なものを明確にする
 
-**When presenting summary (Step 5):**
+**サマリーを提示する際（ステップ 5）:**
 
-1. ✅ **Separate answered from unanswered** — don't mix them together
-2. ✅ **Explain why each question wasn't answered** — missing context vs requires user input
-3. ✅ **Be specific about what's needed** — "your Snowflake account name" not "fill in TODO"
-4. ✅ **Give users a clear path forward** — how to provide missing information
+1. ✅ **回答済みと未回答を分離する** — 混ぜ合わせない
+2. ✅ **各質問が回答されなかった理由を説明する** — コンテキスト不足 vs ユーザー入力が必要
+3. ✅ **必要なものについて具体的にする** — "あなたの Snowflake アカウント名" (「TODO を入力」ではなく)
+4. ✅ **ユーザーに明確な前進の道を示す** — 不足している情報をどのように提供するか
 
-**When generating IaC (Step 9):**
+**IaC を生成する際（ステップ 9）:**
 
-1. ✅ **ALWAYS use `render_journey.py`** — NEVER generate SQL manually or via ad-hoc logic
-2. ✅ **Check environment** verify Python availability
-3. ✅ **Handle errors gracefully** provide manual command if script fails
-4. ✅ **Confirm output** show where SQL file was created
-5. ✅ **Give clear next steps** what to do with the SQL
-6. ✅ **Warn about incomplete answers** — if many questions are unanswered, the generated code may be incomplete
-7. ✅ **For previews/display requests** — run the script first, then read the output file
+1. ✅ **常に `render_journey.py` を使用する** — 手動またはアドホックロジックで SQL を生成しない
+2. ✅ **環境を確認する** — Python の可用性を検証する
+3. ✅ **エラーを優雅に処理する** — スクリプトが失敗した場合は手動コマンドを提供する
+4. ✅ **出力を確認する** — SQL ファイルがどこに作成されたかを表示する
+5. ✅ **明確な次のステップを示す** — SQL で何をすべきか
+6. ✅ **不完全な回答について警告する** — 多くの質問が未回答の場合、生成されたコードは不完全な場合がある
+7. ✅ **プレビュー/表示のリクエストの場合** — まずスクリプトを実行してから出力ファイルを読み込んで表示する
 
-**What NOT to do when generating output:**
+**出力を生成する際にしないこと:**
 
-1. ❌ **NEVER write SQL directly** — even for "quick previews" or "showing what it would look like"
-2. ❌ **NEVER construct SQL from answer file values** — the templates handle this correctly
-3. ❌ **NEVER bypass render_journey.py** — it ensures proper template rendering and validation
-4. ❌ **NEVER attempt to "explain" what the SQL would be** by writing it yourself
+1. ❌ **絶対に SQL を直接書かない** — 「クイックプレビュー」や「どのように見えるかを表示する」ためであっても
+2. ❌ **回答ファイルの値から SQL を構築しない** — テンプレートがこれを正しく処理する
+3. ❌ **render_journey.py をバイパスしない** — 適切なテンプレートレンダリングと検証を確保する
+4. ❌ **自分で書くことで SQL がどうなるかを「説明」しようとしない**
 
-## Decision Logic Reference
+## 意思決定ロジックリファレンス
 
-Dynamically produce this at the initiation of the workflow based on the current state of the contents in the repository.
+ワークフローの開始時に、リポジトリのコンテンツの現在の状態に基づいてこれを動的に生成します。
 
-## Troubleshooting
+## トラブルシューティング
 
-**User gives vague answers:**
-- Ask clarifying follow-up questions
-- Provide examples to help them choose
-- Suggest defaults and ask if they seem right
+**ユーザーが曖昧な回答をする場合:**
+- 明確化のフォローアップ質問をする
+- 選択を助けるための例を提供する
+- デフォルトを提案して、それが適切かどうか確認する
 
-**Missing question definitions:**
-- Check if `definitions/questions.yaml` is up to date
-- Look for typos in question IDs
-- Verify workflow step references match question definitions
+**質問定義が不足している場合:**
+- `definitions/questions.yaml` が最新かどうかを確認する
+- 質問 ID のタイプミスを探す
+- ワークフローのステップ参照が質問定義と一致することを確認する
 
-**Render script fails:**
-- Check Python environment availability
-- Verify answer file is valid YAML
-- Provide manual command for user to debug
-- Check for missing required answers
+**レンダリングスクリプトが失敗する場合:**
+- Python 環境の可用性を確認する
+- 回答ファイルが有効な YAML であることを確認する
+- ユーザーがデバッグするための手動コマンドを提供する
+- 不足している必要な回答を確認する
 
-**User wants to change blueprint:**
-- Save current progress
-- Return to Step 1 to select different blueprint
-- Offer to carry over relevant answers if blueprints overlap
+**ユーザーがブループリントを変更したい場合:**
+- 現在の進捗を保存する
+- ステップ 1 に戻って別のブループリントを選択する
+- ブループリントが重複する場合は関連する回答を引き継ぐことを提案する
 
-## Output
+## 出力
 
-Upon completion, this skill produces:
-- An answer file at `projects/<project_name>/answers/<blueprint_id>/answers_<timestamp>.yaml` with:
-  - ✅ Auto-answered questions (where user context was sufficient)
-  - ❓ User-specific questions marked as `null` with guidance on what's needed
-  - ⚠️ Insufficient context questions marked as `null` with explanation of missing information
-- Clear inline comments explaining reasoning for each answered question
-- Explicit tracking of which questions were answered vs not answered (and why)
-- Optional: Generated SQL infrastructure code at `projects/<project_name>/output/iac/sql/<blueprint_id>_<timestamp>.sql`
-- Summary showing exact breakdown: auto-answered, needs user input, needs more context
+完了時に、このスキルが生成するもの:
+- `projects/<project_name>/answers/<blueprint_id>/answers_<timestamp>.yaml` にある回答ファイルに:
+  - ✅ 自動回答済みの質問（ユーザーのコンテキストが十分だった場合）
+  - ❓ 必要なものに関するガイダンス付きで `null` とマークされたユーザー固有の質問
+  - ⚠️ 不足している情報の説明付きで `null` とマークされたコンテキスト不足の質問
+- 各回答済み質問の根拠を説明する明確なインラインコメント
+- どの質問が回答された/されなかった（とその理由）の明示的な追跡
+- オプション: `projects/<project_name>/output/iac/sql/<blueprint_id>_<timestamp>.sql` に生成された SQL インフラコード
+- 正確な内訳を示すサマリー: 自動回答済み、ユーザー入力が必要、追加コンテキストが必要

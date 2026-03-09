@@ -1,103 +1,103 @@
-# Data Product Cost Management
+# データ製品コスト管理
 
-## Summary
-Establish cost controls for your data product through Snowflake resource monitors
-that track credit consumption and can trigger alerts or suspend warehouses when
-thresholds are reached.
+## 概要
+Snowflake リソースモニターを通じてデータ製品のコスト管理を確立します。
+クレジット消費を追跡し、しきい値に達したときにアラートをトリガーしたり
+ウェアハウスを一時停止したりできます。
 
-## External Requirements
-- Warehouses created (Task 3)
-- Understanding of expected credit consumption
+## 外部要件
+- ウェアハウスが作成済み（タスク 3）
+- 予想クレジット消費の理解
 
-## Personas
-- FinOps Team
-- Platform Administrator
+## ペルソナ
+- FinOps チーム
+- プラットフォーム管理者
 
-## Role Requirements
-- ACCOUNTADMIN role access (required for resource monitors)
+## ロール要件
+- ACCOUNTADMIN ロールアクセス（リソースモニターに必要）
 
-## Details
-## **Understanding Snowflake Credits**
+## 詳細
+## **Snowflake クレジットの理解**
 
-Snowflake uses **consumption-based pricing**. You pay for:
+Snowflake は**消費ベースの料金**を使用します。支払うもの:
 
-| Resource | How It's Measured | Typical Cost |
-|----------|-------------------|--------------|
-| **Compute** | Credits per hour of warehouse runtime | Varies by contract |
-| **Storage** | $ per TB per month | ~$20-40/TB/month |
+| リソース | 計測方法 | 典型的なコスト |
+|---------|---------|--------------|
+| **コンピューティング** | ウェアハウス実行時間ごとのクレジット | 契約によって異なる |
+| **ストレージ** | TB あたり月 $ | ~$20〜40/TB/月 |
 
-**Credits** are the billing unit for compute. Credit consumption depends on warehouse size:
+**クレジット**はコンピューティングの請求単位です。クレジット消費はウェアハウスサイズによって異なります:
 
-| Warehouse Size | Credits per Hour |
-|----------------|------------------|
+| ウェアハウスサイズ | 1 時間あたりのクレジット |
+|-----------------|----------------------|
 | X-Small | 1 |
 | Small | 2 |
 | Medium | 4 |
 | Large | 8 |
 | X-Large | 16 |
 
-## **Why Cost Management?**
+## **なぜコスト管理なのか？**
 
-Data products can consume significant compute resources, especially during:
-- Initial data loads and transformations
-- Ad-hoc analytics queries
-- Runaway queries or inefficient code
-- Unexpected usage spikes
+データ製品は特に以下の場合に大量のコンピューティングリソースを消費する可能性があります:
+- 初期データロードと変換
+- アドホック分析クエリ
+- ランナウェイクエリや非効率なコード
+- 予期しない使用量のスパイク
 
-Resource monitors provide:
-- **Visibility**: Track credit consumption per warehouse
-- **Alerts**: Notify stakeholders before budgets are exceeded
-- **Controls**: Automatically suspend warehouses at defined thresholds
-- **Accountability**: Enable chargeback and cost allocation
+リソースモニターが提供するもの:
+- **可視性**: ウェアハウスごとのクレジット消費を追跡
+- **アラート**: 予算超過前に関係者に通知
+- **制御**: 定義されたしきい値でウェアハウスを自動的に一時停止
+- **説明責任**: チャージバックとコスト配分を有効化
 
-## **Steps in This Task**
+## **このタスクのステップ**
 
-| Step | Title | Purpose |
-|------|-------|---------|
-| 5.1 | Create Resource Monitors | Define monitors with credit quotas |
-| 5.2 | Assign Monitors to Warehouses | Attach monitors to data product warehouses |
-| 5.3 | Configure Alert Notifications | Set up notification integrations for alerts |
+| ステップ | タイトル | 目的 |
+|---------|---------|------|
+| 5.1 | リソースモニターを作成 | クレジットクォータ付きのモニターを定義 |
+| 5.2 | ウェアハウスにモニターを割り当て | データ製品ウェアハウスにモニターを接続 |
+| 5.3 | アラート通知を設定 | アラート用の通知統合を設定 |
 
-## **Key Concepts**
+## **主要な概念**
 
-**Resource Monitor Components**
+**リソースモニターのコンポーネント**
 
-| Component | Description |
-|-----------|-------------|
-| Credit Quota | Credit allowance for the period |
-| Frequency | Reset interval (MONTHLY, WEEKLY, DAILY, NEVER) |
-| Start Timestamp | When monitoring begins |
-| Triggers | Actions at percentage thresholds |
+| コンポーネント | 説明 |
+|-------------|------|
+| クレジットクォータ | 期間のクレジット割り当て |
+| 頻度 | リセット間隔（MONTHLY、WEEKLY、DAILY、NEVER） |
+| 開始タイムスタンプ | 監視開始時刻 |
+| トリガー | パーセントしきい値でのアクション |
 
-**Trigger Actions**
+**トリガーアクション**
 
-| Action | Behavior | When to Use |
-|--------|----------|-------------|
-| NOTIFY | Send alert only | Early warning (50%, 75%) |
-| SUSPEND | Stop warehouse, finish running queries | Soft limit (90%) |
-| SUSPEND_IMMEDIATE | Stop warehouse, cancel all queries | Hard limit (100%) |
+| アクション | 動作 | 使用する場合 |
+|---------|------|------------|
+| NOTIFY | アラートのみ送信 | 早期警告（50%、75%） |
+| SUSPEND | ウェアハウス停止、実行中クエリを完了 | ソフトリミット（90%） |
+| SUSPEND_IMMEDIATE | ウェアハウス停止、すべてのクエリをキャンセル | ハードリミット（100%） |
 
-## **Estimating Credit Needs**
+## **クレジット需要の見積もり**
 
-| Warehouse Size | Light Usage | Moderate Usage | Heavy Usage |
-|----------------|-------------|----------------|-------------|
-| X-Small | 10-30 credits/month | 30-100 | 100-300 |
-| Small | 20-60 | 60-200 | 200-600 |
-| Medium | 40-120 | 120-400 | 400-1200 |
+| ウェアハウスサイズ | 軽い使用 | 中程度の使用 | 重い使用 |
+|----------------|---------|------------|---------|
+| X-Small | 10〜30 クレジット/月 | 30〜100 | 100〜300 |
+| Small | 20〜60 | 60〜200 | 200〜600 |
+| Medium | 40〜120 | 120〜400 | 400〜1200 |
 
-Start conservative and adjust based on actual usage.
+保守的に始めて、実際の使用量に基づいて調整します。
 
-## **What You'll Create**
+## **作成するもの**
 
-| Object Type | Naming Pattern | Owner | Purpose |
-|-------------|----------------|-------|---------|
-| Resource Monitors | `<prefix>_MONITOR` | `ACCOUNTADMIN` | Credit tracking |
-| Notification Integration | `<prefix>_ALERTS` | `ACCOUNTADMIN` | Alert delivery |
+| オブジェクトタイプ | 命名パターン | 所有者 | 目的 |
+|-----------------|-----------|-------|------|
+| リソースモニター | `<prefix>_MONITOR` | `ACCOUNTADMIN` | クレジット追跡 |
+| 通知統合 | `<prefix>_ALERTS` | `ACCOUNTADMIN` | アラート配信 |
 
-**Note:** Resource monitors require ACCOUNTADMIN privileges.
+**注記:** リソースモニターには ACCOUNTADMIN 権限が必要です。
 
-## **More Information**
+## **追加情報**
 
-* [Resource Monitors](https://docs.snowflake.com/en/user-guide/resource-monitors)
+* [リソースモニター](https://docs.snowflake.com/en/user-guide/resource-monitors)
 * [CREATE RESOURCE MONITOR](https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor)
-* [Notification Integrations](https://docs.snowflake.com/en/user-guide/notification-integrations)
+* [通知統合](https://docs.snowflake.com/en/user-guide/notification-integrations)

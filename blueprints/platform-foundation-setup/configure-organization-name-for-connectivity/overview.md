@@ -1,138 +1,138 @@
-In this step, you'll record your Snowflake **organization name**, which is a critical component of all connection URLs and account identifiers. For example, in the URL https://ACME-prod.snowflakecomputing.com, the organization name is "ACME". 
+このステップでは、Snowflake の**組織名**を記録します。これはすべての接続 URL とアカウント識別子の重要なコンポーネントです。例えば、URL https://ACME-prod.snowflakecomputing.com の場合、組織名は「ACME」です。
 
-This value is used throughout subsequent steps to construct connection URLs, SCIM endpoints, SAML configurations, and documentation. Every account you create will include this organization name in its URL, so it's essential to record the correct value now.
+この値は、接続 URL、SCIM エンドポイント、SAML 設定、およびドキュメントを構成するために、後続のステップ全体で使用されます。作成するすべてのアカウントにはその URL にこの組織名が含まれるため、今すぐ正しい値を記録することが不可欠です。
 
-**Note:** This step captures your *existing* organization name—it does not create or change it. If you have a system-generated name (like XY12345) and want a custom name before proceeding with this and subsequent steps, you'll need to contact Snowflake Support separately first.
+**注記:** このステップは*既存の*組織名を記録します — 組織名を作成または変更するものではありません。システム生成された名前（XY12345 など）があり、このステップと後続のステップを進める前にカスタム名を希望する場合は、最初に別途 Snowflake サポートに連絡する必要があります。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-An organization is a Snowflake object that links the accounts owned by your business entity. Once your organization name is established, and account(s) are established with users and systems securely connecting to Snowflake using your Account Identifiers and URLs, it is difficult to change the organization name in all the places that would require the change. **For this reason, we strongly encourage customers to plan ahead and ensure that their Organization Name meets their future connectivity needs.** 
+組織は、ビジネスエンティティが所有するアカウントをリンクする Snowflake オブジェクトです。組織名が確立され、ユーザーとシステムがアカウント識別子と URL を使用して Snowflake に安全に接続するアカウントが設立されると、変更が必要なすべての場所で組織名を変更することは困難です。**このため、顧客は事前に計画し、組織名が将来の接続ニーズを満たしていることを確認することを強くお勧めします。**
 
-## **Prerequisites**
+## **前提条件**
 
-* Locate your **current Organization Name** \- before confirming your organization name in this step, you should determine if you want to change the current organization name first. To find this, look at your current Snowflake URL. The organization name is the portion before the dash. For example:  
-  * https://ACME-prod.snowflakecomputing.com → the Organization name is ACME  
-  * https://XY12345-prod.snowflakecomputing.com → the Organization name is XY12345
+* **現在の組織名を特定する** — このステップで組織名を確認する前に、まず現在の組織名を変更したいかどうかを確認してください。これを見つけるには、現在の Snowflake URL を確認してください。組織名はダッシュの前の部分です。例えば:
+  * https://ACME-prod.snowflakecomputing.com → 組織名は ACME
+  * https://XY12345-prod.snowflakecomputing.com → 組織名は XY12345
 
-## **Key Concepts**
+## **主要な概念**
 
-[**Account identifiers**](https://docs.snowflake.com/en/user-guide/admin-account-identifier) identify a Snowflake account within your organization. They are required in Snowflake wherever you need to specify the account you are using, including but not limited to:
+[**アカウント識別子**](https://docs.snowflake.com/en/user-guide/admin-account-identifier)は、組織内の Snowflake アカウントを識別します。これらは、使用するアカウントを指定する必要がある Snowflake のあらゆる場所で必要で、以下が含まれますが、これらに限定されません:
 
-* URLs for accessing any of the Snowflake web interfaces.  
-* Snowflake CLI, SnowSQL, and other clients (connectors, drivers, etc.) for connecting to Snowflake.  
-* Third-party applications and services that comprise the Snowflake ecosystem.
+* Snowflake ウェブインターフェースにアクセスするための URL。
+* Snowflake に接続するための Snowflake CLI、SnowSQL、およびその他のクライアント（コネクター、ドライバーなど）。
+* Snowflake エコシステムを構成するサードパーティのアプリケーションとサービス。
 
-How Account Identifiers are used/structured when connecting to Snowflake:
+Snowflake に接続する際のアカウント識別子の使用/構造:
 
-* URL for signing into the Snowflake UI: \<orgname\>-\<account\_name\>.snowflakecomputing.com  
-* Configuring a client, driver, or library to connect to Snowflake: \<orgname\>-\<account\_name\>
+* Snowflake UI へのサインイン URL: &lt;orgname&gt;-&lt;account_name&gt;.snowflakecomputing.com
+* クライアント、ドライバー、またはライブラリを Snowflake に接続するための設定: &lt;orgname&gt;-&lt;account_name&gt;
 
-As seen in the examples above, Account Identifiers consist of two key components:
+上記の例で見られるように、アカウント識別子は 2 つの主要なコンポーネントで構成されています:
 
-1. \<orgname\> is the name of your Snowflake organization. An organization is a Snowflake object that links the accounts owned by your business entity.  
-2. \<account\_name\> is the unique name of your account within your organization. You specify an account name when you create a new account, but it can be [changed](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts-rename).
+1. &lt;orgname&gt; は Snowflake 組織の名前です。組織はビジネスエンティティが所有するアカウントをリンクする Snowflake オブジェクトです。
+2. &lt;account_name&gt; は組織内のアカウントの一意の名前です。新しいアカウントを作成するときにアカウント名を指定しますが、[変更](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts-rename)することもできます。
 
-There are two ways an Organization \<orgname\> can be named:
+組織の &lt;orgname&gt; の命名方法は 2 つあります:
 
-1. **Custom Named:** If you worked directly with your Snowflake account team on initial setup activities, Snowflake can assign a custom name for the organization. You can also reach out to Snowflake Support to customize/change a system-generated name.  
-2. **System-Generated:** if your initial Snowflake account was created using the self-service option, a globally unique organization name is system-generated for you (e.g., XY12345, AB98765)
+1. **カスタム名:** Snowflake のアカウントチームと初期セットアップ活動を直接進めた場合、Snowflake は組織のカスタム名を割り当てることができます。システム生成された名前をカスタマイズ/変更するために Snowflake サポートに連絡することもできます。
+2. **システム生成:** セルフサービスオプションを使用して最初の Snowflake アカウントが作成された場合、グローバルに一意の組織名が自動的に生成されます（例: XY12345、AB98765）
 
-In this step, you'll decide which type of Organization Name (System-Generated or Custom) you want to use. As mentioned above, once your organization name is established and users and systems are connecting securely to Snowflake with your Account Identifiers and URLs, it is difficult to change the organization name in all the places that would require the change. For this reason, it's important to consider this decision up front\!
+このステップでは、使用したい組織名のタイプ（システム生成またはカスタム）を決定します。上述のように、組織名が確立され、ユーザーとシステムがアカウント識別子と URL を使用して Snowflake に安全に接続すると、変更が必要なすべての場所で組織名を変更することは困難です。このため、事前にこの決定を検討することが重要です！
 
-**NOTE**: this step focuses on the Organization Name only; how to establish and manage Account and other object naming conventions will be covered in subsequent steps\!
+**注記**: このステップは組織名のみに焦点を当てています。アカウントとその他のオブジェクト命名規則の確立と管理方法については、後続のステップで説明します！
 
-## **Option Details** 
+## **オプションの詳細**
 
-### Customize your Organization name
+### 組織名をカスタマイズする
 
-For customers who work directly with their Snowflake account team on initial setup activities, Snowflake may have already assigned a custom name for the organization. If you have a system generated name but want to change to a custom, human-readable name, [contact Snowflake Support](https://docs.snowflake.com/en/user-guide/admin-account-identifier#organization-and-account-names) or your account team to request a custom organization name and they’ll work with you to find a suitable, available name.
+Snowflake のアカウントチームと初期セットアップ活動を直接進めた顧客の場合、Snowflake がすでに組織のカスタム名を割り当てている可能性があります。システム生成された名前があり、カスタムの人間が読める名前に変更したい場合は、[Snowflake サポートに連絡する](https://docs.snowflake.com/en/user-guide/admin-account-identifier#organization-and-account-names)か、アカウントチームに連絡してカスタム組織名を要求してください。適切な利用可能な名前を見つけるためにサポートします。
 
-**Example**  
+**例**
 URL: https://acme-prod.snowflakecomputing.com
 
-* Organization name \= ACME (custom)  
-* Account name \= prod \- with custom org names, account names can be kept simple since the org name already provides context in the URL
+* 組織名 = ACME（カスタム）
+* アカウント名 = prod — カスタム組織名の場合、組織名がすでに URL のコンテキストを提供しているため、アカウント名をシンプルにできます
 
-**Guidance for custom Organization names:**
+**カスタム組織名のガイダンス:**
 
-* This custom name must be unique across all other organizations in Snowflake.  
-* The name must start with a letter and can only contain letters and numbers.  
-* The name cannot contain underscores or other delimiters.  
-* The name should be succinct (3-8 characters)
+* このカスタム名は、Snowflake の他のすべての組織全体でユニークでなければなりません。
+* 名前は文字で始まり、文字と数字のみを含むことができます。
+* 名前にはアンダースコアや他の区切り文字を含めることができません。
+* 名前は簡潔（3〜8 文字）である必要があります。
 
-✅ **Choose this strategy:**
+✅ **この戦略を選ぶ場合:**
 
-* Better brands your snowflake account w/ your customers; e.g., ACME vs XY12345  
-* Makes URLs more succinct & readable
+* 顧客に Snowflake アカウントのブランドを示す場合。例: ACME vs XY12345
+* URL をより簡潔で読みやすくする場合
 
-❌ **Avoid this approach:**
+❌ **このアプローチを避ける場合:**
 
-* Transparency of your organization in URLs is unnecessary or undesirable
+* URL における組織の透明性が不要または望ましくない場合
 
-### Use the system-generated organization name 
+### システム生成された組織名を使用する
 
-You can keep the system-generated organization name (e.g., XY12345) for privacy or simplicity. The account names themselves can still be descriptive.
+プライバシーまたはシンプルさのために、システム生成された組織名（例: XY12345）を保持できます。アカウント名自体は引き続き説明的にできます。
 
-**Example**  
+**例**
 URL: https://xy12345-prod.snowflakecomputing.com
 
-* Organization Name \= XY12345 (system-generated)  
-* Account Name \= prod \- Account names can be descriptive even with system-generated org names
+* 組織名 = XY12345（システム生成）
+* アカウント名 = prod — システム生成された組織名でもアカウント名を説明的にできます
 
-✅ **Choose this approach if:**
+✅ **このアプローチを選ぶ場合:**
 
-* Transparency of your organization name in the URL is unnecessary or undesirable  
-* You prefer to keep the default system-generated name
+* URL における組織名の透明性が不要または望ましくない場合
+* デフォルトのシステム生成された名前を保持することを好む場合
 
-❌ **Consider a custom name instead if:**
+❌ **代わりにカスタム名を検討する場合:**
 
-* You want your organization name visible in URLs for branding  
-* You want more readable, professional-looking URLs
+* ブランディングのために URL に組織名を表示したい場合
+* より読みやすくプロフェッショナルな URL が欲しい場合
 
-## **More Information**
+## **追加情報**
 
-* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — Understanding organization and account names in URLs  
-* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Overview of Snowflake organizations  
-* [Renaming an Account](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts-rename) — How to change account names
+* [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) — URL における組織名とアカウント名の理解
+* [Organizations](https://docs.snowflake.com/en/user-guide/organizations) — Snowflake 組織の概要
+* [Renaming an Account](https://docs.snowflake.com/en/user-guide/organizations-manage-accounts-rename) — アカウント名の変更方法
 
-### Configuration Questions
+### 設定の質問
 
-#### What is your Snowflake organization name? (`snowflake_org_name`: text)
-Your Snowflake organization name is the first part of your account URL and connection identifiers. This is a required component of all Account Identifiers.  
-  **How to find your organization name:**  
-  Look at your current Snowflake URL. The organization name is the portion before the dash:  
-  * https://\*\*ACME\*\*-prod.snowflakecomputing.com → Organization name is ACME  
-  * https://\*\*XY12345\*\*-prod.snowflakecomputing.com → Organization name is XY12345  
-* **Types of Organization Names:**  
-  * **Custom Name:** A human-readable name like ACME or INITECH that was requested from Snowflake. These provide better branding and more readable URLs.  
-  * **System-Generated:** An auto-assigned alphanumeric code like XY12345 or AB98765, created automatically during self-service sign up. Companies typically keep this name if transparency of your organization name in the URL is unnecessary or undesirable.   
-* **To request a custom name:** If you have a system-generated name and want to change it, [contact Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge) or your account team. Custom names must be globally unique, start with a letter, and contain only letters and numbers.  
-  **More Information:**  
-  * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) 
+#### あなたの Snowflake 組織名は何ですか？（`snowflake_org_name`: text）
+Snowflake 組織名はアカウント URL と接続識別子の最初の部分です。これはすべてのアカウント識別子の必須コンポーネントです。
+  **組織名の見つけ方:**
+  現在の Snowflake URL を確認してください。組織名はダッシュの前の部分です:
+  * https://\*\*ACME\*\*-prod.snowflakecomputing.com → 組織名は ACME
+  * https://\*\*XY12345\*\*-prod.snowflakecomputing.com → 組織名は XY12345
+* **組織名のタイプ:**
+  * **カスタム名:** Snowflake から要求された ACME や INITECH のような人間が読める名前。より良いブランディングとより読みやすい URL を提供します。
+  * **システム生成:** セルフサービスのサインアップ時に自動的に作成された XY12345 や AB98765 のような自動割り当ての英数字コード。URL における組織名の透明性が不要または望ましくない場合、企業は通常この名前を保持します。
+* **カスタム名の要求方法:** システム生成された名前がありそれを変更したい場合は、[Snowflake サポートに連絡する](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge)かアカウントチームに連絡してください。カスタム名はグローバルにユニークで、文字で始まり、文字と数字のみを含む必要があります。
+  **追加情報:**
+  * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)
 
-#### What prefix (if any) should be added to all account names? (`account_name_prefix`: text)
-An account name prefix is an optional string added to the beginning of every account name for consistency and organization identification.  
+#### すべてのアカウント名に追加するプレフィックス（ある場合）は何ですか？（`account_name_prefix`: text）
+アカウント名プレフィックスは、一貫性と組織識別のためにすべてのアカウント名の先頭に追加されるオプションの文字列です。
 
-**When to use a prefix:**  
-* If your organization name is system-generated (e.g., `XY12345`) and you want your company name visible in account names  
-* If you want to enforce consistent naming across all accounts  
-* If you have multiple organizations or business units sharing Snowflake and need differentiation  
+**プレフィックスを使用するとき:**
+* 組織名がシステム生成（例: `XY12345`）で、アカウント名に会社名を表示したい場合
+* すべてのアカウントにわたって一貫した命名を強制したい場合
+* Snowflake を共有する複数の組織またはビジネスユニットがあり、差別化が必要な場合
 
-**Example with prefix:**  
-* Prefix: `acme`  
-* Account names become: `acme_prod`, `acme_dev`, `acme_finance`  
-* URL: `https://XY12345-acme_prod.snowflakecomputing.com`  
+**プレフィックスあり例:**
+* プレフィックス: `acme`
+* アカウント名は: `acme_prod`、`acme_dev`、`acme_finance` になります
+* URL: `https://XY12345-acme_prod.snowflakecomputing.com`
 
-**Example without prefix:**  
-* Account names: `prod`, `dev`, `finance`  
-* URL: `https://ACME-prod.snowflakecomputing.com`  
+**プレフィックスなし例:**
+* アカウント名: `prod`、`dev`、`finance`
+* URL: `https://ACME-prod.snowflakecomputing.com`
 
-**Recommendations:**  
-* If you have a **custom organization name** (like `ACME`), a prefix is typically unnecessary since your identity is already in the URL  
-* If you have a **system-generated name**, consider using an abbreviated company name as a prefix  
-* Keep prefixes short (3-8 characters) with no underscores  
+**推奨事項:**
+* **カスタム組織名**（`ACME` など）がある場合、アイデンティティがすでに URL にあるため、通常プレフィックスは不要です
+* **システム生成された名前**がある場合は、プレフィックスとして会社名の略称の使用を検討してください
+* プレフィックスは短く（3〜8 文字）、アンダースコアなしにしてください
 
-**Enter `NONE` if you do not want to use an account name prefix.**  
+**アカウント名プレフィックスを使用しない場合は `NONE` を入力してください。**
 
-**More Information:**  
+**追加情報:**
 * [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier)

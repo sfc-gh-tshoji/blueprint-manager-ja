@@ -1,84 +1,84 @@
-In this step, you'll create break-glass emergency access account(s) that can bypass SSO/SAML authentication. These accounts are critical for maintaining access to Snowflake when your Identity Provider is unavailable.
+このステップでは、SSO/SAML 認証をバイパスできるブレークグラス緊急アクセスアカウントを作成します。これらのアカウントは ID プロバイダーが利用できない場合に Snowflake へのアクセスを維持するために重要です。
 
-**Account Context:** Break-glass account(s) are being created in your Organization Account (if created) or your primary account.
+**アカウントコンテキスト:** ブレークグラスアカウントは組織アカウント（作成済みの場合）またはプライマリアカウントに作成されます。
 
-## **Why is this important?**
+## **なぜこれが重要か？**
 
-When you rely on SAML/SSO for authentication, you create a dependency on your Identity Provider. If your IdP experiences an outage, misconfiguration, or certificate expiration, you could be locked out of Snowflake entirely.
+認証に SAML/SSO を使用すると、ID プロバイダーへの依存関係が生まれます。IdP で障害、設定ミス、または証明書の期限切れが発生すると、Snowflake から完全にロックアウトされる可能性があります。
 
-Break-glass accounts provide:
+ブレークグラスアカウントが提供するもの:
 
-* **Emergency Access**: Bypass SSO when the IdP is down  
-* **Recovery Capability**: Fix SSO misconfigurations  
-* **Business Continuity**: Maintain operations during identity outages  
-* **Compliance**: Meet regulatory requirements for emergency access procedures
+* **緊急アクセス**: IdP がダウンしているときに SSO をバイパス
+* **復旧機能**: SSO の設定ミスを修正
+* **業務継続性**: ID 障害中も操作を維持
+* **コンプライアンス**: 緊急アクセス手順の規制要件を満たす
 
-## **External Prerequisites**
+## **外部前提条件**
 
-* A secure location to store emergency credentials (password vault, physical safe)  
-* A process for generating and rotating one-time passwords (OTPs)  
-* Documentation of break-glass procedures
+* 緊急認証情報を保存するセキュアな場所（パスワードボルト、物理的なセーフ）
+* ワンタイムパスワード（OTP）の生成とローテーションのプロセス
+* ブレークグラス手順のドキュメント
 
-## **Key Concepts**
+## **主要な概念**
 
-**Break-Glass Account** A special-purpose account that bypasses normal authentication. Think of this as the "emergency key behind glass"—you break the glass only when the normal door won't open (IdP outage).
+**ブレークグラスアカウント** 通常の認証をバイパスする特殊目的のアカウント。これを「ガラスの後ろの緊急キー」と考えてください — 通常のドアが開かない場合（IdP の障害）にのみガラスを割ります。
 
-**One-Time Password (OTP)** A password that is used once and then changed. This is like a "single-use emergency key"—even if someone sees you use it, they can't reuse it.
+**ワンタイムパスワード（OTP）** 一度使用すると変更されるパスワード。これは「一回使い捨ての緊急キー」のようなもの — 誰かが使用するのを見ても、再利用できません。
 
-**Authentication Policy** A Snowflake object that defines how users must authenticate. Break-glass accounts use a separate policy that allows password-only authentication—a different "entrance" with different rules.
+**認証ポリシー** ユーザーがどのように認証する必要があるかを定義する Snowflake オブジェクト。ブレークグラスアカウントは、パスワードのみの認証を許可する別のポリシーを使用します — 異なるルールを持つ別の「入口」です。
 
-**Client Types** Snowflake can restrict which clients (UI, drivers, etc.) can use certain authentication methods. Break-glass accounts should be limited to the web UI to reduce attack surface.
+**クライアントタイプ** Snowflake は特定の認証方法を使用できるクライアント（UI、ドライバーなど）を制限できます。ブレークグラスアカウントは攻撃面を減らすために Web UI のみに制限する必要があります。
 
-**Best Practice: Store Securely, Use Rarely** Break-glass credentials should be stored in a secure vault (physical or digital) and used only during genuine emergencies. Regular use defeats their purpose.
+**ベストプラクティス: 安全に保存し、めったに使用しない** ブレークグラスの認証情報は安全なボルト（物理的またはデジタル）に保存し、真の緊急事態の際にのみ使用する必要があります。定期的な使用はその目的を損ないます。
 
-## **More Information**
+## **追加情報**
 
-* [MFA and Break-Glass Access](https://docs.snowflake.com/en/user-guide/security-mfa) — Setting up break-glass accounts and one-time passcodes  
-* [MFA Migration Best Practices](https://docs.snowflake.com/en/user-guide/security-mfa-migration-best-practices) — Break-glass procedures during MFA/SSO rollout  
-* [Authentication Policies](https://docs.snowflake.com/en/user-guide/authentication-policies) — Defining authentication methods per user  
-* [Network Policies](https://docs.snowflake.com/en/user-guide/network-policies) — Restricting access by IP address
+* [MFA とブレークグラスアクセス](https://docs.snowflake.com/en/user-guide/security-mfa) — ブレークグラスアカウントとワンタイムパスコードの設定
+* [MFA 移行のベストプラクティス](https://docs.snowflake.com/en/user-guide/security-mfa-migration-best-practices) — MFA/SSO 展開中のブレークグラス手順
+* [認証ポリシー](https://docs.snowflake.com/en/user-guide/authentication-policies) — ユーザーごとの認証方法の定義
+* [ネットワークポリシー](https://docs.snowflake.com/en/user-guide/network-policies) — IP アドレスによるアクセス制限
 
-### Configuration Questions
+### 設定の質問
 
-#### Configure the break-glass emergency access account(s) (`breakglass_accounts`: object-list)
-**What is this asking?**
-Define one or more break-glass emergency access accounts. Each account can bypass SSO and authenticate with a password when your Identity Provider is unavailable.
+#### ブレークグラス緊急アクセスアカウントを設定する（`breakglass_accounts`: object-list）
+**何を聞いているか？**
+1 つ以上のブレークグラス緊急アクセスアカウントを定義します。各アカウントは ID プロバイダーが利用できない場合に SSO をバイパスしてパスワードで認証できます。
 
-**How Many Accounts?**
-- **Minimum 1**: At least one break-glass account is required
-- **Recommended 2**: Two accounts provide redundancy if one is compromised
-- **Maximum 3**: More than 3 increases the attack surface
+**アカウント数:**
+- **最低 1**: 少なくとも 1 つのブレークグラスアカウントが必要
+- **推奨 2**: 1 つが侵害された場合の冗長性を提供
+- **最大 3**: 3 つ以上は攻撃面を増やします
 
-**Username**
-- Use a descriptive name: `BREAKGLASS_ADMIN`, `EMERGENCY_ACCESS`, `SOS_ADMIN`
-- Avoid personal names since this is a shared emergency account
-- For multiple accounts, use suffixes: `BREAKGLASS_ADMIN_01`, `BREAKGLASS_ADMIN_02`
-- **Important:** Do NOT use email addresses as usernames. Break-glass accounts must work when SSO is unavailable, so use simple identifiers without `@` or `.` characters.
+**ユーザー名:**
+- 説明的な名前を使用: `BREAKGLASS_ADMIN`、`EMERGENCY_ACCESS`、`SOS_ADMIN`
+- これは共有緊急アカウントなので個人名は避ける
+- 複数のアカウントの場合はサフィックスを使用: `BREAKGLASS_ADMIN_01`、`BREAKGLASS_ADMIN_02`
+- **重要:** ユーザー名としてメールアドレスを使用しないでください。ブレークグラスアカウントは SSO が利用できない場合に動作する必要があるため、`@` や `.` 文字のないシンプルな識別子を使用してください。
 
-**Email**
-- Use a team distribution list, not a personal email
-- Examples: `snowflake-security@company.com`, `platform-team@company.com`
-- Ensure the email is monitored 24/7 if you have critical workloads
+**メール:**
+- 個人メールではなくチームの配布リストを使用する
+- 例: `snowflake-security@company.com`、`platform-team@company.com`
+- 重要なワークロードがある場合は、メールが 24 時間 365 日監視されていることを確認する
 
-**Allowed IPs**
-- Enter comma-separated IP addresses or CIDR ranges
-- Example: `10.0.0.1, 192.168.1.0/24, 172.16.0.0/16`
-- Include VPN egress IPs, office IPs, and backup locations
-- Enter `NONE` to allow access from any IP (not recommended)
+**許可される IP:**
+- カンマ区切りの IP アドレスまたは CIDR 範囲を入力する
+- 例: `10.0.0.1, 192.168.1.0/24, 172.16.0.0/16`
+- VPN 出口 IP、オフィス IP、バックアップロケーションを含める
+- 任意の IP からのアクセスを許可するには `NONE` を入力する（推奨しない）
 
-**Example Entries:**
+**入力例:**
 
 | username | email | allowed_ips |
 |----------|-------|-------------|
 | `BREAKGLASS_ADMIN_01` | `platform-team@company.com` | `10.0.0.1, 192.168.1.0/24` |
 | `BREAKGLASS_ADMIN_02` | `security-team@company.com` | `10.0.0.2, 192.168.1.0/24` |
 
-**Security Notes:**
-- All accounts are created with `MUST_CHANGE_PASSWORD = TRUE`
-- Initial password must be changed on first login
-- Use one-time passwords (OTPs) stored in a secure vault
-- Restrict to Web UI only (no driver/CLI access)
+**セキュリティノート:**
+- すべてのアカウントは `MUST_CHANGE_PASSWORD = TRUE` で作成されます
+- 初期パスワードは初回ログイン時に変更する必要があります
+- セキュアなボルトに保存されたワンタイムパスワード（OTP）を使用する
+- Web UI のみに制限する（ドライバー/CLI アクセスなし）
 
-**More Information:**
+**追加情報:**
 * [CREATE USER](https://docs.snowflake.com/en/sql-reference/sql/create-user)
-* [Network Policies](https://docs.snowflake.com/en/user-guide/network-policies)
+* [ネットワークポリシー](https://docs.snowflake.com/en/user-guide/network-policies)

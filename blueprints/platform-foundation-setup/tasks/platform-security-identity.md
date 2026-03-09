@@ -1,91 +1,91 @@
-# Platform Security & Identity
+# プラットフォームセキュリティとアイデンティティ
 
-## Summary
-Configure user provisioning via SCIM or manual management, provision platform
-administrators, configure single sign-on, create emergency access, implement
-network security, define authentication policies, and enable multi-factor authentication.
+## 概要
+SCIM または手動管理によるユーザープロビジョニングを設定し、プラットフォーム管理者をプロビジョニングし、
+シングルサインオンを設定し、緊急アクセスを作成し、ネットワークセキュリティを実装し、
+認証ポリシーを定義し、多要素認証を有効にします。
 
-## External Requirements
-- Task 1 (Platform Foundation) completed
-- Identity Provider Access (Okta, Azure AD, etc.)
-- Network Information (corporate IP ranges, VPN endpoints, cloud service IPs)
-- Administrator Details (names and email addresses)
+## 外部要件
+- タスク 1（プラットフォーム基盤）の完了
+- ID プロバイダーアクセス（Okta、Azure AD など）
+- ネットワーク情報（企業 IP レンジ、VPN エンドポイント、クラウドサービス IP）
+- 管理者の詳細情報（名前とメールアドレス）
 
-## Personas
-- Security Administrator
-- Identity Team
-- Platform Administrator
+## ペルソナ
+- セキュリティ管理者
+- アイデンティティチーム
+- プラットフォーム管理者
 
-## Role Requirements
-- ACCOUNTADMIN privileges
-- Logged into Organization Account (if created) or primary account
+## ロール要件
+- ACCOUNTADMIN 権限
+- 組織アカウント（作成された場合）またはプライマリアカウントへのログイン
 
-## Details
-## Steps in This Task
+## 詳細
+## このタスクのステップ
 
-| Step | Title | Purpose |
+| ステップ | タイトル | 目的 |
 |------|-------|---------|
-| 2.1 | Configure SCIM Integration | Set up automated user provisioning from your IdP (or choose manual management) |
-| 2.2 | Provision/Create Account Administrators | Assign ACCOUNTADMIN and other admin roles (method varies based on 2.1) |
-| 2.3 | Configure SAML/SSO | Enable federated authentication (optional) |
-| 2.4 | Create Break-Glass Access | Establish emergency access account |
-| 2.5 | Configure Network Policies | Set up IP allowlisting and network rules |
-| 2.6 | Configure Authentication Policies | Define auth requirements by user type |
-| 2.7 | Enable Multi-Factor Authentication | Guide MFA enrollment for users |
+| 2.1 | SCIM インテグレーションの設定 | IdP からの自動ユーザープロビジョニングをセットアップする（または手動管理を選択する） |
+| 2.2 | アカウント管理者のプロビジョニング/作成 | ACCOUNTADMIN とその他の管理者ロールを割り当てる（方法は 2.1 の選択によって異なる） |
+| 2.3 | SAML/SSO の設定 | フェデレーション認証を有効にする（オプション） |
+| 2.4 | ブレークグラスアクセスの作成 | 緊急アクセスアカウントを確立する |
+| 2.5 | ネットワークポリシーの設定 | IP 許可リストとネットワークルールをセットアップする |
+| 2.6 | 認証ポリシーの設定 | ユーザータイプ別に認証要件を定義する |
+| 2.7 | 多要素認証の有効化 | ユーザーの MFA 登録をガイドする |
 
-**Note on administrator provisioning:** Based on your choice in Configure SCIM Integration:
-- **If using SCIM:** You'll provision administrators by granting roles to SCIM-provisioned users
-- **If using manual management:** You'll create administrator users directly in Snowflake
+**管理者プロビジョニングに関する注記:** SCIM インテグレーション設定での選択に基づいて:
+- **SCIM を使用する場合:** SCIM でプロビジョニングされたユーザーにロールを付与することで管理者をプロビジョニングします
+- **手動管理を使用する場合:** Snowflake で直接管理者ユーザーを作成します
 
-**Note on SAML/SSO:** SAML/SSO configuration is optional. In Configure SCIM Integration, you'll choose whether to configure SAML now or later. If you skip SAML, users will authenticate with password + MFA.
+**SAML/SSO に関する注記:** SAML/SSO の設定はオプションです。SCIM インテグレーション設定では、今すぐ SAML を設定するか後で設定するかを選択します。SAML をスキップする場合、ユーザーはパスワード + MFA で認証します。
 
-**⚠️ All Task 2 steps configure the account you are currently logged into.**
+**⚠️ タスク 2 のすべてのステップは、現在ログインしているアカウントを設定します。**
 
-## Time Estimate
+## 所要時間の見積もり
 
-This task typically takes **45-60 minutes** to complete. Additional time may be required for:
+このタスクは通常 **45〜60 分** かかります。以下の場合は追加時間が必要な場合があります:
 
-- IdP configuration (performed outside Snowflake)
-- Coordination with your identity/security team
-- Network policy testing and validation
+- IdP 設定（Snowflake 外で実行）
+- アイデンティティ/セキュリティチームとの調整
+- ネットワークポリシーのテストと検証
 
-## Key Decisions
+## 主要な決定事項
 
-Several questions in this task have security implications:
+このタスクのいくつかの質問はセキュリティへの影響があります:
 
-1. **SCIM Provisioner Role**: Determines what the IdP can manage in Snowflake
-2. **Administrator Assignments**: ACCOUNTADMIN grants full account control - limit to 2-3 trusted individuals
-3. **Break-Glass Credentials**: Must be securely stored and access documented
-4. **Network Policies**: Overly restrictive policies can lock out legitimate users
-5. **Authentication Policies**: Balance security with usability
+1. **SCIM プロビジョナーロール**: IdP が Snowflake で管理できる内容を決定する
+2. **管理者の割り当て**: ACCOUNTADMIN は完全なアカウントコントロールを付与するため、信頼できる 2〜3 人に制限する
+3. **ブレークグラス認証情報**: 安全に保管し、アクセスをドキュメント化する必要がある
+4. **ネットワークポリシー**: 過度に制限的なポリシーは正当なユーザーをロックアウトする可能性がある
+5. **認証ポリシー**: セキュリティと使いやすさのバランスを取る
 
-Involve your security team when making these decisions.
+これらの決定を行う際はセキュリティチームを巻き込んでください。
 
-## Deliverables
+## 成果物
 
-Upon completion, you will have:
+完了時に以下が得られます:
 
-- User provisioning configured (SCIM integration or manual management approach documented)
-- Initial administrators provisioned with appropriate roles
-- SAML/SSO configured for federated authentication (if using an IdP)
-- Break-glass emergency access account created and documented
-- Network policies configured for IP allowlisting
-- Authentication policies defined for different user types
-- MFA enrollment guidance distributed to administrators
+- 設定されたユーザープロビジョニング（SCIM インテグレーションまたは手動管理アプローチのドキュメント化）
+- 適切なロールでプロビジョニングされた初期管理者
+- フェデレーション認証のために設定された SAML/SSO（IdP を使用する場合）
+- 作成されドキュメント化されたブレークグラス緊急アクセスアカウント
+- IP 許可リストのために設定されたネットワークポリシー
+- 異なるユーザータイプのために定義された認証ポリシー
+- 管理者に配布された MFA 登録ガイダンス
 
-## Security Best Practices
+## セキュリティのベストプラクティス
 
-This task implements several security best practices:
+このタスクはいくつかのセキュリティのベストプラクティスを実装します:
 
-| Practice | Implementation |
+| プラクティス | 実装 |
 |----------|----------------|
-| **Least Privilege** | Separate admin roles (ACCOUNTADMIN, SECURITYADMIN, SYSADMIN, USERADMIN) |
-| **Centralized Identity** | SCIM + SAML for single source of truth (or documented manual process) |
-| **Emergency Access** | Break-glass account with restricted network policy |
-| **Defense in Depth** | Layered authentication + network + MFA policies |
-| **Audit Trail** | All authentication attempts logged |
+| **最小権限** | 個別の管理者ロール（ACCOUNTADMIN、SECURITYADMIN、SYSADMIN、USERADMIN） |
+| **集中型アイデンティティ** | シングルソースオブトゥルースのための SCIM + SAML（またはドキュメント化された手動プロセス） |
+| **緊急アクセス** | 制限されたネットワークポリシーを持つブレークグラスアカウント |
+| **多層防御** | 認証 + ネットワーク + MFA ポリシーの階層化 |
+| **監査証跡** | すべての認証試行をログに記録 |
 
-## More Information
+## 追加情報
 
 - [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/scim)
 - [SAML/SSO Configuration](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth)

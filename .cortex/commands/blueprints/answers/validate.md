@@ -2,102 +2,102 @@
      Licensed under the Snowflake Skills License. 
      Refer to the LICENSE file in the root of this repository for full terms. -->
 
-# Blueprints Answers Validate
+# Blueprints 回答ファイル検証
 
-Check an answer file for missing or invalid values without needing to specify a blueprint.
+ブループリントを指定しなくても、回答ファイルの不足または無効な値をチェックします。
 
-## Usage
+## 使用方法
 
 ```
 /blueprints:answers:validate <file> [--blueprint <name>]
 ```
 
-## Arguments
+## 引数
 
-- `<file>`: Path to the YAML answer file to validate
+- `<file>`: 検証する YAML 回答ファイルのパス
 
-## Options
+## オプション
 
-- `--blueprint <name>`: Blueprint to validate against (auto-detected from file if not specified)
+- `--blueprint <name>`: 検証対象のブループリント（未指定の場合はファイルから自動検出）
 
-## Instructions
+## 手順
 
-This is an alias/alternative to `blueprints validate` that focuses on the answer file perspective.
+これは回答ファイルの観点に焦点を当てた `blueprints validate` のエイリアス/代替です。
 
-Validate an answer file by:
+以下の手順で回答ファイルを検証します:
 
-1. **Parse YAML**: Load and validate YAML syntax
-2. **Detect Blueprint**: Infer blueprint from file path or comments if not specified
-3. **Check Values**: Identify null, empty, or missing required values
-4. **Type Validation**: Verify values match expected types from questions.yaml
+1. **YAML 解析**: YAML 構文を読み込み、検証する
+2. **ブループリント検出**: 未指定の場合、ファイルパスまたはコメントからブループリントを推測する
+3. **値のチェック**: null、空、または不足している必須値を特定する
+4. **型検証**: 値が questions.yaml の期待される型と一致することを確認する
 
-## Output Format
+## 出力フォーマット
 
-### Valid Answer File
+### 有効な回答ファイル
 ```
-Validating: projects/acme-corp/answers/platform-foundation-setup/answers.yaml
+検証中: projects/acme-corp/answers/platform-foundation-setup/answers.yaml
 
-✅ Answer file is valid!
+✅ 回答ファイルは有効です！
 
-Summary:
-- Total variables: 45
-- Filled: 45
-- Empty/Null: 0
+サマリー:
+- 変数の合計: 45
+- 入力済み: 45
+- 空/Null: 0
 
-Ready to render with: blueprints render <file> --blueprint platform-foundation-setup
+次のコマンドでレンダリング可能: blueprints render <file> --blueprint platform-foundation-setup
 ```
 
-### Answer File with Issues
+### 問題のある回答ファイル
 ```
-Validating: answers.yaml
+検証中: answers.yaml
 
-⚠️ Answer file has issues
+⚠️ 回答ファイルに問題があります
 
-Summary:
-- Total variables: 45
-- Filled: 38
-- Empty/Null: 5
-- Invalid type: 2
+サマリー:
+- 変数の合計: 45
+- 入力済み: 38
+- 空/Null: 5
+- 型エラー: 2
 
-Null Values (need input):
-| Variable | Expected Type | Description |
+Null 値（入力が必要）:
+| 変数 | 期待される型 | 説明 |
 |----------|---------------|-------------|
-| org_admin_email | text | Organization admin email address |
-| breakglass_accounts | list | Emergency access accounts |
+| org_admin_email | text | 組織管理者のメールアドレス |
+| breakglass_accounts | list | 緊急アクセスアカウント |
 
-Invalid Types:
-| Variable | Expected | Got | Value |
+型エラー:
+| 変数 | 期待 | 実際 | 値 |
 |----------|----------|-----|-------|
 | domain_list | list | text | "sales" |
 | budget_alert_emails | list | text | "finance@example.com" |
 
-Fix suggestions:
-- domain_list should be a YAML list: 
+修正の提案:
+- domain_list は YAML リストである必要があります: 
     domain_list:
       - sales
       - marketing
-- budget_alert_emails should be a YAML list:
+- budget_alert_emails は YAML リストである必要があります:
     budget_alert_emails:
       - finance@example.com
 ```
 
-## Implementation
+## 実装
 
-1. Load the answer YAML file
-2. If blueprint not specified, try to detect from:
-   - File path (e.g., `answers/platform-foundation-setup/answers.yaml`)
-   - YAML comments (e.g., `# Blueprint: platform-foundation-setup`)
-3. Load questions.yaml to get expected types
-4. Validate each value:
-   - Non-null for required fields
-   - Correct type (text, list, multi-select, object-list)
-   - Valid options for multi-select fields
-5. Display validation report
+1. 回答 YAML ファイルを読み込む
+2. ブループリントが指定されていない場合、以下から検出を試みる:
+   - ファイルパス（例: `answers/platform-foundation-setup/answers.yaml`）
+   - YAML コメント（例: `# Blueprint: platform-foundation-setup`）
+3. 期待される型を取得するために questions.yaml を読み込む
+4. 各値を検証する:
+   - 必須フィールドが null でないこと
+   - 正しい型（text、list、multi-select、object-list）であること
+   - multi-select フィールドの有効なオプションであること
+5. 検証レポートを表示する
 
-## Error Handling
+## エラー処理
 
-- File not found: `Error: Answer file not found: <path>`
-- Invalid YAML: `Error: Invalid YAML syntax: <error>`
-- Blueprint not detected: `Error: Cannot detect blueprint. Use --blueprint to specify.`
+- ファイルが見つからない: `エラー: 回答ファイルが見つかりません: <path>`
+- 無効な YAML: `エラー: 無効な YAML 構文: <error>`
+- ブループリントが検出できない: `エラー: ブループリントを検出できません。--blueprint で指定してください。`
 
-Now execute this by reading the answer file and performing validation.
+回答ファイルを読み込み、検証を実行することで実行してください。

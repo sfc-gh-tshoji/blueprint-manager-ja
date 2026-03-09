@@ -1,76 +1,76 @@
-# Data Product Planning
+# データ製品計画
 
-## Summary
-Select the target Snowflake account for deployment, define the data product's name,
-domain, environment, and SCIM configuration, plan zone structure and schemas,
-and define warehouse requirements for different workloads.
+## 概要
+デプロイのターゲット Snowflake アカウントを選択し、データ製品の名前、
+ドメイン、環境、SCIM 設定を定義し、ゾーン構造とスキーマを計画し、
+異なるワークロードのウェアハウス要件を定義します。
 
-## External Requirements
-- Platform Foundation Setup completed
-- Target account exists and is accessible
+## 外部要件
+- プラットフォームファウンデーションセットアップ完了
+- ターゲットアカウントが存在しアクセス可能
 
-## Personas
-- Data Team
-- Platform Team
-- Data Architecture Team
+## ペルソナ
+- データチーム
+- プラットフォームチーム
+- データアーキテクチャチーム
 
-## Role Requirements
-- SYSADMIN role access in the target account
+## ロール要件
+- ターゲットアカウントの SYSADMIN ロールアクセス
 
-## Details
-This is a **repeatable workflow** — run it once for each data product you need to configure.
+## 詳細
+これは**繰り返し可能なワークフロー**です — 設定が必要なデータ製品ごとに 1 回実行します。
 
-## **What is a Data Product?**
+## **データ製品とは？**
 
-A **Data Product** is a self-contained, governed unit of data with clear ownership, dedicated resources, and well-defined access controls. Instead of a monolithic data warehouse with unclear ownership, data products organize data by business domain with:
+**データ製品**は、明確な所有権、専用リソース、明確に定義されたアクセス制御を持つ自己完結型の管理されたデータ単位です。不明確な所有権を持つモノリシックなデータウェアハウスの代わりに、データ製品はビジネスドメイン別にデータを整理します:
 
-- **Own databases** organized by processing stage (raw → transformed → curated)
-- **Own compute** (warehouses) sized for specific workloads
-- **Own access controls** with delegated administration
-- **Clear team ownership** and cost accountability
+- 処理ステージ別（生データ → 変換済み → キュレート済み）に整理された**固有のデータベース**
+- 特定のワークロード用にサイズ設定された**固有のコンピューティング**（ウェアハウス）
+- 委任管理を持つ**固有のアクセス制御**
+- **明確なチームの所有権**とコスト責任
 
-## **Steps in This Task**
+## **このタスクのステップ**
 
-| Step | Title | Purpose | Conditional |
-|------|-------|---------|-------------|
-| 1.1 | Select Target Account | Identify which account to deploy to | Multi-account strategies only |
-| 1.2 | Define Data Product Identity | Name, domain, environment, SCIM prefix | Always shown |
-| 1.3 | Configure Zone Structure | Define data zones (raw, curated, pub) | Always shown |
-| 1.4 | Plan Schema Organization | Define schemas within each zone | Always shown |
-| 1.5 | Plan Warehouse Requirements | Define compute resources and workload types | Always shown |
+| ステップ | タイトル | 目的 | 条件付き |
+|---------|---------|------|---------|
+| 1.1 | ターゲットアカウントを選択 | どのアカウントにデプロイするかを特定 | マルチアカウント戦略のみ |
+| 1.2 | データ製品 ID を定義 | 名前、ドメイン、環境、SCIM プレフィックス | 常に表示 |
+| 1.3 | ゾーン構造を設定 | データゾーンを定義（生データ、キュレート済み、公開） | 常に表示 |
+| 1.4 | スキーマ組織を計画 | 各ゾーン内のスキーマを定義 | 常に表示 |
+| 1.5 | ウェアハウス要件を計画 | コンピューティングリソースとワークロードタイプを定義 | 常に表示 |
 
-**From Platform Foundation (inherited):**
-- `account_strategy` — Single or multi-account approach
-- `domain_list` — Available business domains
-- `environment_list` — Available SDLC environments
-- `platform_database_name` — Infrastructure database name
-- `governance_name` — Governance schema name
+**プラットフォームファウンデーションからの継承:**
+- `account_strategy` — シングルまたはマルチアカウントアプローチ
+- `domain_list` — 利用可能なビジネスドメイン
+- `environment_list` — 利用可能な SDLC 環境
+- `platform_database_name` — インフラデータベース名
+- `governance_name` — ガバナンススキーマ名
 
-## **Key Decisions**
+## **主要な決定事項**
 
-| Decision | Who Should Decide | Impact |
-|----------|-------------------|--------|
-| Target Account | Platform Team | Where resources are created |
-| Data Product Name | Data Team/Platform Team | Permanent identifier in all object names |
-| Domain Assignment | Business/Platform Team | Cost allocation and governance |
-| Environment | Platform Team | Determines isolation level |
-| SCIM Prefix | Platform/Security Team | Role ownership and user assignment method |
-| Zone Structure | Data Architecture Team | Data flow and organization |
-| Warehouse Sizing | Platform/Data Team | Performance and cost |
+| 決定事項 | 誰が決定すべきか | 影響 |
+|---------|----------------|------|
+| ターゲットアカウント | プラットフォームチーム | リソースが作成される場所 |
+| データ製品名 | データチーム/プラットフォームチーム | すべてのオブジェクト名の永続的な識別子 |
+| ドメイン割り当て | ビジネス/プラットフォームチーム | コスト配分とガバナンス |
+| 環境 | プラットフォームチーム | 分離レベルを決定 |
+| SCIM プレフィックス | プラットフォーム/セキュリティチーム | ロールの所有権とユーザー割り当て方法 |
+| ゾーン構造 | データアーキテクチャチーム | データフローと組織 |
+| ウェアハウスサイジング | プラットフォーム/データチーム | パフォーマンスとコスト |
 
-## **Deliverables**
+## **成果物**
 
-Upon completing this task, you will have:
-- ✅ Target account identified and documented
-- ✅ Data product identity defined (name, domain, environment)
-- ✅ SCIM configuration determined (prefix or NONE)
-- ✅ Zone structure planned
-- ✅ Schemas organized by zone and purpose
-- ✅ Warehouse requirements defined by workload type
+このタスクを完了すると、以下が揃います:
+- ✅ ターゲットアカウントが特定・文書化済み
+- ✅ データ製品 ID が定義済み（名前、ドメイン、環境）
+- ✅ SCIM 設定が決定済み（プレフィックスまたは NONE）
+- ✅ ゾーン構造が計画済み
+- ✅ スキーマがゾーンと目的別に整理済み
+- ✅ ウェアハウス要件がワークロードタイプ別に定義済み
 
-## **More Information**
+## **追加情報**
 
-* [Snowflake Object Hierarchy](https://docs.snowflake.com/en/user-guide/databases) — Database and schema concepts
-* [Database Design Best Practices](https://docs.snowflake.com/en/user-guide/databases-best-practices) — Database organization
-* [Warehouse Considerations](https://docs.snowflake.com/en/user-guide/warehouses-considerations) — Sizing and configuration
-* [SCIM Provisioning](https://docs.snowflake.com/en/user-guide/scim) — Identity provider integration
+* [Snowflake オブジェクト階層](https://docs.snowflake.com/en/user-guide/databases) — データベースとスキーマの概念
+* [データベース設計のベストプラクティス](https://docs.snowflake.com/en/user-guide/databases-best-practices) — データベースの組織
+* [ウェアハウスの考慮事項](https://docs.snowflake.com/en/user-guide/warehouses-considerations) — サイジングと設定
+* [SCIM プロビジョニング](https://docs.snowflake.com/en/user-guide/scim) — ID プロバイダーの統合
